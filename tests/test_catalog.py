@@ -235,6 +235,20 @@ def test_fix_lead_is_a_deep_repair_subagent(tmp_path) -> None:
     assert perm["skill"]["selective-testing"] == "allow"
 
 
+def test_test_lead_is_an_evidence_subagent(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True)  # base → opencode
+
+    text = (tmp_path / ".opencode" / "agents" / "test-lead.md").read_text(encoding="utf-8")
+    fm = _frontmatter(text)
+    assert fm["mode"] == "subagent"  # a support lead — never promoted
+    assert fm["model"] == "minimax-m3"  # standard tier
+    perm = fm["permission"]
+    assert perm["edit"] == "allow"  # it writes tests
+    assert perm["bash"]["git commit*"] == "deny"
+    assert perm["skill"]["test-generation"] == "allow"
+    assert perm["skill"]["test-execution"] == "allow"
+
+
 def test_project_lead_skills_are_copied(tmp_path) -> None:
     _engine().run("init", tmp_path, write=True, no_git=True, runtimes=["claude"])
 

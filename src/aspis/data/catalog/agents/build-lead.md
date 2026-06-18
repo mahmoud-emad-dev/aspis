@@ -25,6 +25,7 @@ permissions:
 delegates:
   - general-builder
   - reviewer
+  - test-lead
   - fix-lead
   - committer
   - project-explorer
