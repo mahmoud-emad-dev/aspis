@@ -7,7 +7,7 @@ import sys
 
 from aspis import resources
 
-SCRIPT = resources.data_dir() / "scripts" / "context" / "build_state.py"
+SCRIPT = resources.catalog_dir() / "scripts" / "context" / "build_state.py"
 
 
 def _run(root) -> None:

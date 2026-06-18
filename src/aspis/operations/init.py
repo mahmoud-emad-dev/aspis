@@ -39,8 +39,8 @@ def init_core(ctx: Context) -> None:
     # New/empty vs existing-code projects follow different workflows; record which.
     ctx.log(f"mode: {detect.project_mode(ctx.root)}")
 
-    # 1) Export catalog assets (none until the catalog feature lands — harmless).
-    plan = plan_export(resources.data_dir() / "catalog", profile)
+    # 1) Export catalog assets selected by the profile.
+    plan = plan_export(resources.catalog_dir(), profile)
     for line in write_export(plan, ctx.root, force=force, write=write):
         ctx.log(line)
     for missing in plan.missing:
@@ -56,7 +56,7 @@ def init_core(ctx: Context) -> None:
 
 def _ship_context_scripts(ctx: Context, *, write: bool) -> None:
     """Copy the self-contained context-update scripts into the project."""
-    source = resources.data_dir() / "scripts" / "context"
+    source = resources.catalog_dir() / "scripts" / "context"
     dest = ctx.root / ".asps" / "scripts" / "context"
     for script in sorted(source.glob("*.py")):
         target = dest / script.name

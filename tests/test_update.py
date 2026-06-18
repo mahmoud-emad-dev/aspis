@@ -7,7 +7,7 @@ import sys
 
 from aspis import resources
 
-SCRIPT = resources.data_dir() / "scripts" / "context" / "update.py"
+SCRIPT = resources.catalog_dir() / "scripts" / "context" / "update.py"
 
 
 def test_update_refreshes_all_context_files(git_repo) -> None:

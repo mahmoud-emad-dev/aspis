@@ -7,7 +7,7 @@ import sys
 
 from aspis import resources
 
-SCRIPT = resources.data_dir() / "scripts" / "context" / "record_changes.py"
+SCRIPT = resources.catalog_dir() / "scripts" / "context" / "record_changes.py"
 
 
 def test_lists_recent_commits(git_repo) -> None:

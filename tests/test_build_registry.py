@@ -13,7 +13,7 @@ import yaml
 
 from aspis import resources
 
-SCRIPT = resources.data_dir() / "scripts" / "context" / "build_registry.py"
+SCRIPT = resources.catalog_dir() / "scripts" / "context" / "build_registry.py"
 
 
 def test_builds_registry_with_docstring_purpose(tmp_path) -> None:

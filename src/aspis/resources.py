@@ -14,13 +14,22 @@ import yaml
 
 
 def data_dir() -> Path:
-    """Return the path to the package's bundled ``data/`` directory."""
+    """Return the path to the package's bundled ``data/`` directory (config)."""
     return Path(str(files("aspis"))) / "data"
 
 
+def catalog_dir() -> Path:
+    """Return the catalog root — the single home for every target-bound asset.
+
+    Agents, skills, commands, templates, hooks, and scripts all live under here,
+    one folder per category, so init/export have one place to resolve from.
+    """
+    return data_dir() / "catalog"
+
+
 def template(name: str) -> str:
-    """Return the text of a bundled template under ``data/templates/``."""
-    return (data_dir() / "templates" / name).read_text(encoding="utf-8")
+    """Return the text of a bundled template under ``catalog/templates/``."""
+    return (catalog_dir() / "templates" / name).read_text(encoding="utf-8")
 
 
 def brain_dirs() -> list[str]:

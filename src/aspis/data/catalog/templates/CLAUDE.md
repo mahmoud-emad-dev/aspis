@@ -8,7 +8,9 @@ All durable project state lives in plain files under `.asps/` (the project
 
 ## How to work here
 
-- **Read first.** Start from `.asps/context/` to learn current state before changing code.
+- **Read first.** Before changing code, read `.asps/context/CURRENT_STATE.md` and
+  `.asps/context/RECENT_CHANGES.md`, then use `.asps/index/FILE_REGISTRY.yaml` to
+  locate the files a task touches. These are kept current automatically.
 - **Scope.** Only modify what the active task allows; never touch files outside it.
 - **Gates first.** Run the project's checks (lint, types, tests) before declaring work
   done. Never weaken or delete a test just to make a gate pass.
@@ -16,8 +18,8 @@ All durable project state lives in plain files under `.asps/` (the project
 
 ## Where things live
 
-- `.asps/context/` — durable project context and current state.
+- `.asps/context/` — current state and recent changes (the live snapshot).
+- `.asps/index/FILE_REGISTRY.yaml` — the map of every source file and its purpose.
 - `.asps/features/` — per-feature plans and tasks.
-- `src/`, `tests/` — the product being built.
 
 <!-- Stack: <stack> — filled at bootstrap -->
