@@ -17,13 +17,21 @@ def test_version_exits_clean() -> None:
     assert exc.value.code == 0
 
 
+def test_no_command_prints_help(capsys) -> None:
+    rc = main([])
+    assert rc == 0
+    assert "usage:" in capsys.readouterr().out.lower()
+
+
 def test_status_reports_no_project(tmp_path, capsys) -> None:
     rc = main(["status", str(tmp_path)])
     assert rc == 0
     assert "No ASPIS project" in capsys.readouterr().out
 
 
-def test_no_command_prints_help(capsys) -> None:
-    rc = main([])
+def test_doctor_runs_and_reports(tmp_path, capsys) -> None:
+    rc = main(["doctor", str(tmp_path)])
+    out = capsys.readouterr().out
+    # Python is current, so doctor should pass overall (warnings do not fail).
     assert rc == 0
-    assert "usage:" in capsys.readouterr().out.lower()
+    assert "python" in out
