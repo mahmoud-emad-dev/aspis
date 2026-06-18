@@ -23,8 +23,8 @@ class Settings(BaseSettings):
     #: Folder that marks a directory as an ASPIS project.
     brain_dir: str = constants.BRAIN_DIR
 
-    #: Hook subfolder under the brain (events live beneath it).
-    lifecycle_dir: str = constants.LIFECYCLE_DIR
+    #: Hook subfolder under the brain (event folders live beneath it).
+    hooks_dir: str = constants.HOOKS_DIR
 
     #: Runtime tools available for export.
     runtimes: tuple[str, ...] = constants.RUNTIMES

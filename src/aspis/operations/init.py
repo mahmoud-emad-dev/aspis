@@ -11,7 +11,6 @@ from __future__ import annotations
 import subprocess
 
 from aspis import resources
-from aspis.constants import BRAIN_DIRS
 from aspis.export import plan_export, write_export
 from aspis.lifecycle import Context, Engine
 from aspis.profiles import Profile, load_profile, merge
@@ -53,7 +52,7 @@ def init_core(ctx: Context) -> None:
 
 def _scaffold_brain(ctx: Context, *, write: bool) -> None:
     """Create the empty brain directories, each kept by a ``.gitkeep``."""
-    for brain_dir in BRAIN_DIRS:
+    for brain_dir in resources.brain_dirs():
         keep = ctx.root / brain_dir / ".gitkeep"
         if keep.exists():
             continue

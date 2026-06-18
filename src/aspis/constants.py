@@ -10,19 +10,10 @@ from __future__ import annotations
 #: Folder that marks a directory as an ASPIS project (the project "brain").
 BRAIN_DIR = ".asps"
 
-#: Subfolder under the brain holding Type-1 lifecycle hook scripts, grouped by event.
-LIFECYCLE_DIR = "lifecycle"
+#: Subfolder under the brain where lifecycle hook scripts live, grouped by event.
+#: Lifecycle hooks are transient (removed after bootstrap), so they share the
+#: hooks folder rather than a separate top-level dir.
+HOOKS_DIR = "hooks"
 
 #: Runtime tools ASPIS can export to. New runtimes are added here.
 RUNTIMES = ("opencode", "claude")
-
-#: Brain skeleton directories scaffolded into a fresh project (kept by .gitkeep).
-BRAIN_DIRS = (
-    ".asps/context",
-    ".asps/features",
-    ".asps/traces",
-    ".asps/lifecycle",
-    ".asps/templates",
-    ".asps/hooks",
-    ".asps/scripts",
-)

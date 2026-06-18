@@ -48,7 +48,7 @@ class HookRunner:
     def __call__(self, event: str, ctx: Context) -> None:
         """Run every hook registered for *event*, recording results on *ctx*."""
         settings = get_settings()
-        event_dir = ctx.root / settings.brain_dir / settings.lifecycle_dir / event
+        event_dir = ctx.root / settings.brain_dir / settings.hooks_dir / event
         if not event_dir.is_dir():
             return
 
