@@ -204,6 +204,22 @@ def test_reviewer_skills_are_copied(tmp_path) -> None:
         assert (skills / skill / "SKILL.md").is_file()
 
 
+def test_research_lead_is_the_web_enabled_knowledge_layer(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True)  # base → opencode
+
+    text = (tmp_path / ".opencode" / "agents" / "research-lead.md").read_text(encoding="utf-8")
+    fm = _frontmatter(text)
+    assert fm["mode"] == "subagent"  # a support lead — never promoted
+    perm = fm["permission"]
+    assert perm["webfetch"] == "allow" and perm["websearch"] == "allow"  # the one researcher
+    assert "edit" not in perm  # packages references via write, doesn't edit code
+    assert perm["skill"]["knowledge-packaging"] == "allow"
+
+    skills = tmp_path / ".opencode" / "skills"
+    for skill in ("knowledge-research", "knowledge-packaging"):
+        assert (skills / skill / "SKILL.md").is_file()
+
+
 def test_project_lead_skills_are_copied(tmp_path) -> None:
     _engine().run("init", tmp_path, write=True, no_git=True, runtimes=["claude"])
 

@@ -11,6 +11,7 @@ agents:
   - agents/planning-lead.md
   - agents/build-lead.md
   - agents/reviewer.md
+  - agents/research-lead.md
   - agents/system-lead.md
   - agents/general-builder.md
   - agents/committer.md
@@ -34,6 +35,8 @@ skills:
   - skills/review-strategy
   - skills/quality-review
   - skills/acceptance-decision
+  - skills/knowledge-research
+  - skills/knowledge-packaging
   - skills/system-awareness
   - skills/deterministic-first
   - skills/asset-authoring
