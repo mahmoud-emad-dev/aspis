@@ -9,8 +9,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-#: The brain folder whose presence marks a directory as an ASPIS project.
-BRAIN_DIR = ".asps"
+from aspis.constants import BRAIN_DIR
 
 
 def is_project(root: Path) -> bool:
