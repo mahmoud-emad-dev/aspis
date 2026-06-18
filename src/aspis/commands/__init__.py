@@ -8,7 +8,7 @@ this tuple, so it never needs to change when a verb is added.
 
 from __future__ import annotations
 
-from aspis.commands import status
+from aspis.commands import doctor, status
 
 #: Command modules, in the order their verbs appear in ``aspis --help``.
-COMMAND_MODULES = (status,)
+COMMAND_MODULES = (status, doctor)
