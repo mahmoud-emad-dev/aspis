@@ -7,9 +7,11 @@ Each operation registers its core handler on the engine. To add an operation
 from __future__ import annotations
 
 from aspis.lifecycle import Engine
+from aspis.operations import bootstrap as _bootstrap
 from aspis.operations import init as _init
 
 
 def register_all(engine: Engine) -> None:
     """Register every built-in operation on *engine*."""
     _init.register(engine)
+    _bootstrap.register(engine)

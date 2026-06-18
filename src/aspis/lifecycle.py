@@ -45,10 +45,17 @@ def _no_hooks(event: str, ctx: Context) -> None:
 
 @dataclass(frozen=True)
 class Operation:
-    """A registered lifecycle operation (e.g. ``init``, ``bootstrap``)."""
+    """A registered lifecycle operation (e.g. ``init``, ``bootstrap``).
+
+    ``pre`` / ``post`` are built-in Python steps the engine runs immediately
+    around ``core`` (inside the discovered script-hooks), so an operation can
+    stage its own logic without that logic living in the core function.
+    """
 
     name: str
     core: CoreHandler
+    pre: tuple[CoreHandler, ...] = ()
+    post: tuple[CoreHandler, ...] = ()
 
 
 class Engine:
@@ -58,11 +65,18 @@ class Engine:
         self._operations: dict[str, Operation] = {}
         self._run_hooks = run_hooks
 
-    def register(self, name: str, core: CoreHandler) -> None:
-        """Register *core* as the handler for operation *name*."""
+    def register(
+        self,
+        name: str,
+        core: CoreHandler,
+        *,
+        pre: tuple[CoreHandler, ...] = (),
+        post: tuple[CoreHandler, ...] = (),
+    ) -> None:
+        """Register *core* (with optional built-in pre/post steps) for *name*."""
         if name in self._operations:
             raise ValueError(f"operation already registered: {name}")
-        self._operations[name] = Operation(name=name, core=core)
+        self._operations[name] = Operation(name=name, core=core, pre=pre, post=post)
 
     def run(self, name: str, root: Path | str, /, **options: object) -> Context:
         """Run *name* as pre-hooks → core → post-hooks and return the context."""
@@ -72,7 +86,13 @@ class Engine:
         operation = self._operations[name]
         ctx = Context(operation=name, root=Path(root), options=dict(options))
 
+        # Order: discovered script-hooks (outer) wrap the built-in steps (inner),
+        # which wrap the core.
         self._run_hooks(f"pre-{name}", ctx)
+        for step in operation.pre:
+            step(ctx)
         operation.core(ctx)
+        for step in operation.post:
+            step(ctx)
         self._run_hooks(f"post-{name}", ctx)
         return ctx
