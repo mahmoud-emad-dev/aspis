@@ -14,7 +14,7 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
-from aspis import detect, manifest
+from aspis import detect, manifest, promotion
 from aspis.health import run_checks
 from aspis.lifecycle import Context, Engine
 
@@ -104,13 +104,24 @@ def _run_brain_fill(ctx: Context, *, write: bool) -> None:
         )
 
 
+def _promote_leads(ctx: Context, *, write: bool) -> None:
+    """Promote the post-bootstrap leads to primary; lands in the bootstrap commit."""
+    result = promotion.promote_leads(ctx.root, write=write)
+    ctx.results["promotion"] = result
+    if result.promoted:
+        ctx.log(f"promote leads to primary: {', '.join(result.promoted)}")
+    elif result.already:
+        ctx.log(f"leads already primary ({len(result.already)})")
+
+
 def bootstrap_core(ctx: Context) -> None:
-    """Collect details, fill slots, write the manifest, and fill the brain."""
+    """Collect details, fill slots, write the manifest, promote leads, fill the brain."""
     write = bool(ctx.options.get("write"))
     state = _collect(ctx)
     ctx.results["state"] = state
     _fill_slots(ctx, state, write=write)
     _write_manifest(ctx, state, write=write)
+    _promote_leads(ctx, write=write)
     _run_brain_fill(ctx, write=write)
 
 

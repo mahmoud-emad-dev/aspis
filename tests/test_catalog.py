@@ -69,6 +69,7 @@ def test_system_lead_is_a_deep_authoring_primary(tmp_path) -> None:
         "deterministic-first",
         "asset-authoring",
         "system-validation",
+        "system-repair",
     ):
         assert (skills / skill / "SKILL.md").is_file()
 
@@ -77,7 +78,9 @@ def test_system_lead_opencode_reserves_commits(tmp_path) -> None:
     _engine().run("init", tmp_path, write=True, no_git=True)  # base → opencode
 
     text = (tmp_path / ".opencode" / "agents" / "system-lead.md").read_text(encoding="utf-8")
-    perm = _frontmatter(text)["permission"]
+    fm = _frontmatter(text)
+    assert fm["mode"] == "subagent"  # ships as subagent; promoted at bootstrap
+    perm = fm["permission"]
     assert perm["edit"] == "allow"  # authors assets
     assert perm["bash"]["git commit*"] == "deny"  # commits go through the committer
 

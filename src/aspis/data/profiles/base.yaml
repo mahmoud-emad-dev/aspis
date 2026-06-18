@@ -21,6 +21,7 @@ skills:
   - skills/deterministic-first
   - skills/asset-authoring
   - skills/system-validation
+  - skills/system-repair
 commands: []
 templates: []
 hooks: []

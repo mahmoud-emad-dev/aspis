@@ -17,3 +17,10 @@ HOOKS_DIR = "hooks"
 
 #: Runtime tools ASPIS can export to. New runtimes are added here.
 RUNTIMES = ("opencode", "claude")
+
+#: Leads promoted from ``subagent`` to ``primary`` after a successful bootstrap.
+#: Every agent ships as a subagent so a fresh project has a single entry point
+#: (``project-lead``, which is always primary and is *not* listed here). Once the
+#: project is live, these become directly selectable — yielding exactly five
+#: primaries: project, system, planning, build, and review leads.
+PROMOTE_TO_PRIMARY = ("system-lead", "planning-lead", "build-lead", "reviewer")
