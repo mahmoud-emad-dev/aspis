@@ -55,6 +55,33 @@ def test_project_lead_renders_for_opencode(tmp_path) -> None:
     assert perm["skill"]["context-packaging"] == "allow"
 
 
+def test_system_lead_is_a_deep_authoring_primary(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True, runtimes=["claude"])
+
+    text = (tmp_path / ".claude" / "agents" / "system-lead.md").read_text(encoding="utf-8")
+    fm = _frontmatter(text)
+    assert fm["model"] == "claude-opus-4-8"  # deep tier — authoring/governance
+    assert "Edit" in fm["tools"] and "Write" in fm["tools"]  # it modifies the runtime
+
+    skills = tmp_path / ".claude" / "skills"
+    for skill in (
+        "system-awareness",
+        "deterministic-first",
+        "asset-authoring",
+        "system-validation",
+    ):
+        assert (skills / skill / "SKILL.md").is_file()
+
+
+def test_system_lead_opencode_reserves_commits(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True)  # base → opencode
+
+    text = (tmp_path / ".opencode" / "agents" / "system-lead.md").read_text(encoding="utf-8")
+    perm = _frontmatter(text)["permission"]
+    assert perm["edit"] == "allow"  # authors assets
+    assert perm["bash"]["git commit*"] == "deny"  # commits go through the committer
+
+
 def test_project_explorer_is_a_cheap_readonly_subagent(tmp_path) -> None:
     _engine().run("init", tmp_path, write=True, no_git=True, runtimes=["claude"])
 

@@ -8,6 +8,7 @@ runtimes:
   - opencode
 agents:
   - agents/project-lead.md
+  - agents/system-lead.md
   - agents/project-explorer.md
 skills:
   - skills/project-awareness
@@ -16,6 +17,10 @@ skills:
   - skills/context-packaging
   - skills/project-question-answering
   - skills/project-guidance
+  - skills/system-awareness
+  - skills/deterministic-first
+  - skills/asset-authoring
+  - skills/system-validation
 commands: []
 templates: []
 hooks: []
