@@ -15,3 +15,14 @@ LIFECYCLE_DIR = "lifecycle"
 
 #: Runtime tools ASPIS can export to. New runtimes are added here.
 RUNTIMES = ("opencode", "claude")
+
+#: Brain skeleton directories scaffolded into a fresh project (kept by .gitkeep).
+BRAIN_DIRS = (
+    ".asps/context",
+    ".asps/features",
+    ".asps/traces",
+    ".asps/lifecycle",
+    ".asps/templates",
+    ".asps/hooks",
+    ".asps/scripts",
+)
