@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build ``.asps/index/CODE_MAP.md`` — a compact skeleton of the project's Python.
+"""Build ``.aspis/index/CODE_MAP.md`` — a compact skeleton of the project's Python.
 
 Self-contained (standard library only). For each Python file it extracts the
 module docstring, its imports (how files connect), and the public API surface —
@@ -8,7 +8,7 @@ constants. This is the "understand a file without reading its body" view: an
 agent can grasp many files cheaply instead of opening each one.
 
 Two modes:
-- whole project (default) → writes ``.asps/index/CODE_MAP.md``
+- whole project (default) → writes ``.aspis/index/CODE_MAP.md``
 - ``--scope PATH``        → prints just that file's or folder's skeleton to stdout,
                             so an agent can pull the part it needs on demand.
 
@@ -195,7 +195,7 @@ def main(argv: list[str] | None = None) -> int:
     if scope is not None:
         sys.stdout.write(output)  # on-demand: hand the scoped skeleton back to the caller
         return 0
-    target = root / ".asps" / "index" / "CODE_MAP.md"
+    target = root / ".aspis" / "index" / "CODE_MAP.md"
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(output, encoding="utf-8")
     print(f"wrote {target.relative_to(root).as_posix()}")

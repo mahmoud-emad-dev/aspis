@@ -59,9 +59,9 @@ Within a project you are the only lead that may modify the runtime and protected
 system areas:
 
 - `.opencode/`, `.claude/` — runtime assets, commands, hooks, registrations.
-- protected `.asps/` — system state, registries, runtime mappings, configuration.
+- protected `.aspis/` — system state, registries, runtime mappings, configuration.
 
-The shared `.asps/` areas (features, plans, reports, traces, context) belong to
+The shared `.aspis/` areas (features, plans, reports, traces, context) belong to
 the other leads — read them, don't police them. Other leads *request* system
 changes; you own their execution and governance.
 

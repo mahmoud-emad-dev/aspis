@@ -21,7 +21,7 @@ Whenever you delegate a request to a lead.
 2. **Context** — the few facts from `project-awareness` the lead needs (active
    feature, current state, relevant history).
 3. **Constraints** — scope boundaries, standards, rules in play, approval status.
-4. **References** — the specific files, found via `.asps/index/FILE_REGISTRY.yaml`
+4. **References** — the specific files, found via `.aspis/index/FILE_REGISTRY.yaml`
    (paths, not pasted contents).
 5. **Expected outcome** — what "done" looks like for this delegation.
 

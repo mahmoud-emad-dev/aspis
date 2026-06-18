@@ -17,7 +17,7 @@ permissions:
     "git status*": allow
     "git diff*": allow
     "git log*": allow
-    "python3 .asps/scripts/*": allow
+    "python3 .aspis/scripts/*": allow
     "git commit*": deny
     "git push*": deny
   webfetch: deny

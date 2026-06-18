@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build ``.asps/index/FILE_REGISTRY.yaml`` for a project.
+"""Build ``.aspis/index/FILE_REGISTRY.yaml`` for a project.
 
 Self-contained: standard library only, so it runs in any project that has
 Python, with no dependency on a global ``aspis`` install. It scans the project,
@@ -25,7 +25,7 @@ SKIP_DIRS = {
     "env",
     "node_modules",
     "__pycache__",
-    ".asps",
+    ".aspis",
     ".opencode",
     ".claude",
     "dist",
@@ -150,7 +150,7 @@ def main(argv: list[str] | None = None) -> int:
     root = Path(args[0]).resolve() if args else Path.cwd()
 
     entries = scan(root)
-    registry = root / ".asps" / "index" / "FILE_REGISTRY.yaml"
+    registry = root / ".aspis" / "index" / "FILE_REGISTRY.yaml"
     registry.parent.mkdir(parents=True, exist_ok=True)
     registry.write_text(to_yaml(entries), encoding="utf-8")
 

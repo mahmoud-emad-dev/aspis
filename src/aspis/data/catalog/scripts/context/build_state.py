@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Write ``.asps/context/CURRENT_STATE.md`` — a snapshot of the project now.
+"""Write ``.aspis/context/CURRENT_STATE.md`` — a snapshot of the project now.
 
 Self-contained (stdlib only). The auto block (project, stack, branch, last
 commit) is regenerated; any manual notes outside the markers are preserved.
@@ -32,7 +32,7 @@ def run(root: Path) -> Path:
         ]
     )
 
-    target = root / ".asps" / "context" / "CURRENT_STATE.md"
+    target = root / ".aspis" / "context" / "CURRENT_STATE.md"
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(_common.render_auto_block(target, body), encoding="utf-8")
     return target

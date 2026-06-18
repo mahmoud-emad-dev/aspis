@@ -7,7 +7,7 @@ from aspis.settings import Settings
 
 def test_defaults() -> None:
     settings = Settings()
-    assert settings.brain_dir == ".asps"
+    assert settings.brain_dir == ".aspis"
     assert "opencode" in settings.runtimes
 
 

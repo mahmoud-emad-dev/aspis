@@ -49,7 +49,7 @@ def test_plan_marks_missing_and_scope(tmp_path) -> None:
     agent_targets = [a.target for a in plan.actions if a.kind == "agents"]
     assert ".opencode/agents/lead.md" in agent_targets
     assert ".claude/agents/lead.md" in agent_targets  # per runtime
-    assert any(a.target == ".asps/templates/report.md" for a in plan.actions)  # once
+    assert any(a.target == ".aspis/templates/report.md" for a in plan.actions)  # once
 
 
 def test_write_renders_agents_and_copies_files(tmp_path) -> None:
@@ -63,7 +63,7 @@ def test_write_renders_agents_and_copies_files(tmp_path) -> None:
     write_export(plan_export(_catalog(tmp_path), profile), target, write=True)
 
     assert "mode: primary" in (target / ".opencode/agents/lead.md").read_text(encoding="utf-8")
-    assert (target / ".asps/templates/report.md").read_text(encoding="utf-8") == "# report"
+    assert (target / ".aspis/templates/report.md").read_text(encoding="utf-8") == "# report"
 
 
 def test_dry_run_writes_nothing(tmp_path) -> None:

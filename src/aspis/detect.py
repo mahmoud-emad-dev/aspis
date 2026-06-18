@@ -8,8 +8,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from aspis.constants import BRAIN_DIR
+
 # Ignored when deciding whether a directory is "empty" for ASPIS purposes.
-_IGNORED = {".git", ".asps", ".opencode", ".claude"}
+_IGNORED = {".git", BRAIN_DIR, ".opencode", ".claude"}
 
 # Marker files that identify a project's stack (first match wins).
 _STACK_MARKERS = [

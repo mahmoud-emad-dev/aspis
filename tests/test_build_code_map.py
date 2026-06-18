@@ -48,7 +48,7 @@ def test_whole_project_writes_code_map(tmp_path) -> None:
     _project(tmp_path)
     subprocess.run([sys.executable, str(SCRIPT), str(tmp_path)], check=True, capture_output=True)
 
-    code_map = (tmp_path / ".asps" / "index" / "CODE_MAP.md").read_text(encoding="utf-8")
+    code_map = (tmp_path / ".aspis" / "index" / "CODE_MAP.md").read_text(encoding="utf-8")
     assert "The app module." in code_map
     assert "from pathlib import Path" in code_map  # imports captured
     assert "def run(target: Path) -> int" in code_map  # public signature
@@ -67,4 +67,4 @@ def test_scope_prints_single_file_to_stdout(tmp_path) -> None:
     )
 
     assert "def run(target: Path) -> int" in result.stdout
-    assert not (tmp_path / ".asps" / "index" / "CODE_MAP.md").exists()  # scope = print, no write
+    assert not (tmp_path / ".aspis" / "index" / "CODE_MAP.md").exists()  # scope = print, no write

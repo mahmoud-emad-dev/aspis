@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Write ``.asps/context/RECENT_CHANGES.md`` — recent commits, newest first.
+"""Write ``.aspis/context/RECENT_CHANGES.md`` — recent commits, newest first.
 
 Self-contained (stdlib only). The auto block is a short reverse-chronological
 list pulled from ``git log``; manual notes outside the markers are preserved.
@@ -23,7 +23,7 @@ def run(root: Path) -> Path:
     log = _common.git(root, "log", f"-{LIMIT}", "--pretty=- `%h` %s — %ad", "--date=short")
     body = "## Recent changes\n\n" + (log if log else "_no commits yet_")
 
-    target = root / ".asps" / "context" / "RECENT_CHANGES.md"
+    target = root / ".aspis" / "context" / "RECENT_CHANGES.md"
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(_common.render_auto_block(target, body), encoding="utf-8")
     return target

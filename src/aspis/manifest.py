@@ -1,4 +1,4 @@
-"""The project manifest — ``.asps/manifest.json``.
+"""The project manifest — ``.aspis/manifest.json``.
 
 The durable signal that a project has been bootstrapped, plus the recorded
 project state. JSON (stdlib) so it is trivially read/written anywhere.
@@ -9,8 +9,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from aspis.constants import BRAIN_DIR
+
 #: Manifest location relative to a project root.
-MANIFEST_REL = Path(".asps") / "manifest.json"
+MANIFEST_REL = Path(BRAIN_DIR) / "manifest.json"
 
 
 def manifest_path(root: Path) -> Path:

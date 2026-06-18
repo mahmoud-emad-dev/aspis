@@ -3,9 +3,9 @@
 # Edit this list to change the skeleton — no code change needed. Dirs are added
 # back as their features land (e.g. traces with tracing).
 dirs:
-  - .asps/context
-  - .asps/index
-  - .asps/features
-  - .asps/hooks
-  - .asps/templates
-  - .asps/scripts
+  - .aspis/context
+  - .aspis/index
+  - .aspis/features
+  - .aspis/hooks
+  - .aspis/templates
+  - .aspis/scripts

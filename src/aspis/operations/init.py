@@ -11,6 +11,7 @@ from __future__ import annotations
 import subprocess
 
 from aspis import detect, resources
+from aspis.constants import BRAIN_DIR
 from aspis.export import plan_export, write_export
 from aspis.lifecycle import Context, Engine
 from aspis.profiles import Profile, load_profile, merge
@@ -57,7 +58,7 @@ def init_core(ctx: Context) -> None:
 def _ship_context_scripts(ctx: Context, *, write: bool) -> None:
     """Copy the self-contained context-update scripts into the project."""
     source = resources.catalog_dir() / "scripts" / "context"
-    dest = ctx.root / ".asps" / "scripts" / "context"
+    dest = ctx.root / BRAIN_DIR / "scripts" / "context"
     for script in sorted(source.glob("*.py")):
         target = dest / script.name
         ctx.log(f"ship {target.relative_to(ctx.root).as_posix()}")

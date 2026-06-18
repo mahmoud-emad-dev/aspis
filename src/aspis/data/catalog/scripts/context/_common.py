@@ -1,7 +1,7 @@
 """Shared helpers for the self-contained context-update scripts.
 
 Standard library only. These scripts ship into a project's
-``.asps/scripts/context/`` and run with the project's own Python — no global
+``.aspis/scripts/context/`` and run with the project's own Python — no global
 ``aspis`` dependency. A sibling script imports this module directly, because
 Python puts the running script's directory on ``sys.path``.
 """

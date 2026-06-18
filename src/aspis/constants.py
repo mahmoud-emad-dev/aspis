@@ -8,7 +8,7 @@ is built around, so they are defined exactly once.
 from __future__ import annotations
 
 #: Folder that marks a directory as an ASPIS project (the project "brain").
-BRAIN_DIR = ".asps"
+BRAIN_DIR = ".aspis"
 
 #: Subfolder under the brain where lifecycle hook scripts live, grouped by event.
 #: Lifecycle hooks are transient (removed after bootstrap), so they share the

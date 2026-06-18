@@ -19,15 +19,15 @@ At the start of handling any request, and whenever you need current project fact
 ## Procedure
 
 1. **Refresh if stale.** When the project may have changed since the brain was
-   last built, regenerate it first: `python .asps/scripts/context/update.py`.
-2. **Live state.** Read `.asps/context/CURRENT_STATE.md` (where things stand) and
-   `.asps/context/RECENT_CHANGES.md` (what changed, newest first).
-3. **Locate.** Query `.asps/index/FILE_REGISTRY.yaml` to find files and what each
+   last built, regenerate it first: `python .aspis/scripts/context/update.py`.
+2. **Live state.** Read `.aspis/context/CURRENT_STATE.md` (where things stand) and
+   `.aspis/context/RECENT_CHANGES.md` (what changed, newest first).
+3. **Locate.** Query `.aspis/index/FILE_REGISTRY.yaml` to find files and what each
    does — read the registry, not the files, to decide where to look.
-4. **Understand without reading bodies.** Use `.asps/index/CODE_MAP.md` for a
+4. **Understand without reading bodies.** Use `.aspis/index/CODE_MAP.md` for a
    file's API skeleton (signatures + docstrings) and its imports (how it connects).
    For a fresher or narrower view, run
-   `python .asps/scripts/context/build_code_map.py --scope <path>`.
+   `python .aspis/scripts/context/build_code_map.py --scope <path>`.
 5. **Working state.** Confirm with read-only checks: `git status`, `git log`.
 6. **Deeper exploration.** For usages or relationships beyond the map, delegate to
    `project-explorer` and consume its compact findings.

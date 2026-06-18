@@ -21,7 +21,7 @@ At the start of any system change, before deciding what to build.
    skills, commands, templates, hooks, scripts) — what already exists by name.
 2. **Understand wiring.** Read the profiles (which assets each project gets) and
    the runtime adapters (how an asset renders per runtime). Use
-   `.asps/index/CODE_MAP.md` to grasp the engine without reading every file.
+   `.aspis/index/CODE_MAP.md` to grasp the engine without reading every file.
 3. **Trace impact.** For a change, find what references the asset — profiles,
    other agents' `skills`/`delegates`, the entrypoint files — so you know the full
    blast radius before editing.

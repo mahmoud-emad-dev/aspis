@@ -20,7 +20,7 @@ def test_bootstrap_fills_slots_and_writes_manifest(tmp_path) -> None:
     # Non-interactive: --yes + flags drive the values (no prompts).
     engine.run("bootstrap", tmp_path, write=True, yes=True, goal="A tiny tool", stack="python")
 
-    data = json.loads((tmp_path / ".asps" / "manifest.json").read_text(encoding="utf-8"))
+    data = json.loads((tmp_path / ".aspis" / "manifest.json").read_text(encoding="utf-8"))
     assert data["bootstrapped"] is True
     assert data["goal"] == "A tiny tool"
     assert data["stack"] == "python"
@@ -30,8 +30,8 @@ def test_bootstrap_fills_slots_and_writes_manifest(tmp_path) -> None:
     assert "filled at bootstrap" not in agents  # both slots replaced
 
     # The brain fill ran (context files produced by the shipped scripts).
-    assert (tmp_path / ".asps" / "index" / "FILE_REGISTRY.yaml").is_file()
-    assert (tmp_path / ".asps" / "context" / "CURRENT_STATE.md").is_file()
+    assert (tmp_path / ".aspis" / "index" / "FILE_REGISTRY.yaml").is_file()
+    assert (tmp_path / ".aspis" / "context" / "CURRENT_STATE.md").is_file()
 
 
 def test_bootstrap_makes_init_then_bootstrap_commits(tmp_path) -> None:
@@ -50,7 +50,7 @@ def test_bootstrap_makes_init_then_bootstrap_commits(tmp_path) -> None:
     assert "initialize ASPIS project" in log  # 1st commit (auto-committed init)
     assert "bootstrap ASPIS project" in log  # 2nd commit (bootstrap fill)
 
-    data = json.loads((tmp_path / ".asps" / "manifest.json").read_text(encoding="utf-8"))
+    data = json.loads((tmp_path / ".aspis" / "manifest.json").read_text(encoding="utf-8"))
     assert "bootstrapped_at" in data  # done stamp recorded
 
 

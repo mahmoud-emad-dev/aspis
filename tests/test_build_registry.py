@@ -27,7 +27,7 @@ def test_builds_registry_with_docstring_purpose(tmp_path) -> None:
 
     subprocess.run([sys.executable, str(SCRIPT), str(tmp_path)], check=True, capture_output=True)
 
-    registry = tmp_path / ".asps" / "index" / "FILE_REGISTRY.yaml"
+    registry = tmp_path / ".aspis" / "index" / "FILE_REGISTRY.yaml"
     files = yaml.safe_load(registry.read_text(encoding="utf-8"))["files"]
 
     assert files["src/app.py"] == {"kind": "python", "purpose": "The app entrypoint."}

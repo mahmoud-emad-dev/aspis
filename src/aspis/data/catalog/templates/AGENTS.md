@@ -3,7 +3,7 @@
 <!-- one-line project definition — filled at bootstrap -->
 
 This project is managed with **ASPIS**. Durable project state lives in plain
-files under `.asps/` (the project "brain"), so any AI runtime reads and writes
+files under `.aspis/` (the project "brain"), so any AI runtime reads and writes
 the same source of truth.
 
 ## Start here — project context
@@ -11,11 +11,11 @@ the same source of truth.
 These are the canonical entry points, kept current automatically. Read the live
 state first; open source files only once you know which the task needs.
 
-- `.asps/context/CURRENT_STATE.md` — where the project is right now.
-- `.asps/context/RECENT_CHANGES.md` — what changed recently, newest first.
-- `.asps/index/FILE_REGISTRY.yaml` — every file and its purpose; use it to locate
+- `.aspis/context/CURRENT_STATE.md` — where the project is right now.
+- `.aspis/context/RECENT_CHANGES.md` — what changed recently, newest first.
+- `.aspis/index/FILE_REGISTRY.yaml` — every file and its purpose; use it to locate
   code without scanning the tree.
-- `.asps/index/CODE_MAP.md` — each Python file's skeleton (signatures + imports);
+- `.aspis/index/CODE_MAP.md` — each Python file's skeleton (signatures + imports);
   use it to understand a file without reading its body.
 
 ## Rules for any AI agent

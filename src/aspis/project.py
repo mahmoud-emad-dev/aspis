@@ -1,6 +1,6 @@
 """Project-layer helpers: identifying an ASPIS project.
 
-A directory is an ASPIS project when it contains the brain folder (``.asps/``) —
+A directory is an ASPIS project when it contains the brain folder (``.aspis/``) —
 the durable, tool-neutral memory for that project. Keeping this in one place
 means every command agrees on what "a project" means.
 """

@@ -25,7 +25,7 @@ After the spec is settled, for any work that touches code or system structure.
    the deterministic check that proves it.
 5. **Name risks and rollback.** What could go wrong, mitigations, and how to undo.
 
-Fill the `.asps/templates/PLAN.md` template. Keep architecture decisions that need
+Fill the `.aspis/templates/PLAN.md` template. Keep architecture decisions that need
 human approval flagged, not silently made.
 
 ## Outputs

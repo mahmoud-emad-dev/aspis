@@ -15,8 +15,8 @@ permissions:
     "git status*": allow
     "git diff*": allow
     "git log*": allow
-    "python .asps/scripts/context/*": allow
-    "python3 .asps/scripts/context/*": allow
+    "python .aspis/scripts/context/*": allow
+    "python3 .aspis/scripts/context/*": allow
   webfetch: deny
   websearch: deny
 delegates:
@@ -57,11 +57,11 @@ memory. Stay accurate as the project grows by preferring deterministic sources
 over reasoning, and loading only what a request needs:
 
 - Refresh first when context may be stale: run
-  `python .asps/scripts/context/update.py` to regenerate the brain, then read.
-- Read the generated live state — `.asps/context/CURRENT_STATE.md` and
-  `.asps/context/RECENT_CHANGES.md` — instead of re-deriving it.
-- Locate files via `.asps/index/FILE_REGISTRY.yaml`; understand a file's API and
-  connections from `.asps/index/CODE_MAP.md` (skeletons + imports) — read the map,
+  `python .aspis/scripts/context/update.py` to regenerate the brain, then read.
+- Read the generated live state — `.aspis/context/CURRENT_STATE.md` and
+  `.aspis/context/RECENT_CHANGES.md` — instead of re-deriving it.
+- Locate files via `.aspis/index/FILE_REGISTRY.yaml`; understand a file's API and
+  connections from `.aspis/index/CODE_MAP.md` (skeletons + imports) — read the map,
   not the body.
 - Confirm the working state with read-only checks (`git status`, `git diff`,
   `git log`).

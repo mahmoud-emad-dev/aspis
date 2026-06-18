@@ -4,7 +4,7 @@ Given a resolved profile and the bundled catalog, the planner computes what to
 copy or render per runtime (dry-run, no writes); the writer performs it. Agents
 and commands are rendered through the runtime adapters; skills/templates/hooks/
 scripts are copied. Runtime-independent assets (templates/hooks/scripts) land
-once under ``.asps/``; runtime assets land under each ``.<runtime>/``.
+once under ``.aspis/``; runtime assets land under each ``.<runtime>/``.
 """
 
 from __future__ import annotations
@@ -15,6 +15,7 @@ from pathlib import Path
 
 from aspis import transform
 from aspis.catalog import split_frontmatter
+from aspis.constants import BRAIN_DIR
 from aspis.profiles import Profile
 
 # Asset kinds placed per runtime; everything else lands once under the brain.
@@ -48,9 +49,9 @@ def _target_and_op(kind: str, runtime: str, rel: str) -> tuple[str, str]:
         "agents": (f".{runtime}/agents/{name}", "render-agent"),
         "commands": (f".{runtime}/commands/{name}", "render-command"),
         "skills": (f".{runtime}/skills/{name}", "copy"),
-        "templates": (f".asps/templates/{name}", "copy"),
-        "hooks": (f".asps/hooks/{name}", "copy"),
-        "scripts": (f".asps/scripts/{name}", "copy"),
+        "templates": (f"{BRAIN_DIR}/templates/{name}", "copy"),
+        "hooks": (f"{BRAIN_DIR}/hooks/{name}", "copy"),
+        "scripts": (f"{BRAIN_DIR}/scripts/{name}", "copy"),
     }
     return mapping[kind]
 

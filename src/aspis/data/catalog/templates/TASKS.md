@@ -25,4 +25,4 @@ Blocked by: Phase 1.
 
 ## Build packets
 Promote any task that needs its own self-contained context to a packet using
-`.asps/templates/TASK_PACKET.md` at `.asps/features/<feature-id>/build/T-NN.md`.
+`.aspis/templates/TASK_PACKET.md` at `.aspis/features/<feature-id>/build/T-NN.md`.

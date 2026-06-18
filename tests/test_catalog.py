@@ -46,7 +46,7 @@ def test_project_lead_renders_for_opencode(tmp_path) -> None:
     perm = fm["permission"]
     assert perm["read"] == "allow" and perm["grep"] == "allow"
     assert perm["bash"]["git status*"] == "allow" and perm["bash"]["*"] == "deny"
-    assert perm["bash"]["python3 .asps/scripts/context/*"] == "allow"  # guarded refresh
+    assert perm["bash"]["python3 .aspis/scripts/context/*"] == "allow"  # guarded refresh
     assert perm["webfetch"] == "deny"  # not granted → denied
     # delegates → task allow-list (leads + the project-explorer helper)
     assert perm["task"]["planning-lead"] == "allow" and perm["task"]["*"] == "deny"
@@ -128,7 +128,7 @@ def test_planning_lead_skills_and_templates_are_shipped(tmp_path) -> None:
     ):
         assert (skills / skill / "SKILL.md").is_file()
 
-    templates = tmp_path / ".asps" / "templates"
+    templates = tmp_path / ".aspis" / "templates"
     for template in ("SPEC.md", "PLAN.md", "TASKS.md", "TASK_PACKET.md"):
         assert (templates / template).is_file()
 

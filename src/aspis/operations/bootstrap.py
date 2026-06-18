@@ -14,7 +14,8 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
-from aspis import detect, manifest, promotion
+from aspis import detect, manifest, project, promotion
+from aspis.constants import BRAIN_DIR
 from aspis.health import run_checks
 from aspis.lifecycle import Context, Engine
 
@@ -83,21 +84,21 @@ def _fill_slots(ctx: Context, state: dict, *, write: bool) -> None:
 
 
 def _write_manifest(ctx: Context, state: dict, *, write: bool) -> None:
-    """Write .asps/manifest.json with project state and the bootstrapped flag."""
+    """Write .aspis/manifest.json with project state and the bootstrapped flag."""
     data = manifest.load(ctx.root)
     data.update({**state, "bootstrapped": True})
-    ctx.log("write .asps/manifest.json")
+    ctx.log("write .aspis/manifest.json")
     if write:
         manifest.save(ctx.root, data)
 
 
 def _run_brain_fill(ctx: Context, *, write: bool) -> None:
     """Trigger the first brain fill by running the project's own update.py."""
-    script = ctx.root / ".asps" / "scripts" / "context" / "update.py"
+    script = ctx.root / BRAIN_DIR / "scripts" / "context" / "update.py"
     if not script.is_file():
         ctx.log("brain fill skipped (context scripts not shipped)")
         return
-    ctx.log("brain fill: .asps/scripts/context/update.py")
+    ctx.log("brain fill: .aspis/scripts/context/update.py")
     if write:
         subprocess.run(
             [sys.executable, str(script), str(ctx.root)], capture_output=True, check=False
@@ -154,7 +155,7 @@ def _commit_all(ctx: Context, message: str) -> None:
 
 def _require_initialized(ctx: Context) -> None:
     """Bootstrap only runs on an initialized project (pre)."""
-    if not (ctx.root / ".asps").is_dir():
+    if not project.is_project(ctx.root):
         raise RuntimeError("not an ASPIS project — run `aspis init` first")
 
 

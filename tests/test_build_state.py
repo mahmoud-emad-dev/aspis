@@ -18,14 +18,14 @@ def test_state_reports_stack_and_branch(git_repo) -> None:
     (git_repo / "pyproject.toml").write_text("[project]\nname = 'x'\n", encoding="utf-8")
     _run(git_repo)
 
-    text = (git_repo / ".asps" / "context" / "CURRENT_STATE.md").read_text(encoding="utf-8")
+    text = (git_repo / ".aspis" / "context" / "CURRENT_STATE.md").read_text(encoding="utf-8")
     assert "ASPIS:auto START" in text
     assert "**Stack:** python" in text
     assert "**Branch:**" in text
 
 
 def test_manual_content_is_preserved(git_repo) -> None:
-    target = git_repo / ".asps" / "context" / "CURRENT_STATE.md"
+    target = git_repo / ".aspis" / "context" / "CURRENT_STATE.md"
     target.parent.mkdir(parents=True)
     target.write_text(
         "<!-- ASPIS:auto START -->\nold\n<!-- ASPIS:auto END -->\n\n## My notes\nkeep me\n",
