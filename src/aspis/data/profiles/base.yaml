@@ -1,12 +1,21 @@
 # The shared base profile that every project inherits.
 #
-# Asset lists are populated when the catalog feature lands. Until then, init
-# scaffolds the brain and root files without exporting any catalog assets.
+# The base set ships the universal entry point — the Project Lead — and the
+# skills it cannot operate without. Specialist leads are added by their own
+# profiles as the catalog grows.
 name: base
 runtimes:
   - opencode
-agents: []
-skills: []
+agents:
+  - agents/project-lead.md
+  - agents/project-explorer.md
+skills:
+  - skills/project-awareness
+  - skills/request-classification
+  - skills/lead-routing
+  - skills/context-packaging
+  - skills/project-question-answering
+  - skills/project-guidance
 commands: []
 templates: []
 hooks: []
