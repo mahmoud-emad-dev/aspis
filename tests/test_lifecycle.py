@@ -24,6 +24,21 @@ def test_run_executes_core_and_flows_context(tmp_path) -> None:
     assert ctx.options["name"] == "demo"
 
 
+def test_builtin_pre_post_steps_run_around_core(tmp_path) -> None:
+    order: list[str] = []
+
+    engine = Engine(run_hooks=lambda event, ctx: order.append(event))
+    engine.register(
+        "init",
+        lambda ctx: order.append("core"),
+        pre=(lambda ctx: order.append("pre-step"),),
+        post=(lambda ctx: order.append("post-step"),),
+    )
+    engine.run("init", tmp_path)
+
+    assert order == ["pre-init", "pre-step", "core", "post-step", "post-init"]
+
+
 def test_unknown_operation_raises(tmp_path) -> None:
     with pytest.raises(KeyError):
         Engine().run("nope", tmp_path)
