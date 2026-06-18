@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import subprocess
 
-from aspis import resources
+from aspis import detect, resources
 from aspis.export import plan_export, write_export
 from aspis.lifecycle import Context, Engine
 from aspis.profiles import Profile, load_profile, merge
@@ -36,6 +36,9 @@ def init_core(ctx: Context) -> None:
         profile = profile.model_copy(update={"runtimes": list(ctx.options["runtimes"])})
     project_name = ctx.options.get("name") or ctx.root.name
 
+    # New/empty vs existing-code projects follow different workflows; record which.
+    ctx.log(f"mode: {detect.project_mode(ctx.root)}")
+
     # 1) Export catalog assets (none until the catalog feature lands — harmless).
     plan = plan_export(resources.data_dir() / "catalog", profile)
     for line in write_export(plan, ctx.root, force=force, write=write):
@@ -43,11 +46,24 @@ def init_core(ctx: Context) -> None:
     for missing in plan.missing:
         ctx.log(f"missing reference (skipped): {missing}")
 
-    # 2) Scaffold the brain skeleton, 3) write root files, 4) init git.
+    # 2) Scaffold the brain, 3) ship context scripts, 4) root files, 5) init git.
     _scaffold_brain(ctx, write=write)
+    _ship_context_scripts(ctx, write=write)
     _write_root_files(ctx, project_name, profile, write=write, force=force)
     if not ctx.options.get("no_git"):
         _git_init(ctx, write=write)
+
+
+def _ship_context_scripts(ctx: Context, *, write: bool) -> None:
+    """Copy the self-contained context-update scripts into the project."""
+    source = resources.data_dir() / "scripts" / "context"
+    dest = ctx.root / ".asps" / "scripts" / "context"
+    for script in sorted(source.glob("*.py")):
+        target = dest / script.name
+        ctx.log(f"ship {target.relative_to(ctx.root).as_posix()}")
+        if write:
+            dest.mkdir(parents=True, exist_ok=True)
+            target.write_text(script.read_text(encoding="utf-8"), encoding="utf-8")
 
 
 def _scaffold_brain(ctx: Context, *, write: bool) -> None:

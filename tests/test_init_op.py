@@ -26,6 +26,13 @@ def test_init_writes_claude_md_only_for_claude_runtime(tmp_path) -> None:
     assert (tmp_path / "CLAUDE.md").is_file()
 
 
+def test_init_ships_context_scripts(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True)
+    context = tmp_path / ".asps" / "scripts" / "context"
+    assert (context / "update.py").is_file()
+    assert (context / "build_registry.py").is_file()
+
+
 def test_init_dry_run_writes_nothing(tmp_path) -> None:
     ctx = _engine().run("init", tmp_path, write=False, no_git=True)
     assert ctx.messages
