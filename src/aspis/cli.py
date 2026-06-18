@@ -1,56 +1,65 @@
 """ASPIS command-line interface.
 
-Thin shell: this module only parses arguments and dispatches to a handler.
-All real behaviour lives in dedicated modules so the CLI stays small and the
-core stays independently testable.
+Thin shell: this module builds the parser by letting each command module
+register its own verb, then dispatches. No business logic lives here — command
+handlers call into the core modules (``aspis.health``, ``aspis.project``, ...).
+
+To add a command, create a module under ``aspis.commands`` and list it in that
+package's ``COMMAND_MODULES``. This file never changes when a verb is added.
 """
 
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
+import sys
 
 from aspis import __version__
+from aspis.commands import COMMAND_MODULES
 
 TAGLINE = "the shield for autonomous software production"
 
-# A directory is an ASPIS project when it carries the brain folder.
-BRAIN_DIR = ".asps"
+
+# ---------------------------------------------------------------------------
+# Console compatibility
+# ---------------------------------------------------------------------------
 
 
-def _cmd_status(args: argparse.Namespace) -> int:
-    """Report whether ``path`` is an ASPIS project."""
-    root = Path(args.path).resolve()
-    if (root / BRAIN_DIR).is_dir():
-        print(f"ASPIS project detected at {root}")
-    else:
-        print(f"No ASPIS project here ({root}).")
-        print("Run `aspis init` to create one.")
-    return 0
+def _force_utf8_stdio() -> None:
+    """Make stdout/stderr emit UTF-8 on legacy consoles (e.g. Windows cp1252).
+
+    Best-effort: streams without ``reconfigure`` (such as test capture buffers)
+    are left untouched.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if callable(reconfigure):
+            try:
+                reconfigure(encoding="utf-8")
+            except (ValueError, OSError):
+                pass
+
+
+# ---------------------------------------------------------------------------
+# Parser assembly & dispatch
+# ---------------------------------------------------------------------------
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Construct the top-level argument parser."""
+    """Assemble the top-level parser from the registered command modules."""
     parser = argparse.ArgumentParser(prog="aspis", description=f"ASPIS — {TAGLINE}.")
-    parser.add_argument(
-        "-V", "--version", action="version", version=f"aspis {__version__}"
-    )
+    parser.add_argument("-V", "--version", action="version", version=f"aspis {__version__}")
 
     subcommands = parser.add_subparsers(dest="command", metavar="<command>")
-
-    status = subcommands.add_parser(
-        "status", help="Report whether the current directory is an ASPIS project."
-    )
-    status.add_argument(
-        "path", nargs="?", default=".", help="Project directory (default: current)."
-    )
-    status.set_defaults(func=_cmd_status)
+    for module in COMMAND_MODULES:
+        module.register(subcommands)
 
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     """CLI entry point. Returns a process exit code."""
+    _force_utf8_stdio()
+
     parser = build_parser()
     args = parser.parse_args(argv)
 
