@@ -9,7 +9,10 @@ runtimes:
 agents:
   - agents/project-lead.md
   - agents/planning-lead.md
+  - agents/build-lead.md
   - agents/system-lead.md
+  - agents/general-builder.md
+  - agents/committer.md
   - agents/project-explorer.md
 skills:
   - skills/project-awareness
@@ -23,6 +26,10 @@ skills:
   - skills/feature-planning
   - skills/architecture-planning
   - skills/task-decomposition
+  - skills/build-readiness
+  - skills/task-orchestration
+  - skills/scope-control
+  - skills/selective-testing
   - skills/system-awareness
   - skills/deterministic-first
   - skills/asset-authoring

@@ -64,7 +64,7 @@ def test_promote_reports_not_yet_built_leads_as_missing(tmp_path) -> None:
     result = promotion.promote_leads(tmp_path, write=True)
 
     # Leads not yet in the catalog are reported missing, not raised as errors.
-    not_built = set(PROMOTE_TO_PRIMARY) - {"system-lead", "planning-lead"}
+    not_built = set(PROMOTE_TO_PRIMARY) - {"system-lead", "planning-lead", "build-lead"}
     assert not_built.issubset(set(result.missing))
 
 

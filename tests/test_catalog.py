@@ -133,6 +133,48 @@ def test_planning_lead_skills_and_templates_are_shipped(tmp_path) -> None:
         assert (templates / template).is_file()
 
 
+def test_build_lead_is_a_deep_orchestrator(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True)  # base → opencode
+
+    text = (tmp_path / ".opencode" / "agents" / "build-lead.md").read_text(encoding="utf-8")
+    fm = _frontmatter(text)
+    assert fm["model"] == "minimax-m2-pro"  # deep tier — the reasoning orchestrator
+    assert fm["mode"] == "subagent"  # promoted at bootstrap
+    perm = fm["permission"]
+    assert perm["bash"]["git commit*"] == "deny"  # commits go through the committer
+    # delegates its execution arm
+    assert perm["task"]["general-builder"] == "allow"
+    assert perm["task"]["committer"] == "allow"
+    assert perm["skill"]["task-orchestration"] == "allow"
+
+
+def test_build_workers_are_scoped(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True)  # base → opencode
+
+    builder = _frontmatter(
+        (tmp_path / ".opencode" / "agents" / "general-builder.md").read_text(encoding="utf-8")
+    )
+    assert builder["model"] == "minimax-m3"  # standard tier — executes packets
+    assert builder["permission"]["edit"] == "allow"  # it writes code
+    assert builder["permission"]["bash"]["git commit*"] == "deny"  # but never commits
+
+    committer = _frontmatter(
+        (tmp_path / ".opencode" / "agents" / "committer.md").read_text(encoding="utf-8")
+    )
+    assert committer["model"] == "deepseek-v4-flash"  # cheap tier — mechanical
+    assert committer["permission"]["bash"]["git commit*"] == "allow"  # the only committer
+    assert committer["permission"]["bash"]["git push*"] == "deny"  # never pushes
+    assert "edit" not in committer["permission"]  # never edits files
+
+
+def test_build_lead_skills_are_copied(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True, runtimes=["claude"])
+
+    skills = tmp_path / ".claude" / "skills"
+    for skill in ("build-readiness", "task-orchestration", "scope-control", "selective-testing"):
+        assert (skills / skill / "SKILL.md").is_file()
+
+
 def test_project_lead_skills_are_copied(tmp_path) -> None:
     _engine().run("init", tmp_path, write=True, no_git=True, runtimes=["claude"])
 
