@@ -1,0 +1,13 @@
+# The shared base profile that every project inherits.
+#
+# Asset lists are populated when the catalog feature lands. Until then, init
+# scaffolds the brain and root files without exporting any catalog assets.
+name: base
+runtimes:
+  - opencode
+agents: []
+skills: []
+commands: []
+templates: []
+hooks: []
+scripts: []
