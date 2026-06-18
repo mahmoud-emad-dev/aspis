@@ -1,0 +1,8 @@
+{
+  "name": "ASPIS",
+  "goal": "The file-first agentic software production factory that builds and ships agent runtimes",
+  "stack": "python",
+  "plan": "",
+  "bootstrapped": true,
+  "bootstrapped_at": "2026-06-18T19:06:39+00:00"
+}
