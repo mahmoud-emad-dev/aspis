@@ -18,10 +18,10 @@ state first; open source files only once you know which the task needs.
 - `.aspis/index/CODE_MAP.md` — each Python file's skeleton (signatures + imports);
   use it to understand a file without reading its body.
 
-## Rules for any AI agent
+## Rules
 
-1. **Scope** — only modify what the active task allows; never touch files outside it.
-2. **Gates first** — run the project's checks before calling work done; never weaken a test to pass.
-3. **Trace** — record what you changed and why; no silent edits.
+The non-negotiable system rules (R-001…) live in `.aspis/rules/system-rules.md` —
+read them, follow them by ID, don't restate them. Project-specific rules, when
+present, live in `.aspis/rules/project-rules.md`.
 
 <!-- Stack: <stack> — filled at bootstrap -->

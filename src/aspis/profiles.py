@@ -27,6 +27,7 @@ class Profile(BaseModel):
     templates: list[str] = Field(default_factory=list)
     hooks: list[str] = Field(default_factory=list)
     scripts: list[str] = Field(default_factory=list)
+    rules: list[str] = Field(default_factory=list)
 
     #: The asset list fields, in stable export order.
     ASSET_KINDS: ClassVar[tuple[str, ...]] = (
@@ -36,6 +37,7 @@ class Profile(BaseModel):
         "templates",
         "hooks",
         "scripts",
+        "rules",
     )
 
     def assets(self) -> list[tuple[str, str]]:

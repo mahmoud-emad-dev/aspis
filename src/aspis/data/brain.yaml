@@ -9,3 +9,4 @@ dirs:
   - .aspis/hooks
   - .aspis/templates
   - .aspis/scripts
+  - .aspis/rules

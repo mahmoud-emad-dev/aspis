@@ -6,10 +6,20 @@ This project is managed with **ASPIS**. Durable project state lives in plain
 files under `.aspis/` (the project "brain"), so any AI runtime reads and writes
 the same source of truth.
 
-## Start here — project context
+## Durable governance — read first
 
-These are the canonical entry points, kept current automatically. Read the live
-state first; open source files only once you know which the task needs.
+The *why* behind ASPIS; read once before scoped work.
+
+- `.aspis/context/IDENTITY.md` — what ASPIS is and is not.
+- `.aspis/context/ARCHITECTURE.md` — the target architecture (the contract).
+- `.aspis/context/DECISIONS.md` — durable, dated decisions (D-001…).
+- `.aspis/context/ROADMAP.md` — where the system is going and where it is now.
+- `.aspis/rules/system-rules.md` — the non-negotiable system rules (R-001…).
+
+## Live state — read at the start of every session
+
+Kept current automatically. Read the live state first; open source files only once
+you know which the task needs.
 
 - `.aspis/context/CURRENT_STATE.md` — where the project is right now.
 - `.aspis/context/RECENT_CHANGES.md` — what changed recently, newest first.
@@ -17,11 +27,5 @@ state first; open source files only once you know which the task needs.
   code without scanning the tree.
 - `.aspis/index/CODE_MAP.md` — each Python file's skeleton (signatures + imports);
   use it to understand a file without reading its body.
-
-## Rules for any AI agent
-
-1. **Scope** — only modify what the active task allows; never touch files outside it.
-2. **Gates first** — run the project's checks before calling work done; never weaken a test to pass.
-3. **Trace** — record what you changed and why; no silent edits.
 
 **Stack:** python

@@ -133,6 +133,15 @@ def test_planning_lead_skills_and_templates_are_shipped(tmp_path) -> None:
         assert (templates / template).is_file()
 
 
+def test_system_rules_ship_to_every_project(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True)  # base → opencode
+
+    rules = tmp_path / ".aspis" / "rules" / "system-rules.md"
+    assert rules.is_file()  # the `rules` kind lands in the brain
+    text = rules.read_text(encoding="utf-8")
+    assert "R-001" in text and "three rule layers" in text.lower()
+
+
 def test_build_lead_is_a_deep_orchestrator(tmp_path) -> None:
     _engine().run("init", tmp_path, write=True, no_git=True)  # base → opencode
 

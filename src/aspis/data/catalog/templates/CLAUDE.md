@@ -11,14 +11,14 @@ All durable project state lives in plain files under `.aspis/` (the project
 - **Read first.** Before changing code, read `.aspis/context/CURRENT_STATE.md` and
   `.aspis/context/RECENT_CHANGES.md`, then use `.aspis/index/FILE_REGISTRY.yaml` to
   locate the files a task touches. These are kept current automatically.
-- **Scope.** Only modify what the active task allows; never touch files outside it.
-- **Gates first.** Run the project's checks (lint, types, tests) before declaring work
-  done. Never weaken or delete a test just to make a gate pass.
-- **Trace.** Record what you changed and why — no silent edits.
+- **Follow the rules.** The system rules (R-001…) live in
+  `.aspis/rules/system-rules.md` — follow them by ID; don't restate them. Project
+  rules, when present, live in `.aspis/rules/project-rules.md`.
 
 ## Where things live
 
 - `.aspis/context/` — current state and recent changes (the live snapshot).
+- `.aspis/rules/system-rules.md` — the non-negotiable system rules.
 - `.aspis/index/FILE_REGISTRY.yaml` — the map of every file and its purpose.
 - `.aspis/index/CODE_MAP.md` — each Python file's skeleton (signatures + imports).
 - `.aspis/features/` — per-feature plans and tasks.

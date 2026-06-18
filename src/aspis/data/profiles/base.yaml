@@ -56,3 +56,5 @@ templates:
   - templates/TASK_PACKET.md
 hooks: []
 scripts: []
+rules:
+  - rules/system-rules.md
