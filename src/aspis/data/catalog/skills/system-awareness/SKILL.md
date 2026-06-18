@@ -1,6 +1,6 @@
 ---
 name: system-awareness
-description: Use to understand the current ASPS system before changing it — which agents, skills, commands, profiles, and runtime assets exist, how they are wired, and what a change would affect — so system work never duplicates or breaks what is already there.
+description: Use to understand the current ASPIS system before changing it — which agents, skills, commands, profiles, and runtime assets exist, how they are wired, and what a change would affect — so system work never duplicates or breaks what is already there.
 ---
 
 # System Awareness
