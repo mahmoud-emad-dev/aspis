@@ -14,7 +14,9 @@ state first; open source files only once you know which the task needs.
 - `.aspis/context/CURRENT_STATE.md` — where the project is right now.
 - `.aspis/context/RECENT_CHANGES.md` — what changed recently, newest first.
 - `.aspis/index/FILE_REGISTRY.yaml` — every file and its purpose; use it to locate
-  code without scanning the tree.
+  code without scanning the tree. A file's purpose is read from its own top
+  docstring/comment; when you create a file that can't carry one (JSON, data),
+  record its purpose in `.aspis/index/PURPOSES.json` (`{"path": "purpose"}`).
 - `.aspis/index/CODE_MAP.md` — each Python file's skeleton (signatures + imports);
   use it to understand a file without reading its body.
 

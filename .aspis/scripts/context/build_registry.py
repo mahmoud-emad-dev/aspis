@@ -3,9 +3,16 @@
 
 Self-contained: standard library only, so it runs in any project that has
 Python, with no dependency on a global ``aspis`` install. It scans the project,
-classifies each file, derives a one-line purpose from the file's own docstring
-or leading comment, and writes a YAML registry. It regenerates the whole file
-from a fresh scan (idempotent), so there is no fragile merge step.
+classifies each file, derives a one-line purpose, and writes a YAML registry. It
+regenerates the whole file from a fresh scan (idempotent), so there is no fragile
+merge step.
+
+A file's purpose comes from, in order:
+  1. an explicit entry in ``.aspis/index/PURPOSES.json`` (a ``{path: purpose}``
+     map agents maintain) — for files that cannot carry a top docstring/comment
+     (JSON, data, binaries) or to override a weak auto-extracted line;
+  2. the file's own module docstring / first heading / leading comment;
+  3. otherwise blank.
 
 Usage:
     python3 build_registry.py [project_root]   # default: current directory
@@ -14,6 +21,7 @@ Usage:
 from __future__ import annotations
 
 import ast
+import json
 import sys
 from pathlib import Path
 
@@ -61,6 +69,22 @@ def classify(rel_path: Path) -> str:
     if "tests" in rel_path.parts or rel_path.name.startswith("test_"):
         return "test"
     return _KIND_BY_SUFFIX.get(rel_path.suffix.lower(), "file")
+
+
+def load_purposes(root: Path) -> dict[str, str]:
+    """Load the agent-maintained ``{path: purpose}`` override map (keys with ``_`` skipped).
+
+    Lives at ``.aspis/index/PURPOSES.json``; absent or malformed → empty map. JSON
+    so it parses with the standard library (no pyyaml dependency).
+    """
+    path = root / ".aspis" / "index" / "PURPOSES.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    return {k: str(v) for k, v in data.items() if not k.startswith("_") and isinstance(v, str)}
 
 
 def purpose_of(path: Path) -> str:
@@ -117,6 +141,7 @@ def _comment_purpose(text: str) -> str:
 
 def scan(root: Path) -> list[tuple[str, str, str]]:
     """Walk *root* and return sorted (relpath, kind, purpose) for each file."""
+    purposes = load_purposes(root)
     entries: list[tuple[str, str, str]] = []
     for path in sorted(root.rglob("*")):
         if not path.is_file():
@@ -124,7 +149,9 @@ def scan(root: Path) -> list[tuple[str, str, str]]:
         rel = path.relative_to(root)
         if any(part in SKIP_DIRS for part in rel.parts):
             continue
-        entries.append((rel.as_posix(), classify(rel), purpose_of(path)))
+        # Explicit override wins; otherwise extract from the file itself.
+        purpose = purposes.get(rel.as_posix()) or purpose_of(path)
+        entries.append((rel.as_posix(), classify(rel), purpose))
     return entries
 
 

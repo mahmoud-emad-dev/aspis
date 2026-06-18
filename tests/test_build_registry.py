@@ -33,3 +33,29 @@ def test_builds_registry_with_docstring_purpose(tmp_path) -> None:
     assert files["src/app.py"] == {"kind": "python", "purpose": "The app entrypoint."}
     assert files["README.md"]["purpose"] == "My Project"
     assert not any(".git" in key for key in files)  # skipped dirs excluded
+
+
+def test_purposes_json_overrides_and_fills(tmp_path) -> None:
+    import json
+
+    # A data file that cannot carry a docstring, and a .py whose docstring we override.
+    (tmp_path / "data.json").write_text('{"k": 1}\n', encoding="utf-8")
+    (tmp_path / "app.py").write_text('"""Weak line."""\n', encoding="utf-8")
+    index = tmp_path / ".aspis" / "index"
+    index.mkdir(parents=True)
+    (index / "PURPOSES.json").write_text(
+        json.dumps(
+            {
+                "_note": "agent-maintained purposes for non-self-documenting files",
+                "data.json": "Seed config for the demo",
+                "app.py": "The real entrypoint",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    subprocess.run([sys.executable, str(SCRIPT), str(tmp_path)], check=True, capture_output=True)
+
+    files = yaml.safe_load((index / "FILE_REGISTRY.yaml").read_text(encoding="utf-8"))["files"]
+    assert files["data.json"]["purpose"] == "Seed config for the demo"  # filled from JSON
+    assert files["app.py"]["purpose"] == "The real entrypoint"  # override wins over docstring
