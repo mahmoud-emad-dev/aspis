@@ -16,3 +16,4 @@ def test_update_refreshes_all_context_files(git_repo) -> None:
     assert (git_repo / ".asps" / "index" / "FILE_REGISTRY.yaml").is_file()
     assert (git_repo / ".asps" / "context" / "CURRENT_STATE.md").is_file()
     assert (git_repo / ".asps" / "context" / "RECENT_CHANGES.md").is_file()
+    assert (git_repo / ".asps" / "index" / "CODE_MAP.md").is_file()

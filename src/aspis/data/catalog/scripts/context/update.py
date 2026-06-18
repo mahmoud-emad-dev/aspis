@@ -13,12 +13,13 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import build_code_map
 import build_registry
 import build_state
 import record_changes
 
 # Updaters run in order; each exposes ``main(argv)``.
-_UPDATERS = (build_registry, build_state, record_changes)
+_UPDATERS = (build_registry, build_state, record_changes, build_code_map)
 
 
 def main(argv: list[str] | None = None) -> int:

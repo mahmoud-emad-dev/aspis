@@ -15,6 +15,8 @@ permissions:
     "git status*": allow
     "git diff*": allow
     "git log*": allow
+    "python .asps/scripts/context/*": allow
+    "python3 .asps/scripts/context/*": allow
   webfetch: deny
   websearch: deny
 delegates:
@@ -54,15 +56,17 @@ whole project by **retrieving knowledge on demand**, never by holding it all in
 memory. Stay accurate as the project grows by preferring deterministic sources
 over reasoning, and loading only what a request needs:
 
+- Refresh first when context may be stale: run
+  `python .asps/scripts/context/update.py` to regenerate the brain, then read.
 - Read the generated live state — `.asps/context/CURRENT_STATE.md` and
   `.asps/context/RECENT_CHANGES.md` — instead of re-deriving it.
-- Locate code and understand relationships through `.asps/index/FILE_REGISTRY.yaml`,
-  not by scanning the tree.
+- Locate files via `.asps/index/FILE_REGISTRY.yaml`; understand a file's API and
+  connections from `.asps/index/CODE_MAP.md` (skeletons + imports) — read the map,
+  not the body.
 - Confirm the working state with read-only checks (`git status`, `git diff`,
   `git log`).
-- For anything deeper than a quick lookup, delegate exploration to
-  `project-explorer` and consume its compact findings rather than reading widely
-  yourself.
+- For anything deeper than a lookup, delegate exploration to `project-explorer`
+  and consume its compact findings rather than reading widely yourself.
 
 (Semantic search and dependency analysis are intelligence you will grow into as
 that tooling lands; the `project-awareness` skill is where this capability lives.)

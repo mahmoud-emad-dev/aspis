@@ -18,16 +18,20 @@ At the start of handling any request, and whenever you need current project fact
 
 ## Procedure
 
-1. **Live state.** Read `.asps/context/CURRENT_STATE.md` (where things stand) and
+1. **Refresh if stale.** When the project may have changed since the brain was
+   last built, regenerate it first: `python .asps/scripts/context/update.py`.
+2. **Live state.** Read `.asps/context/CURRENT_STATE.md` (where things stand) and
    `.asps/context/RECENT_CHANGES.md` (what changed, newest first).
-2. **The map.** Query `.asps/index/FILE_REGISTRY.yaml` to locate files and
-   understand what each does — read the registry, not the files, to decide where
-   to look.
-3. **Working state.** Confirm with read-only checks: `git status`, `git log`.
-4. **Deeper exploration.** When you need more than a lookup (find usages, trace a
-   relationship, map an area), delegate to `project-explorer` and consume its
-   compact findings instead of reading widely yourself.
-5. Stop as soon as you have enough for the task — never load the whole project.
+3. **Locate.** Query `.asps/index/FILE_REGISTRY.yaml` to find files and what each
+   does — read the registry, not the files, to decide where to look.
+4. **Understand without reading bodies.** Use `.asps/index/CODE_MAP.md` for a
+   file's API skeleton (signatures + docstrings) and its imports (how it connects).
+   For a fresher or narrower view, run
+   `python .asps/scripts/context/build_code_map.py --scope <path>`.
+5. **Working state.** Confirm with read-only checks: `git status`, `git log`.
+6. **Deeper exploration.** For usages or relationships beyond the map, delegate to
+   `project-explorer` and consume its compact findings.
+7. Stop as soon as you have enough for the task — never load the whole project.
 
 ## Outputs
 

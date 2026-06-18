@@ -19,7 +19,8 @@ All durable project state lives in plain files under `.asps/` (the project
 ## Where things live
 
 - `.asps/context/` — current state and recent changes (the live snapshot).
-- `.asps/index/FILE_REGISTRY.yaml` — the map of every source file and its purpose.
+- `.asps/index/FILE_REGISTRY.yaml` — the map of every file and its purpose.
+- `.asps/index/CODE_MAP.md` — each Python file's skeleton (signatures + imports).
 - `.asps/features/` — per-feature plans and tasks.
 
 <!-- Stack: <stack> — filled at bootstrap -->

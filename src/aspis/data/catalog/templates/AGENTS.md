@@ -13,8 +13,10 @@ state first; open source files only once you know which the task needs.
 
 - `.asps/context/CURRENT_STATE.md` — where the project is right now.
 - `.asps/context/RECENT_CHANGES.md` — what changed recently, newest first.
-- `.asps/index/FILE_REGISTRY.yaml` — every source file and its purpose; use it to
-  locate code without scanning the tree.
+- `.asps/index/FILE_REGISTRY.yaml` — every file and its purpose; use it to locate
+  code without scanning the tree.
+- `.asps/index/CODE_MAP.md` — each Python file's skeleton (signatures + imports);
+  use it to understand a file without reading its body.
 
 ## Rules for any AI agent
 
