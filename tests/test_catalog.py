@@ -220,6 +220,21 @@ def test_research_lead_is_the_web_enabled_knowledge_layer(tmp_path) -> None:
         assert (skills / skill / "SKILL.md").is_file()
 
 
+def test_fix_lead_is_a_deep_repair_subagent(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True)  # base → opencode
+
+    text = (tmp_path / ".opencode" / "agents" / "fix-lead.md").read_text(encoding="utf-8")
+    fm = _frontmatter(text)
+    assert fm["mode"] == "subagent"  # a support lead — never promoted
+    assert fm["model"] == "minimax-m2-pro"  # deep tier — diagnosis needs reasoning
+    perm = fm["permission"]
+    assert perm["bash"]["git commit*"] == "deny"  # commits go through the committer
+    # reuses build/review skills (single-sourced), plus its own diagnosis skills
+    assert perm["skill"]["root-cause-analysis"] == "allow"
+    assert perm["skill"]["scope-control"] == "allow"  # shared with the Build Lead
+    assert perm["skill"]["selective-testing"] == "allow"
+
+
 def test_project_lead_skills_are_copied(tmp_path) -> None:
     _engine().run("init", tmp_path, write=True, no_git=True, runtimes=["claude"])
 

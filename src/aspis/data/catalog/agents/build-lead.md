@@ -25,6 +25,7 @@ permissions:
 delegates:
   - general-builder
   - reviewer
+  - fix-lead
   - committer
   - project-explorer
 skills:

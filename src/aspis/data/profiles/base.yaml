@@ -12,6 +12,7 @@ agents:
   - agents/build-lead.md
   - agents/reviewer.md
   - agents/research-lead.md
+  - agents/fix-lead.md
   - agents/system-lead.md
   - agents/general-builder.md
   - agents/committer.md
@@ -37,6 +38,8 @@ skills:
   - skills/acceptance-decision
   - skills/knowledge-research
   - skills/knowledge-packaging
+  - skills/root-cause-analysis
+  - skills/corrective-fix
   - skills/system-awareness
   - skills/deterministic-first
   - skills/asset-authoring
