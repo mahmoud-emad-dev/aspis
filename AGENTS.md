@@ -14,6 +14,7 @@ The *why* behind ASPIS; read once before scoped work.
 - `.aspis/context/ARCHITECTURE.md` — the target architecture (the contract).
 - `.aspis/context/DECISIONS.md` — durable, dated decisions (D-001…).
 - `.aspis/context/ROADMAP.md` — where the system is going and where it is now.
+- `.aspis/context/CORE_LOOP.md` — the plan→build→review cycle design (Phase 3 blueprint).
 - `.aspis/rules/system-rules.md` — the non-negotiable system rules (R-001…).
 
 ## Live state — read at the start of every session

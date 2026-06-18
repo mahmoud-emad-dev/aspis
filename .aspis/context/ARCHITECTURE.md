@@ -10,7 +10,7 @@ it here first, record the decision in `DECISIONS.md`, then change the code.
 2. **Global install** — the `aspis` CLI and engine installed on a machine.
 3. **Target project** — a project ASPIS manages. It receives two things:
    - `.aspis/` — the **portable brain** (context, index, features, templates,
-     scripts, rules). Tool-neutral; the durable memory.
+     scripts, rules, etc). Tool-neutral; the durable memory.
    - `.opencode/` · `.claude/` — **generated runtime** assets for each AI coding
      tool. Replaceable; rebuilt from the catalog.
 
@@ -43,7 +43,7 @@ ship is hard-coded.
 
 The **System Lead** is the only lead that may modify the runtime (`.opencode/`,
 `.claude/`) and protected brain areas. The other leads own the shared brain
-(features, plans, reports). This keeps the operating layer governed.
+(context, features, plans, reports). This keeps the operating layer governed.
 
 ## Context pyramid
 
