@@ -24,9 +24,17 @@ class RuntimeAdapter(ABC):
     #: Map a model tier (cheap/standard/deep) to this runtime's concrete model id.
     models: dict[str, str]
 
+    #: Map a canonical tool token (read/bash/...) to this runtime's tool name.
+    #: Unmapped tokens pass through unchanged.
+    tools: dict[str, str] = {}
+
     def model_for(self, tier: str) -> str:
         """Resolve a model tier to a concrete id, falling back to ``standard``."""
         return self.models.get(tier, self.models["standard"])
+
+    def tools_for(self, tokens: tuple[str, ...]) -> list[str]:
+        """Map canonical tool tokens to this runtime's tool names (order preserved)."""
+        return [self.tools.get(token, token) for token in tokens]
 
     @abstractmethod
     def render_agent(self, agent: CatalogAgent) -> str:
@@ -39,5 +47,9 @@ class RuntimeAdapter(ABC):
 
 def to_frontmatter(data: dict) -> str:
     """Render *data* as a YAML frontmatter block (key order preserved)."""
-    body = yaml.safe_dump(data, sort_keys=False, default_flow_style=False).strip()
+    # allow_unicode keeps em-dashes readable; the wide width stops long
+    # descriptions from being backslash-wrapped into noise.
+    body = yaml.safe_dump(
+        data, sort_keys=False, default_flow_style=False, allow_unicode=True, width=1000
+    ).strip()
     return f"---\n{body}\n---\n"

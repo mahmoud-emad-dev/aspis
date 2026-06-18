@@ -55,12 +55,17 @@ def _target_and_op(kind: str, runtime: str, rel: str) -> tuple[str, str]:
     return mapping[kind]
 
 
-def _is_project_only(source: Path, kind: str) -> bool:
-    """True if an agent/command is scoped to the factory only (never exported)."""
+def _asset_meta(source: Path, kind: str) -> tuple[str, set[str]]:
+    """Return ``(export_scope, runtime_lock)`` from an agent/command's frontmatter.
+
+    ``runtime_lock`` is the set of runtimes the asset is restricted to; an empty
+    set means "all runtimes". Non-renderable kinds carry no scope metadata.
+    """
     if kind not in ("agents", "commands") or not source.is_file():
-        return False
+        return "all", set()
     frontmatter, _ = split_frontmatter(source.read_text(encoding="utf-8"))
-    return frontmatter.get("export_scope") == "project-only"
+    scope = frontmatter.get("export_scope", "all")
+    return scope, set(frontmatter.get("runtimes", []))
 
 
 def plan_export(catalog_root: Path, profile: Profile) -> ExportPlan:
@@ -71,12 +76,17 @@ def plan_export(catalog_root: Path, profile: Profile) -> ExportPlan:
         if not source.exists():
             plan.missing.append(rel)
             continue
-        if _is_project_only(source, kind):
+        scope, runtime_lock = _asset_meta(source, kind)
+        if scope == "project-only":
             plan.skipped_by_scope.append(rel)
             continue
 
         runtimes = profile.runtimes if kind in _RUNTIME_KINDS else ("",)
         for runtime in runtimes:
+            # Honour runtime-lock: a locked asset skips runtimes outside its set.
+            if runtime_lock and runtime not in runtime_lock:
+                plan.skipped_by_scope.append(f"{rel} ({runtime})")
+                continue
             target, op = _target_and_op(kind, runtime, rel)
             plan.actions.append(ExportAction(kind, runtime, source, target, op))
     return plan

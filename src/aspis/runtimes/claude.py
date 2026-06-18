@@ -1,7 +1,10 @@
 """Claude Code runtime adapter.
 
-Claude agents key on ``name`` and a ``tools`` list, and Claude commands do NOT
-bind to an agent (the binding is dropped). Model ids are data and editable.
+Claude agents key on ``name`` and a ``tools`` list. Claude expresses access only
+through ``tools``, auto-discovers skills, and has implicit subagent access — so
+this adapter deliberately drops the superset fields it cannot express (``mode``,
+``temperature``, ``permissions``, ``delegates``, ``skills``). Claude commands do
+NOT bind to an agent (the binding is dropped). Model ids are data and editable.
 """
 
 from __future__ import annotations
@@ -19,13 +22,24 @@ class ClaudeAdapter(RuntimeAdapter):
         "standard": "claude-sonnet-4-6",
         "deep": "claude-opus-4-8",
     }
+    # Claude Code uses capitalised tool names.
+    tools = {
+        "read": "Read",
+        "grep": "Grep",
+        "glob": "Glob",
+        "bash": "Bash",
+        "edit": "Edit",
+        "write": "Write",
+        "webfetch": "WebFetch",
+        "websearch": "WebSearch",
+    }
 
     def render_agent(self, agent: CatalogAgent) -> str:
         frontmatter = to_frontmatter(
             {
                 "name": agent.name,
                 "description": agent.description,
-                "tools": list(agent.tools),
+                "tools": self.tools_for(agent.tools),
                 "model": self.model_for(agent.model),
             }
         )

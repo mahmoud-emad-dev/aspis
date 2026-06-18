@@ -9,6 +9,20 @@ from aspis.profiles import Profile
 
 AGENT = "---\nname: lead\ndescription: d\nmode: primary\nmodel: standard\n---\n\nbody\n"
 PROJECT_ONLY = "---\nname: gov\ndescription: d\nexport_scope: project-only\n---\n\nbody\n"
+CLAUDE_ONLY = "---\nname: cc\ndescription: d\nruntimes:\n  - claude\n---\n\nbody\n"
+
+
+def test_runtime_lock_skips_other_runtimes(tmp_path) -> None:
+    root = tmp_path / "catalog"
+    (root / "agents").mkdir(parents=True)
+    (root / "agents" / "cc.md").write_text(CLAUDE_ONLY, encoding="utf-8")
+    profile = Profile(name="p", runtimes=["opencode", "claude"], agents=["agents/cc.md"])
+
+    plan = plan_export(root, profile)
+
+    runtimes = {a.runtime for a in plan.actions if a.kind == "agents"}
+    assert runtimes == {"claude"}  # opencode skipped by the lock
+    assert "agents/cc.md (opencode)" in plan.skipped_by_scope
 
 
 def _catalog(tmp_path: Path) -> Path:
