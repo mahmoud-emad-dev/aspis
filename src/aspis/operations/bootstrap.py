@@ -8,10 +8,14 @@ first brain fill by running the project's own context scripts. Pre/post staging
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 import sys
+from datetime import UTC, datetime
+from pathlib import Path
 
 from aspis import detect, manifest
+from aspis.health import run_checks
 from aspis.lifecycle import Context, Engine
 
 # Slots that init leaves in AGENTS.md / CLAUDE.md for bootstrap to fill.
@@ -110,6 +114,101 @@ def bootstrap_core(ctx: Context) -> None:
     _run_brain_fill(ctx, write=write)
 
 
+# ---------------------------------------------------------------------------
+# Pre/post staging
+# ---------------------------------------------------------------------------
+
+
+def _git(root: Path, *args: str) -> str:
+    """Run a git command in *root*; return stripped stdout."""
+    result = subprocess.run(
+        ["git", "-C", str(root), *args], capture_output=True, text=True, check=False
+    )
+    return result.stdout.strip()
+
+
+def _has_git(ctx: Context) -> bool:
+    return (ctx.root / ".git").is_dir()
+
+
+def _commit_all(ctx: Context, message: str) -> None:
+    """Stage everything and commit with *message* (best-effort)."""
+    _git(ctx.root, "add", "-A")
+    subprocess.run(
+        ["git", "-C", str(ctx.root), "commit", "-q", "-m", message],
+        capture_output=True,
+        check=False,
+    )
+
+
+def _require_initialized(ctx: Context) -> None:
+    """Bootstrap only runs on an initialized project (pre)."""
+    if not (ctx.root / ".asps").is_dir():
+        raise RuntimeError("not an ASPIS project — run `aspis init` first")
+
+
+def _note_if_bootstrapped(ctx: Context) -> None:
+    """Note (don't block) when re-running on an already-bootstrapped project (pre)."""
+    if manifest.is_bootstrapped(ctx.root):
+        ctx.log("note: already bootstrapped (re-running is idempotent)")
+
+
+def _autocommit_init(ctx: Context) -> None:
+    """Commit the init scaffolding first, so bootstrap is a separate 2nd commit (pre)."""
+    if not bool(ctx.options.get("write")) or not _has_git(ctx):
+        return
+    if not _git(ctx.root, "status", "--porcelain"):
+        return  # already clean
+    ctx.log("commit init scaffolding (1st commit)")
+    _commit_all(ctx, "chore: initialize ASPIS project")
+
+
+def _doctor_gate(ctx: Context) -> None:
+    """Run the health checks after bootstrap (post, best-effort)."""
+    failed = [check for check in run_checks(ctx.root) if check.status == "fail"]
+    ctx.log(f"doctor: {len(failed)} failed" if failed else "doctor: ok")
+
+
+def _self_clean(ctx: Context) -> None:
+    """Remove the transient bootstrap assets listed in the manifest (post)."""
+    write = bool(ctx.options.get("write"))
+    for rel in manifest.load(ctx.root).get("transient_assets", []):
+        path = ctx.root / rel
+        if not path.exists():
+            continue
+        ctx.log(f"self-clean {rel}")
+        if write:
+            if path.is_dir():
+                shutil.rmtree(path)
+            else:
+                path.unlink()
+
+
+def _record_done(ctx: Context) -> None:
+    """Stamp the manifest with the bootstrap-done time (post)."""
+    ctx.log("record bootstrap.done")
+    if bool(ctx.options.get("write")):
+        data = manifest.load(ctx.root)
+        data["bootstrapped_at"] = datetime.now(UTC).isoformat(timespec="seconds")
+        manifest.save(ctx.root, data)
+
+
+def _commit_bootstrap(ctx: Context) -> None:
+    """Commit the bootstrap fill as the 2nd commit (post)."""
+    if not bool(ctx.options.get("write")) or not _has_git(ctx):
+        return
+    if not _git(ctx.root, "status", "--porcelain"):
+        ctx.log("bootstrap commit: nothing to commit")
+        return
+    ctx.log("bootstrap commit (2nd commit)")
+    _commit_all(ctx, "chore: bootstrap ASPIS project")
+
+
 def register(engine: Engine) -> None:
-    """Register the bootstrap operation on *engine*."""
-    engine.register("bootstrap", bootstrap_core)
+    """Register the bootstrap operation with its pre/post staging."""
+    engine.register(
+        "bootstrap",
+        bootstrap_core,
+        pre=(_require_initialized, _note_if_bootstrapped, _autocommit_init),
+        post=(_doctor_gate, _self_clean, _record_done, _commit_bootstrap),
+    )
