@@ -24,6 +24,7 @@ permissions:
   websearch: deny
 delegates:
   - general-builder
+  - reviewer
   - committer
   - project-explorer
 skills:

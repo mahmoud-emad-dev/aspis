@@ -58,14 +58,16 @@ def test_promote_dry_run_does_not_write(tmp_path) -> None:
     assert _mode(agent) == "subagent"  # but the file is untouched
 
 
-def test_promote_reports_not_yet_built_leads_as_missing(tmp_path) -> None:
+def test_all_promote_leads_are_present_and_flipped(tmp_path) -> None:
     _engine().run("init", tmp_path, write=True, no_git=True)
 
     result = promotion.promote_leads(tmp_path, write=True)
 
-    # Leads not yet in the catalog are reported missing, not raised as errors.
-    not_built = set(PROMOTE_TO_PRIMARY) - {"system-lead", "planning-lead", "build-lead"}
-    assert not_built.issubset(set(result.missing))
+    # All four post-bootstrap leads now exist in the catalog: each is promoted,
+    # none are missing. (Promotion still tolerates a missing lead — see the dry-run
+    # path — but the shipped base profile carries the full set.)
+    assert set(result.promoted) == set(PROMOTE_TO_PRIMARY)
+    assert result.missing == []
 
 
 def test_project_lead_is_always_primary(tmp_path) -> None:

@@ -10,6 +10,7 @@ agents:
   - agents/project-lead.md
   - agents/planning-lead.md
   - agents/build-lead.md
+  - agents/reviewer.md
   - agents/system-lead.md
   - agents/general-builder.md
   - agents/committer.md
@@ -30,6 +31,9 @@ skills:
   - skills/task-orchestration
   - skills/scope-control
   - skills/selective-testing
+  - skills/review-strategy
+  - skills/quality-review
+  - skills/acceptance-decision
   - skills/system-awareness
   - skills/deterministic-first
   - skills/asset-authoring

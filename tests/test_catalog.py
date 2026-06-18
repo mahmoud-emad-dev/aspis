@@ -175,6 +175,35 @@ def test_build_lead_skills_are_copied(tmp_path) -> None:
         assert (skills / skill / "SKILL.md").is_file()
 
 
+def test_reviewer_is_a_deep_readonly_authority(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True, runtimes=["claude"])
+
+    text = (tmp_path / ".claude" / "agents" / "reviewer.md").read_text(encoding="utf-8")
+    fm = _frontmatter(text)
+    assert fm["model"] == "claude-opus-4-8"  # deep tier — quality judgment
+    assert fm["tools"] == ["Read", "Grep", "Glob", "Bash"]  # read-only: never edits
+
+
+def test_reviewer_opencode_is_read_only(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True)  # base → opencode
+
+    text = (tmp_path / ".opencode" / "agents" / "reviewer.md").read_text(encoding="utf-8")
+    fm = _frontmatter(text)
+    assert fm["mode"] == "subagent"  # promoted at bootstrap
+    perm = fm["permission"]
+    assert "edit" not in perm and "write" not in perm  # never modifies the work
+    assert perm["bash"]["git commit*"] == "deny"
+    assert perm["skill"]["quality-review"] == "allow"
+
+
+def test_reviewer_skills_are_copied(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True, runtimes=["claude"])
+
+    skills = tmp_path / ".claude" / "skills"
+    for skill in ("review-strategy", "quality-review", "acceptance-decision"):
+        assert (skills / skill / "SKILL.md").is_file()
+
+
 def test_project_lead_skills_are_copied(tmp_path) -> None:
     _engine().run("init", tmp_path, write=True, no_git=True, runtimes=["claude"])
 

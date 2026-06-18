@@ -23,6 +23,7 @@ permissions:
   webfetch: deny
   websearch: deny
 delegates:
+  - reviewer
   - project-explorer
 skills:
   - planning-intake
