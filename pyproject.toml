@@ -18,7 +18,11 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Topic :: Software Development :: Build Tools",
 ]
-dependencies = []
+dependencies = [
+    "pydantic>=2",
+    "pydantic-settings>=2",
+    "pyyaml>=6",
+]
 dynamic = ["version"]
 
 [project.scripts]

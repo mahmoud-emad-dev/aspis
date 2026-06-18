@@ -1,0 +1,10 @@
+# Brain skeleton directories scaffolded by `aspis init`.
+#
+# Edit this list to change the skeleton — no code change needed. Dirs are added
+# back as their features land (e.g. traces with tracing, index with the registry).
+dirs:
+  - .asps/context
+  - .asps/features
+  - .asps/hooks
+  - .asps/templates
+  - .asps/scripts
