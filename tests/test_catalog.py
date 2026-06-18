@@ -94,6 +94,45 @@ def test_project_explorer_is_a_cheap_readonly_subagent(tmp_path) -> None:
     assert fm["tools"] == ["Read", "Grep", "Glob", "Bash"]  # bash is guarded to context tools
 
 
+def test_planning_lead_is_a_deep_planning_subagent(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True, runtimes=["claude"])
+
+    text = (tmp_path / ".claude" / "agents" / "planning-lead.md").read_text(encoding="utf-8")
+    fm = _frontmatter(text)
+    assert fm["model"] == "claude-opus-4-8"  # deep tier — planning is reasoning-heavy
+    assert "Edit" in fm["tools"] and "Write" in fm["tools"]  # it authors plan artifacts
+
+
+def test_planning_lead_opencode_plans_only(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True)  # base → opencode
+
+    text = (tmp_path / ".opencode" / "agents" / "planning-lead.md").read_text(encoding="utf-8")
+    fm = _frontmatter(text)
+    assert fm["mode"] == "subagent"  # promoted at bootstrap
+    perm = fm["permission"]
+    assert perm["webfetch"] == "deny"  # research goes through the Research Lead
+    assert perm["bash"]["git commit*"] == "deny"  # commits go through the committer
+    assert perm["skill"]["task-decomposition"] == "allow"
+
+
+def test_planning_lead_skills_and_templates_are_shipped(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True, runtimes=["claude"])
+
+    skills = tmp_path / ".claude" / "skills"
+    for skill in (
+        "planning-intake",
+        "requirement-clarification",
+        "feature-planning",
+        "architecture-planning",
+        "task-decomposition",
+    ):
+        assert (skills / skill / "SKILL.md").is_file()
+
+    templates = tmp_path / ".asps" / "templates"
+    for template in ("SPEC.md", "PLAN.md", "TASKS.md", "TASK_PACKET.md"):
+        assert (templates / template).is_file()
+
+
 def test_project_lead_skills_are_copied(tmp_path) -> None:
     _engine().run("init", tmp_path, write=True, no_git=True, runtimes=["claude"])
 

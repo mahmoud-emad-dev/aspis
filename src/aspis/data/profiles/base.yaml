@@ -8,6 +8,7 @@ runtimes:
   - opencode
 agents:
   - agents/project-lead.md
+  - agents/planning-lead.md
   - agents/system-lead.md
   - agents/project-explorer.md
 skills:
@@ -17,12 +18,21 @@ skills:
   - skills/context-packaging
   - skills/project-question-answering
   - skills/project-guidance
+  - skills/planning-intake
+  - skills/requirement-clarification
+  - skills/feature-planning
+  - skills/architecture-planning
+  - skills/task-decomposition
   - skills/system-awareness
   - skills/deterministic-first
   - skills/asset-authoring
   - skills/system-validation
   - skills/system-repair
 commands: []
-templates: []
+templates:
+  - templates/SPEC.md
+  - templates/PLAN.md
+  - templates/TASKS.md
+  - templates/TASK_PACKET.md
 hooks: []
 scripts: []
