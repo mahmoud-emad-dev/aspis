@@ -179,6 +179,17 @@ def test_commands_drop_binding_for_claude(tmp_path) -> None:
     assert "agent" not in _frontmatter(text)  # Claude commands are not agent-bound
 
 
+def test_reviewer_gains_plan_critic(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True)  # base → opencode
+
+    assert (tmp_path / ".opencode" / "skills" / "plan-critic" / "SKILL.md").is_file()
+    perm = _frontmatter(
+        (tmp_path / ".opencode" / "agents" / "reviewer.md").read_text(encoding="utf-8")
+    )["permission"]
+    assert perm["skill"]["plan-critic"] == "allow"  # the pre-build plan check
+    assert perm["bash"]["python3 .aspis/scripts/planning/*"] == "allow"  # can run the gate
+
+
 def test_workflow_docs_ship_to_every_project(tmp_path) -> None:
     _engine().run("init", tmp_path, write=True, no_git=True)  # base → opencode
 

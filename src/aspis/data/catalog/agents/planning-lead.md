@@ -17,7 +17,8 @@ permissions:
     "git status*": allow
     "git diff*": allow
     "git log*": allow
-    "python3 .aspis/scripts/*": allow
+    "python3 .aspis/scripts/context/*": allow
+    "python3 .aspis/scripts/planning/*": allow
     "git commit*": deny
     "git push*": deny
   webfetch: deny
@@ -57,11 +58,15 @@ artifact so you never carry the whole effort in one context:
 6. **Tasks** — decompose into sequenced, sized, build-ready packets with an
    execution, review, and testing strategy.
 
-Plan to the depth the work warrants — no more, no less.
+Plan to the depth the work warrants — no more, no less. The procedure, step by step,
+is `.aspis/workflows/plan.md`. Use the deterministic scripts for the mechanical parts
+so your judgement goes to content, not bookkeeping:
+`python3 .aspis/scripts/planning/feature_scaffold.py` (scaffold the feature + branch),
+`task_compile.py` (emit a packet per task), `prereq_validate.py` (gate phase order).
 
 ## Modes
 
-Match planning rigor to the mode:
+Match planning rigor to the mode, read from `.aspis/config/modes.yaml`:
 
 - **Production** — maximum rigor: detailed spec and architecture, small tasks,
   strong acceptance, full review and testing.

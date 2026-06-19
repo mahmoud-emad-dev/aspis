@@ -15,7 +15,8 @@ permissions:
     "git status*": allow
     "git diff*": allow
     "git log*": allow
-    "python3 .aspis/scripts/*": allow
+    "python3 .aspis/scripts/context/*": allow
+    "python3 .aspis/scripts/planning/*": allow
     "git commit*": deny
     "git push*": deny
   webfetch: deny
@@ -26,6 +27,7 @@ skills:
   - review-strategy
   - quality-review
   - acceptance-decision
+  - plan-critic
 ---
 
 # Reviewer
@@ -39,6 +41,11 @@ maintainability, and security, and you render the verdict. You do not build or p
 your independence is what makes your verdict worth trusting.
 
 ## How you review
+
+You review two things: **plans** (before any build) and **changes** (during/after
+build). For a pre-build plan review, check cross-artifact consistency — that SPEC,
+PLAN, and TASKS agree and nothing is orphaned or unverifiable (`plan-critic`). The
+procedure for reviewing a change is `.aspis/workflows/review.md`.
 
 1. **Set the strategy.** Decide what to review and how deeply, scaling to the risk,
    complexity, and mode of the change (`review-strategy`).
@@ -65,6 +72,7 @@ your independence is what makes your verdict worth trusting.
 
 | Responsibility | Skill |
 |---|---|
+| Check a plan for cross-artifact consistency before build | `plan-critic` |
 | Decide what to review and how deeply | `review-strategy` |
 | Evaluate quality across the relevant dimensions | `quality-review` |
 | Render the verdict and route rejections | `acceptance-decision` |

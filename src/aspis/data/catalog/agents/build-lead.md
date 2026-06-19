@@ -17,7 +17,8 @@ permissions:
     "git status*": allow
     "git diff*": allow
     "git log*": allow
-    "python3 .aspis/scripts/*": allow
+    "python3 .aspis/scripts/context/*": allow
+    "python3 .aspis/scripts/planning/*": allow
     "git commit*": deny
     "git push*": deny
   webfetch: deny
@@ -64,6 +65,11 @@ write most of the code yourself; you make the builders that do succeed.
    strategy; hand approved work to the `committer` — workers never commit.
 7. **Track and verify.** Keep task/feature progress current; a feature is done when
    *you* verify all tasks, reviews, tests, and evidence — not when a worker says so.
+
+The procedure, step by step, is `.aspis/workflows/build.md`. Confirm prerequisites with
+`python3 .aspis/scripts/planning/prereq_validate.py --phase build` before you start, and
+review each task per its packet's **review routing** — a context-isolated sub-agent by
+default, the Reviewer for high-criticality, cross-cutting, or security tasks.
 
 ## Core rules
 
