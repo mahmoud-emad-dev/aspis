@@ -60,6 +60,13 @@ def _collect(ctx: Context) -> dict:
         "goal": _value(ctx, "goal", "One-line goal", "", interactive=interactive),
         "stack": _value(ctx, "stack", "Main stack", detected_stack, interactive=interactive),
         "plan": _value(ctx, "plan", "Plan file (optional)", "", interactive=interactive),
+        "mode": _value(
+            ctx,
+            "mode",
+            "Default build mode (vibe/mvp/production)",
+            "production",
+            interactive=interactive,
+        ),
     }
 
 
@@ -81,6 +88,33 @@ def _fill_slots(ctx: Context, state: dict, *, write: bool) -> None:
         ctx.log(f"fill slots in {name}")
         if write:
             path.write_text(text, encoding="utf-8")
+
+
+_PROJECT_CONFIG = """\
+# Project settings — edit these freely (versioned, human-owned).
+# The build mode this project defaults to when a request doesn't name one.
+mode: {mode}
+
+# Optional model overrides — uncomment to override the global tier->model map
+# (.aspis/config/models.yaml) for this project, per runtime:
+# models:
+#   opencode:
+#     deep: <model-id>
+#   claude:
+#     standard: <model-id>
+# Optional per-agent pin — force one agent onto a tier or a concrete model id:
+# agents:
+#   reviewer: deep
+"""
+
+
+def _write_project_config(ctx: Context, state: dict, *, write: bool) -> None:
+    """Write .aspis/config/project.yaml with the chosen default mode."""
+    path = project.config_path(ctx.root)
+    ctx.log(f"write {path.relative_to(ctx.root).as_posix()} (mode: {state['mode']})")
+    if write:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(_PROJECT_CONFIG.format(mode=state["mode"]), encoding="utf-8", newline="\n")
 
 
 def _write_manifest(ctx: Context, state: dict, *, write: bool) -> None:
@@ -121,6 +155,7 @@ def bootstrap_core(ctx: Context) -> None:
     state = _collect(ctx)
     ctx.results["state"] = state
     _fill_slots(ctx, state, write=write)
+    _write_project_config(ctx, state, write=write)
     _write_manifest(ctx, state, write=write)
     _promote_leads(ctx, write=write)
     _run_brain_fill(ctx, write=write)

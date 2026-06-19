@@ -47,6 +47,17 @@ class ScaffoldResult:
     skipped: list[str] = field(default_factory=list)
 
 
+def _default_mode(root: Path) -> str:
+    """Read the project's default mode from .aspis/config/project.yaml (stdlib only)."""
+    config = root / ".aspis" / "config" / "project.yaml"
+    if config.is_file():
+        for line in config.read_text(encoding="utf-8").splitlines():
+            stripped = line.strip()
+            if stripped.startswith("mode:") and not stripped.startswith("#"):
+                return stripped.split(":", 1)[1].split("#", 1)[0].strip() or "production"
+    return "production"
+
+
 def _slugify(name: str) -> str:
     """Derive a short kebab-case slug from a feature name."""
     words = [w for w in re.sub(r"[^a-z0-9]+", " ", name.lower()).split() if w not in _STOP]
@@ -155,18 +166,21 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("root", nargs="?", default=".", help="project root")
     parser.add_argument("--name", required=True, help="feature name / one-line goal")
     parser.add_argument("--slug", default=None, help="override the derived slug")
-    parser.add_argument("--mode", default="production", help="vibe | mvp | production")
+    parser.add_argument(
+        "--mode", default=None, help="vibe | mvp | production (default: the project's)"
+    )
     parser.add_argument("--no-branch", action="store_true", help="do not create a git branch")
     parser.add_argument(
         "--dry-run", action="store_true", help="show what would be created, write nothing"
     )
     args = parser.parse_args(argv if argv is not None else sys.argv[1:])
 
+    root = Path(args.root).resolve()
     result = prepare_feature(
-        Path(args.root).resolve(),
+        root,
         args.name,
         slug=args.slug,
-        mode=args.mode,
+        mode=args.mode or _default_mode(root),
         create_branch=not args.no_branch,
         write=not args.dry_run,
     )

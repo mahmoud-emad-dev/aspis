@@ -26,8 +26,12 @@ First, on every planning request, before gathering deep context or writing anyth
    - *Project plan* → project-level planning, then decompose into features.
 2. **Assess complexity.** Scope, risk, dependencies, unknowns, and blast radius on
    the existing project — this nudges the mode (high risk resists vibe).
-3. **Pick the mode from `.aspis/config/modes.yaml`.** Use the request's stated mode,
-   else the file's `default`. Do not invent knobs — read them from the chosen mode.
+3. **Pick the mode.** Resolve in this order, highest first: the mode named in the
+   request (`/plan --mode vibe`, "build this MVP-style") → the active feature's mode →
+   the **project default** (`.aspis/config/project.yaml`) → `modes.yaml`'s `default`.
+   You may infer a mode from the request's risk and scope and confirm it with the
+   user, rather than always asking. Read the chosen mode's knobs from
+   `.aspis/config/modes.yaml` — do not invent them.
 4. **Apply the mode's knobs.** The file gives, per mode: `spec`, `architecture`,
    `task_size`, `plan_review`, `build_review`, `test_depth`, `docs`, `promotable`.
    These decide which artifacts P2–P5 produce and how deep each goes (e.g.

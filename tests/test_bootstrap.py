@@ -34,6 +34,17 @@ def test_bootstrap_fills_slots_and_writes_manifest(tmp_path) -> None:
     assert (tmp_path / ".aspis" / "context" / "CURRENT_STATE.md").is_file()
 
 
+def test_bootstrap_writes_project_config_with_mode(tmp_path) -> None:
+    from aspis import project
+
+    engine = _engine()
+    engine.run("init", tmp_path, write=True, no_git=True)
+    engine.run("bootstrap", tmp_path, write=True, yes=True, mode="mvp")
+
+    assert (tmp_path / ".aspis" / "config" / "project.yaml").is_file()
+    assert project.default_mode(tmp_path) == "mvp"  # the chosen default is readable
+
+
 def test_bootstrap_makes_init_then_bootstrap_commits(tmp_path) -> None:
     import subprocess
 

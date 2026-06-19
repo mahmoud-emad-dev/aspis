@@ -47,6 +47,25 @@ def test_scaffold_creates_feature_and_pointer(tmp_path) -> None:
     assert pointer["phase"] == "plan"
 
 
+def test_scaffold_uses_project_default_mode(tmp_path) -> None:
+    _seed_templates(tmp_path)
+    config = tmp_path / ".aspis" / "config"
+    config.mkdir(parents=True)
+    (config / "project.yaml").write_text("mode: vibe\n", encoding="utf-8")
+
+    # No --mode flag: the scaffold should pick up the project default.
+    subprocess.run(
+        [sys.executable, str(SCRIPT), str(tmp_path), "--name", "Quick spike", "--no-branch"],
+        check=True,
+        capture_output=True,
+    )
+
+    pointer = json.loads(
+        (tmp_path / ".aspis" / "current" / "active_feature.json").read_text(encoding="utf-8")
+    )
+    assert pointer["mode"] == "vibe"
+
+
 def test_scaffold_increments_id(tmp_path) -> None:
     _seed_templates(tmp_path)
     (tmp_path / ".aspis" / "features" / "F-007-old").mkdir(parents=True)
