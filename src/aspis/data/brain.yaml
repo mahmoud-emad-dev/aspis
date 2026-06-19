@@ -12,3 +12,4 @@ dirs:
   - .aspis/scripts
   - .aspis/rules
   - .aspis/config
+  - .aspis/workflows

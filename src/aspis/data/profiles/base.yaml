@@ -60,3 +60,9 @@ rules:
   - rules/system-rules.md
 config:
   - config/modes.yaml
+workflows:
+  - workflows/plan.md
+  - workflows/build.md
+  - workflows/review.md
+  - workflows/fix.md
+  - workflows/small-task.md

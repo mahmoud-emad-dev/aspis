@@ -157,6 +157,17 @@ def test_modes_config_ships_and_parses(tmp_path) -> None:
     assert data["modes"]["production"]["plan_review"] == "independent"
 
 
+def test_workflow_docs_ship_to_every_project(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True)  # base → opencode
+
+    workflows = tmp_path / ".aspis" / "workflows"
+    for doc in ("plan.md", "build.md", "review.md", "fix.md", "small-task.md"):
+        assert (workflows / doc).is_file()  # the `workflows` kind lands in the brain
+    # the plan workflow names the deterministic scripts it drives
+    plan = (workflows / "plan.md").read_text(encoding="utf-8")
+    assert "feature_scaffold.py" in plan and "task_compile.py" in plan
+
+
 def test_build_lead_is_a_deep_orchestrator(tmp_path) -> None:
     _engine().run("init", tmp_path, write=True, no_git=True)  # base → opencode
 
