@@ -39,6 +39,15 @@ First, on every planning request, before gathering deep context or writing anyth
 5. **State the plan-of-plan** in one or two lines before proceeding: track, mode, and
    the artifacts to produce.
 
+## Mode is a ceiling, not a floor
+
+The **track** (set by size and complexity) chooses the path; the **mode** only tunes
+how much rigor that path gets. So a genuinely small change in production mode still
+takes the small-task path — production raises the bar *on that path* (require a test,
+require the review) but never forces a full spec + architecture onto a one-file edit.
+Let real simplicity collapse phases even under production; let real risk resist vibe.
+Mode sets the maximum ceremony, not a minimum.
+
 ## Outputs
 
 - A classification (track), complexity read, the chosen mode, and the resolved knob

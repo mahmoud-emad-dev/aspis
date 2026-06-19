@@ -37,6 +37,13 @@ Mode sets *how much ceremony*. Default is **production**. The knobs live in a
 data file (`modes.yaml`) the Planning Lead reads — adding a mode or tuning a knob
 never touches code.
 
+**Mode is a ceiling, not a floor.** The track (chosen by size/complexity, §2) sets
+the *path*; the mode tunes the rigor *on that path*. A small change in production mode
+still takes the small-task path — production demands a test and a review there, but
+never forces a full spec+architecture onto a one-file edit. Real simplicity collapses
+phases even under production; real risk resists vibe. Resolution of *which* mode:
+request > active feature > project default (`.aspis/config/project.yaml`) > `modes.yaml`.
+
 | Knob | Vibe | MVP | Production |
 |---|---|---|---|
 | Spec | goal + a few bullets | stories + acceptance | full SPEC.md |
