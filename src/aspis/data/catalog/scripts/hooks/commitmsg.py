@@ -69,6 +69,7 @@ def validate(message: str, convention: dict[str, Any]) -> list[str]:
 
 def main(argv: list[str] | None = None) -> int:
     """Read the message file (git passes its path as $1); exit 1 on any violation."""
+    _config.force_utf8_stdio()
     args = argv if argv is not None else sys.argv[1:]
     if not args:
         return 0

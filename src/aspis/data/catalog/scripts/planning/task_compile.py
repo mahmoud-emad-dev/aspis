@@ -25,6 +25,8 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import _console
+
 _TASK_RE = re.compile(r"^- \[[ xX]\]\s+(T-\d+)\b(.*)$")
 _MARKER_RE = re.compile(r"\[(?:P|US\d+|US\?)\]", re.IGNORECASE)
 _PATH_SUFFIXES = (".py", ".md", ".yaml", ".yml", ".toml", ".json", ".txt", ".sh", ".cfg", ".ini")
@@ -131,6 +133,7 @@ def compile_tasks(
 
 def main(argv: list[str] | None = None) -> int:
     """CLI entry point."""
+    _console.force_utf8_stdio()
     parser = argparse.ArgumentParser(description="Compile TASKS.md into task packets.")
     parser.add_argument("root", nargs="?", default=".", help="project root")
     parser.add_argument("--feature", default=None, help="feature id/prefix (default: active)")

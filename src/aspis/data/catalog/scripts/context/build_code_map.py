@@ -23,6 +23,7 @@ import ast
 import sys
 from pathlib import Path
 
+import _common
 import build_registry  # reuse SKIP_DIRS so the scan-skip policy stays single-sourced
 
 # ---------------------------------------------------------------------------
@@ -182,6 +183,7 @@ def render(root: Path, files: list[Path]) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     """Write the whole-project code map, or print a scoped skeleton to stdout."""
+    _common.force_utf8_stdio()
     args = list(argv if argv is not None else sys.argv[1:])
     scope: Path | None = None
     if "--scope" in args:

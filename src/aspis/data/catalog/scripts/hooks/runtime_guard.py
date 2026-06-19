@@ -49,6 +49,7 @@ def main() -> int:
     design step. The Claude exit-2 / OpenCode throw paths trigger only once a project
     opts into ``enforcement: block``.
     """
+    _config.force_utf8_stdio()
     root = _git.repo_root()
     paths = list(sys.argv[1:]) or _paths_from_stdin()
     out = [p for p in paths if p and not scope.in_scope(_relative(p, root), root)]

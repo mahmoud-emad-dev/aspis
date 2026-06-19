@@ -25,6 +25,8 @@ import json
 import sys
 from pathlib import Path
 
+import _common
+
 # Directories never scanned: VCS, envs, caches, generated runtimes, the brain.
 SKIP_DIRS = {
     ".git",
@@ -173,6 +175,7 @@ def to_yaml(entries: list[tuple[str, str, str]]) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     """Scan the project root and write the file registry."""
+    _common.force_utf8_stdio()
     args = argv if argv is not None else sys.argv[1:]
     root = Path(args[0]).resolve() if args else Path.cwd()
 
