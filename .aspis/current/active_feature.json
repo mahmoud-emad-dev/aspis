@@ -1,9 +1,9 @@
 {
-  "id": "F-006",
-  "slug": "hooks",
-  "title": "Deterministic hooks — git-hook wall + auto-run + live scope-guard",
-  "path": ".aspis/features/F-006-hooks",
-  "branch": "feat/F-006-hooks",
+  "id": "F-007",
+  "slug": "git",
+  "title": "Git subsystem — committer as single commit authority + aspis commit",
+  "path": ".aspis/features/F-007-git",
+  "branch": "feat/F-007-git",
   "mode": "mvp",
-  "phase": "plan"
+  "phase": "build"
 }
