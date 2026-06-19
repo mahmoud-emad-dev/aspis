@@ -1,42 +1,67 @@
-# Build Packet: <feature-id> / T-NN — <Short Title>
+# Task Packet: <feature-id> / T-NN — <Short Title>
 
-A self-contained unit an executor can complete with no other context.
+A self-contained unit a context-isolated builder can complete with nothing else.
+The Build Lead enriches every `<...>` from its whole-feature context before
+delegating. Fields the mode doesn't need may be marked `N/A` — never left blank.
 
-## Background
-<2–4 sentences: what exists, what this unit changes, and why.>
+## Identity
+- **Feature**: <feature-id> — <feature title>
+- **Task**: T-NN
+- **Type**: <setup | test | model | service | endpoint | wiring | docs | fix>
+- **Criticality**: <low | medium | high>
+- **Mode / model tier**: <vibe|mvp|production> / <cheap|standard|deep>
 
-## Objective
-<One sentence: the exact change to make.>
+## Context
+<2–4 sentences: what exists now, what this task changes, and why.>
 
-## Allowed files (edit ONLY these)
+**Read first** (only what this task needs — from FILE_REGISTRY / CODE_MAP):
+- `<path>` — <why it matters to this task>.
+
+## Scope
+Allowed files (edit ONLY these):
 - `<exact/path/one>`
 - `<exact/path/two>`
 
-## Forbidden
+Forbidden:
 - Anything not listed under Allowed.
 - Secrets: `.env`, keys, tokens, credentials.
 
 ## Steps
-1. <Precise step with the exact file and what to change.>
+1. <Precise step naming the exact file and the change.>
 2. <Precise step.>
 
-## Inputs / examples
+## Skeleton / pseudo-code
+The shape to fill in — signatures, control flow, key data structures — so the
+builder completes it rather than inventing it.
 ```text
-<signatures, expected strings, sample input/output>
+<function/class signatures, the algorithm in pseudo-code, expected I/O>
 ```
 
+## Dependencies & integration
+- **Depends on**: <T-NN … or none> — what this consumes from them.
+- **Feeds**: <T-NN … or none> — what downstream tasks take from this.
+
+## Outputs
+- <The observable artifact(s) this task produces.>
+
+## Acceptance
+Measurable done-conditions, traced to the SPEC where possible.
+- [ ] <observable condition> (SPEC FR-### / SC-###).
+- [ ] Only Allowed files changed.
+
 ## Tests
-- [ ] Tests are in the Allowed files above.
-- [ ] Tests fail before implementation, pass after.
+- [ ] <what to test — or "none: gate only" when the mode/type doesn't warrant one>.
+- [ ] Tests live in the Allowed files; fail before, pass after.
 - [ ] Run: `<exact test command>` before reporting done.
 
-## Done when
-- [ ] <observable condition>.
-- [ ] Only Allowed files changed.
+## Review routing
+- **Needs review**: <yes | no — per criticality and the mode's build_review knob>.
+- **Reviewer**: <sub-agent (default, per-task) | Reviewer lead (high criticality,
+  cross-cutting, or security)>.
 
 ## Verify
 ```bash
-<exact gate commands: lint / format / types / tests>
+<exact gate commands: format / lint / types / tests>
 ```
 
 ## On failure
