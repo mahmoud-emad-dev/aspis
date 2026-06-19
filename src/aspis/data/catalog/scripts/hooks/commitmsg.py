@@ -20,7 +20,9 @@ if __package__ in (None, ""):
 import _config  # noqa: E402
 import _git  # noqa: E402
 
-_SUBJECT = re.compile(r"^(?P<type>[a-z]+)\((?P<scope>[^)]+)\): (?P<title>.+)$")
+# Scope is optional: feature work carries F-NNN[/T-NN | /T-NN..T-MM]; repo-lifecycle
+# commits (init, bootstrap, release) may omit it.
+_SUBJECT = re.compile(r"^(?P<type>[a-z]+)(?:\((?P<scope>[^)]+)\))?: (?P<title>.+)$")
 _SCOPE = re.compile(r"^F-\d{3}(/T-\d{2}(\.\.T-\d{2})?)?$")
 
 
@@ -56,7 +58,7 @@ def validate(message: str, convention: dict[str, Any]) -> list[str]:
     types = convention.get("types") or []
     if types and match["type"] not in types:
         errors.append(f"type '{match['type']}' is not one of {types}")
-    if not _SCOPE.match(match["scope"]):
+    if match["scope"] is not None and not _SCOPE.match(match["scope"]):
         errors.append(f"scope '{match['scope']}' must be F-NNN, F-NNN/T-NN, or F-NNN/T-NN..T-MM")
 
     max_len = int((convention.get("subject") or {}).get("max_length") or 72)
@@ -73,9 +75,11 @@ def main(argv: list[str] | None = None) -> int:
     root = _git.repo_root()
     message = Path(args[0]).read_text(encoding="utf-8")
     errors = validate(message, _config.commit_convention(root))
+    blocking = _config.blocks(root)  # "warn" (default) reports without blocking
+    label = "commit-msg BLOCKED" if blocking else "commit-msg warning"
     for error in errors:
-        print(f"[aspis] commit-msg: {error}", file=sys.stderr)
-    return 1 if errors else 0
+        print(f"[aspis] {label}: {error}", file=sys.stderr)
+    return 1 if (blocking and errors) else 0
 
 
 if __name__ == "__main__":

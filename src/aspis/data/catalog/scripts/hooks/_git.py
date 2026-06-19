@@ -44,3 +44,9 @@ def unstage(paths: list[str]) -> None:
     """Remove *paths* from the index (used after auto-cleaning staged junk)."""
     if paths:
         subprocess.run(["git", "reset", "-q", "HEAD", "--", *paths], check=False)
+
+
+def add(paths: list[str]) -> None:
+    """Stage *paths* (used to re-stage files an auto-fix step just rewrote)."""
+    if paths:
+        subprocess.run(["git", "add", "--", *paths], check=False)

@@ -18,6 +18,7 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import _config  # noqa: E402
 import _git  # noqa: E402
 import scope  # noqa: E402
 
@@ -42,13 +43,20 @@ def _relative(path: str, root: Path) -> str:
 
 
 def main() -> int:
-    """Exit 2 (block) if any target path is outside the active feature's scope."""
+    """Report out-of-scope edits. Exit 2 (block) only in ``block`` mode.
+
+    Default ``warn`` mode never vetoes a runtime edit — runtime blocking is a later
+    design step. The Claude exit-2 / OpenCode throw paths trigger only once a project
+    opts into ``enforcement: block``.
+    """
     root = _git.repo_root()
     paths = list(sys.argv[1:]) or _paths_from_stdin()
-    blocked = [p for p in paths if p and not scope.in_scope(_relative(p, root), root)]
-    for path in blocked:
-        print(f"[aspis] blocked out-of-scope edit: {path}", file=sys.stderr)
-    return 2 if blocked else 0
+    out = [p for p in paths if p and not scope.in_scope(_relative(p, root), root)]
+    blocking = _config.blocks(root)
+    label = "blocked out-of-scope edit" if blocking else "out-of-scope edit (allowed)"
+    for path in out:
+        print(f"[aspis] {label}: {path}", file=sys.stderr)
+    return 2 if (blocking and out) else 0
 
 
 if __name__ == "__main__":

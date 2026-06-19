@@ -8,6 +8,7 @@ first brain fill by running the project's own context scripts. Pre/post staging
 
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 import sys
@@ -179,12 +180,18 @@ def _has_git(ctx: Context) -> bool:
 
 
 def _commit_all(ctx: Context, message: str) -> None:
-    """Stage everything and commit with *message* (best-effort)."""
+    """Stage everything and commit with *message* (best-effort).
+
+    init/bootstrap are authorized human setup: they ship the very R-009 protected
+    paths (rules, constitution), so these commits carry the approval the pre-commit
+    hook looks for. The guard still blocks later, unapproved edits to those paths.
+    """
     _git(ctx.root, "add", "-A")
     subprocess.run(
         ["git", "-C", str(ctx.root), "commit", "-q", "-m", message],
         capture_output=True,
         check=False,
+        env={**os.environ, "ASPIS_ALLOW_PROTECTED": "1"},
     )
 
 

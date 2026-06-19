@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""pre-commit orchestrator — the commit-boundary wall (FR-002).
+"""pre-commit — fix things before the real commit, then check (FR-002).
 
-Deterministic, fast, no LLM, and never the test suite. In order: auto-clean junk
-(block if any staged junk was removed so the cleaned set is re-staged), then block
-on out-of-scope files, R-009 protected paths, secrets, and a fast ruff lint/format
-of the staged Python.
+Philosophy (ship-safe): in the default ``warn`` mode this NEVER blocks. It first
+applies safe auto-fixes — clean junk, format/lint-fix staged Python and re-stage —
+so the commit lands correct, then runs the checks (scope, R-009 protected paths,
+secrets) and only *reports* them. Flip ``enforcement: block`` in hooks.yaml to turn
+the reported issues into a hard stop. No LLM, never pytest.
 """
 
 from __future__ import annotations
@@ -18,13 +19,13 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import _config  # noqa: E402
 import _git  # noqa: E402
 import cleanup  # noqa: E402
 import scope  # noqa: E402
 import secret_scan  # noqa: E402
-from _config import hooks_config  # noqa: E402
 
-# Set this in the environment to approve an R-009 protected-path change.
+# Set this in the environment to approve an R-009 protected-path change (block mode).
 _APPROVE_ENV = "ASPIS_ALLOW_PROTECTED"
 
 
@@ -38,48 +39,58 @@ def _ruff() -> str | None:
     return which("ruff")
 
 
-def _fast_lint(root: Path, staged: list[str], fails: list[str]) -> None:
-    """Run ruff format-check + lint on staged Python (best-effort, never pytest)."""
+def _ruff_configured(root: Path) -> bool:
+    """True when the project declares ruff config (so we fix to its rules, not defaults)."""
+    if (root / "ruff.toml").is_file() or (root / ".ruff.toml").is_file():
+        return True
+    pyproject = root / "pyproject.toml"
+    return pyproject.is_file() and "[tool.ruff]" in pyproject.read_text(encoding="utf-8")
+
+
+def _autofix(root: Path, staged: list[str]) -> list[str]:
+    """Format + lint-fix staged Python and re-stage it. Returns the files touched."""
     py = [f for f in staged if f.endswith(".py") and (root / f).is_file()]
     ruff = _ruff()
-    if not py or not ruff:
-        return
-    for args, label in (
-        ([ruff, "format", "--check", *py], "ruff format"),
-        ([ruff, "check", *py], "ruff check"),
-    ):
-        result = subprocess.run(args, cwd=str(root), capture_output=True, text=True, check=False)
-        if result.returncode != 0:
-            fails.append(f"{label} failed:\n{(result.stdout or result.stderr).strip()}")
+    if not py or not ruff or not _ruff_configured(root):
+        return []
+    for args in ([ruff, "format", *py], [ruff, "check", "--fix", *py]):
+        subprocess.run(args, cwd=str(root), capture_output=True, text=True, check=False)
+    _git.add(py)  # capture any in-place fixes in this commit
+    return py
 
 
 def main() -> int:
-    """Run every wall; exit 1 with all reasons if any blocks the commit."""
+    """Auto-fix, then check. Exit non-zero only in ``block`` mode with open issues."""
     root = _git.repo_root()
     staged = _git.staged_files()
-    fails: list[str] = []
 
+    # 1) Fix what we safely can, before the commit is taken.
     cleaned = cleanup.clean(root, staged)
-    if cleaned.junk:
-        fails.append(f"removed junk files (re-commit without them): {', '.join(cleaned.junk)}")
+    fixed = _autofix(root, staged)
+    for rel in cleaned.junk:
+        print(f"[aspis] removed junk: {rel}")
+    if fixed:
+        print(f"[aspis] auto-formatted {len(fixed)} staged file(s)")
 
-    for path, reason in scope.violations(staged, root):
-        fails.append(f"out of scope: {path} — {reason}")
+    # 2) Check (report; only blocks in block mode).
+    issues: list[str] = []
+    issues += [f"out of scope: {p} — {why}" for p, why in scope.violations(staged, root)]
 
-    protected = list(hooks_config(root).get("protected_paths") or [])
+    protected = list(_config.hooks_config(root).get("protected_paths") or [])
     if protected and not os.environ.get(_APPROVE_ENV):
-        for path in staged:
-            if any(fnmatch(path, pat) for pat in protected):
-                fails.append(f"protected path (R-009): {path} — set {_APPROVE_ENV}=1 to approve")
-
+        issues += [
+            f"protected path (R-009): {p} — set {_APPROVE_ENV}=1 to approve"
+            for p in staged
+            if any(fnmatch(p, pat) for pat in protected)
+        ]
     if secret_scan.main() != 0:
-        fails.append("possible secret in staged changes")
+        issues.append("possible secret in staged changes")
 
-    _fast_lint(root, staged, fails)
-
-    for message in fails:
-        print(f"[aspis] BLOCKED: {message}", file=sys.stderr)
-    return 1 if fails else 0
+    blocking = _config.blocks(root)
+    label = "BLOCKED" if blocking else "warning"
+    for message in issues:
+        print(f"[aspis] {label}: {message}", file=sys.stderr)
+    return 1 if (blocking and issues) else 0
 
 
 if __name__ == "__main__":

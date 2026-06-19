@@ -31,6 +31,16 @@ def hooks_config(root: Path) -> dict[str, Any]:
     return load_yaml(root / ".aspis" / "config" / "hooks.yaml")
 
 
+def enforcement(root: Path) -> str:
+    """Enforcement mode: ``"warn"`` (never blocks, the default) or ``"block"``."""
+    return str(hooks_config(root).get("enforcement") or "warn").lower()
+
+
+def blocks(root: Path) -> bool:
+    """True only when the project has opted into hard blocking."""
+    return enforcement(root) == "block"
+
+
 def commit_convention(root: Path) -> dict[str, Any]:
     """The commit-message convention (the single source for commit style)."""
     return load_yaml(root / ".aspis" / "config" / "commit-convention.yaml")

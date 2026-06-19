@@ -3,6 +3,12 @@
 # No rule lives in code; adding one is editing this file. The hooks degrade to a
 # no-op for any section left empty.
 
+# Enforcement mode. "warn" (default) NEVER blocks a commit or a runtime edit: the
+# hooks only run checks, apply safe auto-fixes, and report — safe to ship to
+# others. Flip to "block" later, once runtime blocking is designed, to turn the
+# same checks into hard walls (non-zero exit). One switch, no code change.
+enforcement: warn
+
 # Regex patterns matched against ADDED lines in the staged diff (secret scan).
 secrets:
   - "AKIA[0-9A-Z]{16}"                                   # AWS access key id
