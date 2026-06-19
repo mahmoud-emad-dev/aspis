@@ -56,3 +56,8 @@ checks:
     statement: Every component is testable in isolation; behaviour changes ship with tests (R-005).
     enforced_by: [planning, build, review]
     review_question: Can this be tested alone, and does a test prove the new behaviour?
+
+  - id: C-PORTABLE
+    statement: Scripts and tools run on Windows and Linux; prefer cross-platform mechanisms (UTF-8 stdio + subprocess reads, pathlib, no assumed console codec/shell).
+    enforced_by: [build, review]
+    review_question: Would this behave the same on Windows and Linux — is any encoding, path, or shell assumption OS-specific?

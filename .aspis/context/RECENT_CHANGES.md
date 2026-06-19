@@ -1,6 +1,12 @@
 <!-- ASPIS:auto START -->
 ## Recent changes
 
+- `1176c34` docs(F-007/T-04): record the why - D-011, architecture, roadmap — 2026-06-20
+- `d242693` test(F-007/T-03): cover compose + aspis commit — 2026-06-20
+- `fabeaad` feat(F-007/T-02): committer uses aspis commit; ship commit skills — 2026-06-20
+- `a52b6bc` feat(F-007/T-01): compose tool + the aspis commit verb — 2026-06-20
+- `ac4bfaa` docs: make cross-platform (Windows + Linux) a constitution rule — 2026-06-20
+- `a7388ae` chore: apply the hooks' housekeeping (reap stale .gitkeep, refresh brain) — 2026-06-20
 - `3466082` docs(F-007/T-00): plan the git subsystem — 2026-06-20
 - `42c9130` fix: make the shipped scripts cross-platform (UTF-8 on Windows + Linux) — 2026-06-20
 - `a65b479` Merge feature F-006: deterministic hooks — 2026-06-20
@@ -10,10 +16,4 @@
 - `a602f34` test(F-006/T-05): cover hook logic, enforcement modes, runtime emission — 2026-06-20
 - `d4842fe` feat(F-006/T-03): non-blocking enforcement + CLI gitignore + init arms hooks — 2026-06-20
 - `dcb4324` feat(F-006/T-02): runtime scope-guard — per-runtime wiring, adapter-emitted — 2026-06-19
-- `0280957` feat(F-006/T-01): shared hook core — scope, secrets, commit-msg, cleanup, gitignore — 2026-06-19
-- `9bc20bc` docs(F-006/T-00): plan deterministic hooks — git-hook wall + auto-run + scope-guard — 2026-06-19
-- `392f17f` Merge feature F-005: extensibility core + architecture constitution — 2026-06-19
-- `e38762a` chore(F-005/T-16): regenerate runtime from catalog so agents carry the constitution — 2026-06-19
-- `de3aa7e` feat(F-005/T-15): commit-convention as a data asset — 2026-06-19
-- `6f0954e` docs(F-005/T-11..T-14): record the why — decisions, architecture, roadmap — 2026-06-19
 <!-- ASPIS:auto END -->
