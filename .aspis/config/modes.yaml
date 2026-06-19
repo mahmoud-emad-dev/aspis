@@ -1,0 +1,55 @@
+# Modes — the rigor dial for planning and building.
+#
+# The Planning Lead reads this in P0 (the `planning-intake` skill) to size a
+# request: pick a mode, and its knobs set how much ceremony each downstream phase
+# gets. Tuning a knob or adding a mode is pure data — no code change. Default is
+# production. A project may override this file in its own `.aspis/config/`.
+#
+# Knob vocabulary (every skill in the loop reads these same words):
+#   spec:          bullets | stories | full      — depth of SPEC.md
+#   architecture:  skip | note | full            — depth of PLAN.md
+#   task_size:     large | medium | small        — granularity of a task packet
+#   plan_review:   skip | self | independent      — who checks the plan before build
+#   build_review:  light | standard | full        — depth of per-task review
+#   test_depth:    gate | core | full             — how much testing a task earns
+#   docs:          none | minimal | complete       — documentation expected
+#   promotable:    true | false | null            — can the result graduate to production
+
+default: production
+
+modes:
+  vibe:
+    title: Vibe
+    intent: Fast, throwaway exploration; speed over ceremony.
+    spec: bullets
+    architecture: skip
+    task_size: large
+    plan_review: skip
+    build_review: light       # one light pass — key checks only, not the deep review
+    test_depth: gate
+    docs: none
+    promotable: false
+
+  mvp:
+    title: MVP
+    intent: Balanced; ship a working slice that can be promoted to production later.
+    spec: stories
+    architecture: note
+    task_size: medium
+    plan_review: self
+    build_review: standard
+    test_depth: core
+    docs: minimal
+    promotable: true
+
+  production:
+    title: Production
+    intent: Maximum rigor; correctness, tests, and review are non-negotiable.
+    spec: full
+    architecture: full
+    task_size: small
+    plan_review: independent
+    build_review: full
+    test_depth: full
+    docs: complete
+    promotable: null          # already production

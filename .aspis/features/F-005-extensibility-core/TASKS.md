@@ -1,4 +1,4 @@
-# F-007 — Tasks
+# F-005 — Tasks
 
 Format: `- [x] T-NN [P?] [US?] <description> (<exact file path>)`. Mode: **mvp**.
 Built directly (no task packets); committed per unit; gate green at each checkpoint.
@@ -32,8 +32,8 @@ Built directly (no task packets); committed per unit; gate green at each checkpo
 ## Phase 3 — the why + docs
 
 - [x] T-11 Decisions D-008 (everything-extensible) + D-009 (constitution layer) (`.aspis/context/DECISIONS.md`)
-- [x] T-12 Update `ARCHITECTURE.md` (asset-kind registry + capability model) and `ROADMAP.md` (F-007 entry; F-005/F-006 deferred + backed up) (`.aspis/context/ARCHITECTURE.md`, `.aspis/context/ROADMAP.md`)
-- [x] T-13 Set `active_feature.json` → F-007 (`.aspis/current/active_feature.json`)
+- [x] T-12 Update `ARCHITECTURE.md` (asset-kind registry + capability model) and `ROADMAP.md` (F-005 entry; old hooks/git deferred + backed up) (`.aspis/context/ARCHITECTURE.md`, `.aspis/context/ROADMAP.md`)
+- [x] T-13 Set `active_feature.json` → F-005 (`.aspis/current/active_feature.json`)
 - [x] T-14 Final gate sweep — ruff format, ruff check, pytest all green (all files)
 
 **Checkpoint**: full gate green; feature complete; docs reflect the new architecture.

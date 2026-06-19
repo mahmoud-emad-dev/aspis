@@ -1,0 +1,58 @@
+# Architecture-constitution checks — the machine-readable form of
+# rules/architecture-constitution.md. Each rule names the role(s) that enforce
+# it and the question that role asks. Agents load only the rules they own.
+#
+# enforced_by ∈ {planning, build, review}.
+
+version: 1
+
+checks:
+  - id: C-COST
+    statement: To add one feature, few existing files should change (1-3 healthy, 10+ is an architecture problem).
+    enforced_by: [planning, review]
+    review_question: How many existing files did this change touch, and was that avoidable?
+
+  - id: C-AUTOMATION
+    statement: Solve with the cheapest mechanism first — script, then tool, then workflow, then agent (R-003).
+    enforced_by: [planning, build]
+    review_question: Is anything an agent here that a deterministic script or hook could do?
+
+  - id: C-LOCAL-CHANGE
+    statement: A feature is added by creating files, not editing many existing ones.
+    enforced_by: [planning, review]
+    review_question: Could this have been mostly new files instead of edits to the core?
+
+  - id: C-PLUGIN-FIRST
+    statement: Anything expected to grow is a plugin; the core never names a concrete implementation.
+    enforced_by: [planning, build]
+    review_question: Does the core now know about a specific profile/runtime/kind it should not?
+
+  - id: C-SINGLE-SOURCE
+    statement: Every fact has exactly one owner; everything else is generated from it.
+    enforced_by: [build, review]
+    review_question: Is any value or rule duplicated across files instead of sourced once?
+
+  - id: C-CONFIG-OVER-CODE
+    statement: Describe behaviour with data, not branching code.
+    enforced_by: [build, review]
+    review_question: Are there if/elif chains that should be a data table?
+
+  - id: C-NO-SPECIAL-CASE
+    statement: No `if runtime == "x"` / `if profile == "y"`; use abstractions and capability checks.
+    enforced_by: [build, review]
+    review_question: Is there a name check that should be a capability or registry lookup?
+
+  - id: C-DISCOVERY
+    statement: Load plugins/kinds by convention; no hand-maintained registry list.
+    enforced_by: [build, review]
+    review_question: Did adding this require editing a central registry by hand?
+
+  - id: C-FILE-SELF-EXPLAINS
+    statement: Every file opens with Purpose / Responsibilities / Does Not / Used By; one concept per file.
+    enforced_by: [build, review]
+    review_question: Can an agent understand this file from its top docstring and skeleton alone?
+
+  - id: C-TESTABLE
+    statement: Every component is testable in isolation; behaviour changes ship with tests (R-005).
+    enforced_by: [planning, build, review]
+    review_question: Can this be tested alone, and does a test prove the new behaviour?

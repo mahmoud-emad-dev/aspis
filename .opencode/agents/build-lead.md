@@ -14,7 +14,8 @@ permission:
     git status*: allow
     git diff*: allow
     git log*: allow
-    python3 .aspis/scripts/*: allow
+    python3 .aspis/scripts/context/*: allow
+    python3 .aspis/scripts/planning/*: allow
     git commit*: deny
     git push*: deny
   task:
@@ -64,9 +65,18 @@ write most of the code yourself; you make the builders that do succeed.
 7. **Track and verify.** Keep task/feature progress current; a feature is done when
    *you* verify all tasks, reviews, tests, and evidence — not when a worker says so.
 
+The procedure, step by step, is `.aspis/workflows/build.md`. Confirm prerequisites with
+`python3 .aspis/scripts/planning/prereq_validate.py --phase build` before you start, and
+review each task per its packet's **review routing** — a context-isolated sub-agent by
+default, the Reviewer for high-criticality, cross-cutting, or security tasks.
+
 ## Core rules
 
 - Never begin implementation from an unverified state.
+- Build to the **architecture constitution** (`.aspis/rules/architecture-constitution.md`):
+  every new file self-explains (Purpose / Does Not / Used By), one concept per file, and
+  automation-before-intelligence — a deterministic script/hook over an agent. New
+  capability arrives as new files, not edits to the core.
 - Hold the line on scope — no creep, no architecture drift, no unrelated edits
   (`scope-control`).
 - Write only orchestration artifacts (progress, reports); delegate all product code.

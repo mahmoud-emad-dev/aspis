@@ -1,4 +1,4 @@
-# F-007 — Extensibility core + architecture constitution · Specification
+# F-005 — Extensibility core + architecture constitution · Specification
 
 Mode: **mvp** — focused rigor. P1 makes the core extension-ready; P2 ships the
 constitution + agent wiring; P3 records the why and updates the docs.
@@ -131,8 +131,8 @@ Out of scope (deferred):
 - **FR-010**: The base profile MUST ship the constitution doc + checks config.
 - **FR-011**: `DECISIONS.md` MUST record D-008 (everything-extensible) and D-009
   (constitution as the global standards layer); `ARCHITECTURE.md` and `ROADMAP.md`
-  MUST be updated (asset-kind registry + capability model; F-007 added; F-005/F-006
-  marked deferred + backed up).
+  MUST be updated (asset-kind registry + capability model; F-005 added; the prior
+  hooks/git cuts marked deferred + backed up).
 - **FR-012**: The full existing test suite MUST stay green; new tests cover
   Stories 1–3.
 
@@ -170,5 +170,6 @@ Out of scope (deferred):
 - Asset kinds are **discovered + overridden**, not a fixed enum (D-008).
 - The constitution is a **global engineering-standards layer**, distinct from the
   operational system rules (R-001…) and shipped everywhere (D-009).
-- Feature numbered **F-007**; F-005 (hooks) and F-006 (git) stay on backup
-  branches and are rebuilt later on this architecture.
+- Feature numbered **F-005**; the prior hooks/git cuts stay on backup
+  branches (`backup/F-005-guards`, `backup/F-006-git`) and are rebuilt later as
+  F-006 (hooks) and F-007 (git) on this architecture.

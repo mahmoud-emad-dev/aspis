@@ -1,4 +1,4 @@
-# F-007 — Extensibility core + architecture constitution · Plan
+# F-005 — Extensibility core + architecture constitution · Plan
 
 Mode: **mvp**. Branched from the F-004 baseline (`4d5d458`). Built directly by the
 planning lead + builder (no task packets), committed per unit.
@@ -50,8 +50,8 @@ catalog dirs  ──discover──▶  assetkinds.KINDS  ◀──override──
 ### The why + docs (P3)
 
 - `DECISIONS.md`: D-008, D-009. `ARCHITECTURE.md`: registry + capability model.
-- `ROADMAP.md`: F-007 entry; F-005/F-006 deferred + backed up.
-- `active_feature.json` → F-007.
+- `ROADMAP.md`: F-005 entry; old hooks/git deferred + backed up.
+- `active_feature.json` → F-005.
 
 ## Risks / mitigations
 

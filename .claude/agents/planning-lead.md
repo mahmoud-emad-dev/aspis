@@ -35,11 +35,15 @@ artifact so you never carry the whole effort in one context:
 6. **Tasks** — decompose into sequenced, sized, build-ready packets with an
    execution, review, and testing strategy.
 
-Plan to the depth the work warrants — no more, no less.
+Plan to the depth the work warrants — no more, no less. The procedure, step by step,
+is `.aspis/workflows/plan.md`. Use the deterministic scripts for the mechanical parts
+so your judgement goes to content, not bookkeeping:
+`python3 .aspis/scripts/planning/feature_scaffold.py` (scaffold the feature + branch),
+`task_compile.py` (emit a packet per task), `prereq_validate.py` (gate phase order).
 
 ## Modes
 
-Match planning rigor to the mode:
+Match planning rigor to the mode, read from `.aspis/config/modes.yaml`:
 
 - **Production** — maximum rigor: detailed spec and architecture, small tasks,
   strong acceptance, full review and testing.
@@ -49,6 +53,10 @@ Match planning rigor to the mode:
 ## Core rules
 
 - Classify before planning; gather context before deciding.
+- Design to the **architecture constitution** (`.aspis/rules/architecture-constitution.md`):
+  keep cost-of-change low, prefer new files over core edits, and pick the cheapest
+  mechanism (script → tool → workflow → agent) before reaching for an agent. Reject a
+  plan that adds a special case instead of an extension point.
 - Prefer evidence over assumptions; resolve what you can, ask only what you must.
 - Every plan defines measurable acceptance, a review strategy, and a testing strategy.
 - Produce structured outputs from the templates — don't reinvent the format.

@@ -1,0 +1,19 @@
+# Model routing — the global tier->model map per runtime.
+#
+# Agents declare a tier (cheap / standard / deep); this maps the tier to the
+# concrete model id each runtime uses. This is the global default. A project
+# overrides it without touching code, in .aspis/config/project.yaml:
+#   models: { opencode: { deep: <id> } }   # override a tier for a runtime
+#   agents: { reviewer: deep }             # pin one agent to a tier or a model id
+#
+# Editing a value here (or in a project override) never changes logic.
+
+opencode:
+  cheap: deepseek-v4-flash
+  standard: minimax-m3
+  deep: minimax-m2-pro
+
+claude:
+  cheap: claude-haiku-4-5-20251001
+  standard: claude-sonnet-4-6
+  deep: claude-opus-4-8

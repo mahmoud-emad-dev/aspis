@@ -59,6 +59,6 @@ Architecture, rules, permissions, security posture, and model-routing changes
 require human approval — never an automated rewrite.
 
 ### R-009 Trace and learn
-Important work leaves a traceable record (commits, reports, events and more later). When a stronger
+Important work leaves a traceable record (commits, reports). When a stronger
 check catches a weaker one's miss, capture the lesson so the same mistake isn't
 repeated.
