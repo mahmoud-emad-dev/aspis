@@ -157,6 +157,28 @@ def test_modes_config_ships_and_parses(tmp_path) -> None:
     assert data["modes"]["production"]["plan_review"] == "independent"
 
 
+def test_commands_render_and_bind_to_their_lead(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True)  # base → opencode
+
+    commands = tmp_path / ".opencode" / "commands"
+    for cmd in ("plan.md", "build.md", "review.md", "system.md", "status.md"):
+        assert (commands / cmd).is_file()
+    # OpenCode binds the command to its lead
+    assert (
+        _frontmatter((commands / "plan.md").read_text(encoding="utf-8"))["agent"] == "planning-lead"
+    )
+    assert (
+        _frontmatter((commands / "build.md").read_text(encoding="utf-8"))["agent"] == "build-lead"
+    )
+
+
+def test_commands_drop_binding_for_claude(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, runtimes=["claude"], no_git=True)
+
+    text = (tmp_path / ".claude" / "commands" / "plan.md").read_text(encoding="utf-8")
+    assert "agent" not in _frontmatter(text)  # Claude commands are not agent-bound
+
+
 def test_workflow_docs_ship_to_every_project(tmp_path) -> None:
     _engine().run("init", tmp_path, write=True, no_git=True)  # base → opencode
 

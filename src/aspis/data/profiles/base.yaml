@@ -48,7 +48,12 @@ skills:
   - skills/asset-authoring
   - skills/system-validation
   - skills/system-repair
-commands: []
+commands:
+  - commands/plan.md
+  - commands/build.md
+  - commands/review.md
+  - commands/system.md
+  - commands/status.md
 templates:
   - templates/SPEC.md
   - templates/PLAN.md
