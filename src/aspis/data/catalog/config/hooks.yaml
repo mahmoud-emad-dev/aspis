@@ -1,0 +1,36 @@
+# Deterministic hook rules — DATA read by .aspis/scripts/hooks/*.
+#
+# No rule lives in code; adding one is editing this file. The hooks degrade to a
+# no-op for any section left empty.
+
+# Regex patterns matched against ADDED lines in the staged diff (secret scan).
+secrets:
+  - "AKIA[0-9A-Z]{16}"                                   # AWS access key id
+  - "(?i)aws_secret_access_key\\s*[:=]\\s*['\"]?[A-Za-z0-9/+=]{40}"
+  - "-----BEGIN (RSA|EC|OPENSSH|DSA|PGP) PRIVATE KEY-----"
+  - "ghp_[A-Za-z0-9]{36}"                                # GitHub personal token
+  - "xox[baprs]-[A-Za-z0-9-]{10,}"                       # Slack token
+  - "(?i)(api[_-]?key|secret|token|passwd|password)\\s*[:=]\\s*['\"][^'\"]{16,}['\"]"
+
+# How the one housekeeping handler recognises shell-redirect ghost files.
+junk:
+  ghost_prefixes: ["=", "*", "-"]
+  ghost_suffixes: [":", ","]
+  keep: ["LICENSE", "Makefile", "Dockerfile", "Procfile", "Justfile"]
+  skip_dirs:
+    - ".git"
+    - ".venv"
+    - "node_modules"
+    - "__pycache__"
+    - ".ruff_cache"
+    - ".pytest_cache"
+    - ".mypy_cache"
+    - "dist"
+    - "build"
+
+# R-009 protected paths — changing any needs human approval (ASPIS_ALLOW_PROTECTED=1).
+protected_paths:
+  - "rules/**"
+  - ".aspis/rules/**"
+  - ".claude/settings.json"
+  - "**/permissions*.yaml"
