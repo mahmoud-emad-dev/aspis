@@ -1,0 +1,9 @@
+{
+  "id": "F-005",
+  "slug": "extensibility-core",
+  "title": "Extensibility core + architecture constitution",
+  "path": ".aspis/features/F-005-extensibility-core",
+  "branch": "feat/F-005-extensibility-core",
+  "mode": "mvp",
+  "phase": "build"
+}

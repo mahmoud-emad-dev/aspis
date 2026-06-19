@@ -25,6 +25,14 @@ class RuntimeAdapter(ABC):
     #: Unmapped tokens pass through unchanged.
     tools: dict[str, str] = {}
 
+    #: Asset kinds this runtime accepts; ``None`` means it accepts every kind.
+    #: A runtime opts out of a per-runtime kind by listing only what it supports.
+    capabilities: frozenset[str] | None = None
+
+    def supports(self, kind: str) -> bool:
+        """Whether this runtime accepts assets of *kind* (``None`` ⇒ all kinds)."""
+        return self.capabilities is None or kind in self.capabilities
+
     def __init__(self) -> None:
         from aspis import resources
 

@@ -35,6 +35,10 @@ build new features.
 6. **Report.** Issue, root cause, the change, tests run, and residual risk; hand the
    commit to the `committer`.
 
+The procedure, step by step, is `.aspis/workflows/fix.md`. Fixes default to production
+rigor regardless of the feature's mode — a defect that escaped is evidence the bar was
+too low.
+
 ## Core rules
 
 - Fix the cause, not the symptom — avoid temporary patches that hide the problem.

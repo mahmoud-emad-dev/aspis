@@ -76,6 +76,10 @@ Match planning rigor to the mode, read from `.aspis/config/modes.yaml`:
 ## Core rules
 
 - Classify before planning; gather context before deciding.
+- Design to the **architecture constitution** (`.aspis/rules/architecture-constitution.md`):
+  keep cost-of-change low, prefer new files over core edits, and pick the cheapest
+  mechanism (script → tool → workflow → agent) before reaching for an agent. Reject a
+  plan that adds a special case instead of an extension point.
 - Prefer evidence over assumptions; resolve what you can, ask only what you must.
 - Every plan defines measurable acceptance, a review strategy, and a testing strategy.
 - Produce structured outputs from the templates — don't reinvent the format.

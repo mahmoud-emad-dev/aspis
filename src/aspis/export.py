@@ -13,13 +13,10 @@ import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from aspis import project, transform
+from aspis import assetkinds, project, transform
 from aspis.catalog import split_frontmatter
-from aspis.constants import BRAIN_DIR
 from aspis.profiles import Profile
-
-# Asset kinds placed per runtime; everything else lands once under the brain.
-_RUNTIME_KINDS = ("agents", "skills", "commands")
+from aspis.runtimes import get_adapter
 
 
 @dataclass(frozen=True)
@@ -40,23 +37,6 @@ class ExportPlan:
     actions: list[ExportAction] = field(default_factory=list)
     missing: list[str] = field(default_factory=list)
     skipped_by_scope: list[str] = field(default_factory=list)
-
-
-def _target_and_op(kind: str, runtime: str, rel: str) -> tuple[str, str]:
-    """Map an asset kind to its project-relative target path and write op."""
-    name = Path(rel).name
-    mapping = {
-        "agents": (f".{runtime}/agents/{name}", "render-agent"),
-        "commands": (f".{runtime}/commands/{name}", "render-command"),
-        "skills": (f".{runtime}/skills/{name}", "copy"),
-        "templates": (f"{BRAIN_DIR}/templates/{name}", "copy"),
-        "hooks": (f"{BRAIN_DIR}/hooks/{name}", "copy"),
-        "scripts": (f"{BRAIN_DIR}/scripts/{name}", "copy"),
-        "rules": (f"{BRAIN_DIR}/rules/{name}", "copy"),
-        "config": (f"{BRAIN_DIR}/config/{name}", "copy"),
-        "workflows": (f"{BRAIN_DIR}/workflows/{name}", "copy"),
-    }
-    return mapping[kind]
 
 
 def _asset_meta(source: Path, kind: str) -> tuple[str, set[str]]:
@@ -85,14 +65,19 @@ def plan_export(catalog_root: Path, profile: Profile) -> ExportPlan:
             plan.skipped_by_scope.append(rel)
             continue
 
-        runtimes = profile.runtimes if kind in _RUNTIME_KINDS else ("",)
+        per_runtime = assetkinds.is_per_runtime(kind)
+        runtimes = profile.runtimes if per_runtime else ("",)
         for runtime in runtimes:
             # Honour runtime-lock: a locked asset skips runtimes outside its set.
             if runtime_lock and runtime not in runtime_lock:
                 plan.skipped_by_scope.append(f"{rel} ({runtime})")
                 continue
-            target, op = _target_and_op(kind, runtime, rel)
-            plan.actions.append(ExportAction(kind, runtime, source, target, op))
+            # Honour the runtime capability model: drop a kind a runtime can't accept.
+            if per_runtime and not get_adapter(runtime).supports(kind):
+                plan.skipped_by_scope.append(f"{rel} ({runtime}: unsupported)")
+                continue
+            target = assetkinds.target(kind, runtime, rel)
+            plan.actions.append(ExportAction(kind, runtime, source, target, assetkinds.op(kind)))
     return plan
 
 
