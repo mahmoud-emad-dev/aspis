@@ -60,6 +60,12 @@ review, commit grouping → agents.
 10. **Consistency over Cleverness** — boring, predictable, repeatable wins.
 11. **Architecture before Features** — if more features of this shape are coming,
     build the extension mechanism first, then the feature.
+12. **Portable by Default** — every script and tool runs on **Windows and Linux**.
+    Prefer the cross-platform mechanism over an OS-specific one: force **UTF-8**
+    on stdio and on every `subprocess` read (`encoding="utf-8"`), use `pathlib`
+    over string paths, and never assume a console codec, path separator, or shell.
+    An OS difference (encoding, paths, line endings, process spawning) is a bug to
+    fix at the source, not to work around per machine.
 
 If only three are enforced: **Plugin First · Single Source of Truth · Local Change.**
 

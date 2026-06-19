@@ -76,6 +76,17 @@ emitted) share one scope/secret/junk/gitignore implementation. They are **non-bl
 by default** (`enforcement: warn`): auto-fix what is safe and report the rest; one
 `enforcement: block` switch turns the same checks into walls. They never run the suite.
 
+## Git
+
+One commit authority. The **committer** is the only agent that commits, and it commits
+through **`aspis commit`** (D-011): stage the explicitly named paths (never `-A`),
+compose the message with `scripts/git/compose.py`, then `git commit` so the F-006 hooks
+fire. The split is **agent composes · tool builds the message · hooks enforce** —
+`pre-commit` auto-fixes and checks, `commit-msg` validates the convention, `post-commit`
+refreshes the brain. The message rules live once in `commit-convention.yaml`; the
+composer reuses the hook's validator, so there is a single source. Pushing, PRs, and
+worktrees are deferred.
+
 ## Load-bearing principles
 
 Four ideas the whole design rests on:

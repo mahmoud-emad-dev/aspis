@@ -79,3 +79,16 @@ stays version-controlled in `.aspis/scripts/hooks/`); we did **not** add a paral
 location. `.gitignore` is sourced from the canonical Toptal API with an offline cache.
 Commit scope is optional so repo-lifecycle commits (init/bootstrap) need no feature id.
 This replaced the old F-005 "guards" (preserved on `backup/F-005-guards`).
+
+## D-011 — The committer is the single commit authority; it commits through `aspis commit` (2026-06-20)
+The git subsystem (F-007) is the **authoring side over the F-006 hooks**. The committer
+is the only agent that commits, and it commits through **`aspis commit`**: stage the
+explicitly named paths (**never `git add -A`**), compose the message with
+`scripts/git/compose.py`, then run `git commit` so the hooks enforce automatically.
+The split is **the agent composes, the tool builds the message, the hooks enforce** —
+`pre-commit` auto-fixes + checks, `commit-msg` validates the convention, `post-commit`
+refreshes the brain. The message rules live once in `commit-convention.yaml` (F-005);
+`compose.py` applies them by reusing F-006's `commitmsg.validate`, so there is no second
+copy. Three skills ship the human "how" — commit-message, commit-splitting,
+clean-tree-precondition. Pushing, PRs, worktrees, and conflict resolution are deferred.
+This replaced the old F-006 git cut (preserved on `backup/F-006-git`).

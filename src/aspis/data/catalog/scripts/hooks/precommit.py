@@ -54,13 +54,22 @@ def _autofix(root: Path, staged: list[str]) -> list[str]:
     if not py or not ruff or not _ruff_configured(root):
         return []
     for args in ([ruff, "format", *py], [ruff, "check", "--fix", *py]):
-        subprocess.run(args, cwd=str(root), capture_output=True, text=True, check=False)
+        subprocess.run(
+            args,
+            cwd=str(root),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+        )
     _git.add(py)  # capture any in-place fixes in this commit
     return py
 
 
 def main() -> int:
     """Auto-fix, then check. Exit non-zero only in ``block`` mode with open issues."""
+    _config.force_utf8_stdio()
     root = _git.repo_root()
     staged = _git.staged_files()
 

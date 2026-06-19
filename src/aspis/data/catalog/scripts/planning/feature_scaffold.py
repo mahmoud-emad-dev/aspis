@@ -29,6 +29,8 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import _console
+
 _TEMPLATES = ("SPEC.md", "PLAN.md", "TASKS.md")
 _STOP = {"a", "an", "the", "to", "for", "of", "and", "add", "make", "in", "on"}
 
@@ -162,6 +164,7 @@ def prepare_feature(
 
 def main(argv: list[str] | None = None) -> int:
     """CLI entry point."""
+    _console.force_utf8_stdio()
     parser = argparse.ArgumentParser(description="Scaffold a new ASPIS feature.")
     parser.add_argument("root", nargs="?", default=".", help="project root")
     parser.add_argument("--name", required=True, help="feature name / one-line goal")

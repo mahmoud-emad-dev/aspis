@@ -9,7 +9,25 @@ Python puts the running script's directory on ``sys.path``.
 from __future__ import annotations
 
 import subprocess
+import sys
 from pathlib import Path
+
+
+def force_utf8_stdio() -> None:
+    """Make stdout/stderr emit UTF-8 on legacy consoles (mirrors ``aspis.cli``).
+
+    Best-effort: streams without ``reconfigure`` (e.g. a test capture buffer) are
+    left untouched. Keeps these standalone scripts from crashing when they print a
+    non-ASCII character (an arrow, a check mark) under a cp1252 console (Windows).
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if callable(reconfigure):
+            try:
+                reconfigure(encoding="utf-8")
+            except (ValueError, OSError):
+                pass
+
 
 # Markers bounding the regenerated block; anything outside them is preserved.
 AUTO_START = "<!-- ASPIS:auto START -->"
@@ -31,6 +49,8 @@ def git(root: Path, *args: str) -> str:
             ["git", "-C", str(root), *args],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=False,
         )
     except OSError:

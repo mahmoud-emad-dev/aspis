@@ -15,6 +15,7 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import _config  # noqa: E402
 import _git  # noqa: E402
 import cleanup  # noqa: E402
 import gitignore  # noqa: E402
@@ -29,6 +30,7 @@ def _refresh_context(root: Path) -> None:
 
 def main() -> int:
     """Run the auto-run steps; swallow errors so a commit is never undone."""
+    _config.force_utf8_stdio()
     root = _git.repo_root()
     for step in (
         lambda: cleanup.clean(root),

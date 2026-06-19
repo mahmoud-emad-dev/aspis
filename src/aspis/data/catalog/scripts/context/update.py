@@ -13,6 +13,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import _common
 import build_code_map
 import build_registry
 import build_state
@@ -24,6 +25,7 @@ _UPDATERS = (build_registry, build_state, record_changes, build_code_map)
 
 def main(argv: list[str] | None = None) -> int:
     """Refresh every context file for the given (or current) project root."""
+    _common.force_utf8_stdio()
     args = argv if argv is not None else sys.argv[1:]
     root = Path(args[0]).resolve() if args else Path.cwd()
     for updater in _UPDATERS:

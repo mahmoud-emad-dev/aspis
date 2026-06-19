@@ -44,11 +44,13 @@ run traced so the system measures and improves itself.
   secrets, and the commit convention as walls the model can't cross, and run light
   auto-run scripts — clean junk, maintain `.gitignore` by stack, refresh context —
   never the test suite. Turns R-001/R-002/R-004 into machine-checked invariants.
-- **Phase 3.6 — Git subsystem (F-007).** ⏳ Next, designed from research. A
-  first cut is preserved on `backup/F-006-git`; the full git system — the committer as
-  single commit authority composing messages per `commit-convention.yaml`, the
-  pre/commit-msg/post split, agent-role vs. automatic — is built on the F-005 core
-  and the F-006 hooks.
+- **Phase 3.6 — Git subsystem (F-007).** ✅ Done, built on the F-005 core and F-006
+  hooks. The **committer** is the single commit authority and commits through
+  **`aspis commit`** (D-011): stage explicit paths (never `-A`), compose the message
+  with `scripts/git/compose.py` reusing the convention + the F-006 validator, then
+  `git commit` so the hooks enforce. Split: agent composes · tool builds the message ·
+  hooks enforce (pre = fix/check, commit-msg = convention, post = refresh). Three skills
+  ship the "how". A first cut is preserved on `backup/F-006-git`; push/PRs/worktrees deferred.
 - **Phase 4 — Tracing spine.** ⏳ Reserved. One writer keyed by `run_id`,
   append-only JSONL truth, a normalized store; cost + quality measurable per
   feature/agent/model. (Capture runs in parallel with Phase 3.)

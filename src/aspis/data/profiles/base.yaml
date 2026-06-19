@@ -49,6 +49,9 @@ skills:
   - skills/asset-authoring
   - skills/system-validation
   - skills/system-repair
+  - skills/commit-message
+  - skills/commit-splitting
+  - skills/clean-tree-precondition
 commands:
   - commands/plan.md
   - commands/build.md

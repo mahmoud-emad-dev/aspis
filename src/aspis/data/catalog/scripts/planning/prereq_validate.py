@@ -23,6 +23,8 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import _console
+
 # Standard ordering: each phase needs the artifacts of the phases before it.
 _PHASE_REQUIRES = {
     "plan": ["SPEC.md"],
@@ -115,6 +117,7 @@ def validate(
 
 def main(argv: list[str] | None = None) -> int:
     """CLI entry point. Exit 1 when a prerequisite is missing."""
+    _console.force_utf8_stdio()
     parser = argparse.ArgumentParser(description="Validate feature phase prerequisites.")
     parser.add_argument("root", nargs="?", default=".", help="project root")
     parser.add_argument(

@@ -10,6 +10,7 @@ thin consumer.
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -17,6 +18,21 @@ try:  # PyYAML ships with aspis; the installed hook wrapper runs that interprete
     import yaml
 except ImportError:  # pragma: no cover - degraded mode
     yaml = None  # type: ignore[assignment]
+
+
+def force_utf8_stdio() -> None:
+    """Make stdout/stderr emit UTF-8 on legacy consoles (mirrors ``aspis.cli``).
+
+    Best-effort: streams without ``reconfigure`` are left untouched. Keeps a hook
+    from crashing when it prints a non-ASCII character under a cp1252 console.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if callable(reconfigure):
+            try:
+                reconfigure(encoding="utf-8")
+            except (ValueError, OSError):
+                pass
 
 
 def load_yaml(path: Path) -> dict[str, Any]:

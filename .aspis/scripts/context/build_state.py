@@ -40,6 +40,7 @@ def run(root: Path) -> Path:
 
 def main(argv: list[str] | None = None) -> int:
     """Run the updater against the given (or current) project root."""
+    _common.force_utf8_stdio()
     args = argv if argv is not None else sys.argv[1:]
     root = Path(args[0]).resolve() if args else Path.cwd()
     target = run(root)
