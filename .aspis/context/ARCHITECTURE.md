@@ -26,6 +26,15 @@ Selection is data: **profiles** list which catalog assets a project receives.
 `init` plans the export (dry-run) and writes it; nothing about *which* assets
 ship is hard-coded.
 
+**Asset kinds are data, not an enum (D-008).** One registry (`assetkinds.py`) is
+the single source for how each kind is placed: any kind a profile names defaults
+to a brain copy, and only the rendered/per-runtime kinds (`agents`, `commands`,
+`skills`) carry an override. So adding a new brain kind is purely additive — drop
+a `catalog/<kind>/` dir and list it in a profile, with **no core edit**. Whether a
+runtime accepts a kind is the adapter's `supports(kind)` **capability**, so export
+never name-checks a runtime. Cost-of-change for a new kind, runtime, or profile is
+~0 core files — the discipline the architecture constitution enforces.
+
 ## Agents
 
 - **Agent = thin instruction + skills.** The instruction holds identity, rules,

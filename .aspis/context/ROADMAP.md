@@ -28,11 +28,24 @@ run traced so the system measures and improves itself.
   (feature-scaffold, task-compile, prereq-validate), workflow docs per track, the
   `plan-critic` check, data-driven model routing (project override + per-agent pin),
   and a catalog consistency guard. Mode is a *ceiling*, not a floor.
-- **Phase 3.5 — Deterministic hooks (F-005).** ⏳ Next. Wire runtime hooks
-  (Claude Code `PreToolUse`/`Stop`/`FileChanged`; OpenCode `tool.execute.before`/
-  `stop`/`file.edited`) as a per-runtime hook adapter, to enforce scope-guard,
-  protect-paths, commit-discipline, gate-before-done, and prereq-gating as walls the
-  model can't cross — turning R-001/R-002/R-004 into machine-checked invariants.
+- **Phase 3.4 — Extensibility core + constitution (F-007).** ◐ In progress. Make
+  the engine grow by adding files, not editing core: asset kinds are a data registry
+  (a new kind defaults to a brain copy, zero core edits) and runtimes declare a
+  `supports(kind)` capability instead of being name-checked (D-008). Ship the
+  architecture constitution — the global engineering-standards layer — and wire it
+  into the planning, build, and review leads (D-009). Done before more features so
+  the next ones are drop-ins.
+- **Phase 3.5 — Deterministic hooks (F-005).** ⏳ Deferred, rebuilt on F-007. A first
+  cut shipped runtime "guards" but was overengineered (one kind forced edits across
+  six core files); it is preserved on `backup/F-005-guards` and rebuilt as real
+  **hooks** on the new asset-kind + capability core. Goal unchanged: enforce
+  scope-guard, protect-paths, commit-discipline, gate-before-done, and prereq-gating
+  as walls the model can't cross — turning R-001/R-002/R-004 into machine-checked
+  invariants.
+- **Phase 3.6 — Git subsystem (F-006).** ⏳ Deferred, design owned by the user. A
+  first cut is preserved on `backup/F-006-git`; the full git system (hooks vs. a
+  committer-triggered commit tool, the pre/on-commit/post split, agent-role vs.
+  automatic) is specified later and rebuilt on the F-007 core.
 - **Phase 4 — Tracing spine.** ⏳ Reserved. One writer keyed by `run_id`,
   append-only JSONL truth, a normalized store; cost + quality measurable per
   feature/agent/model. (Capture runs in parallel with Phase 3.)

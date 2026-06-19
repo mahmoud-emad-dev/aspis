@@ -40,3 +40,24 @@ valid rules take effect. An agent loads only the layer relevant to its work.
 This factory repo is a live ASPIS project (`.aspis/` + `.opencode/` + `.claude/`).
 Subsequent features run through the live planning → build → review loop, so the
 catalog is proven by using it.
+
+## D-008 — Everything extensible: asset kinds are data, runtimes declare capability (2026-06-19)
+Adding an asset kind must not edit the core. Asset kinds live in one registry
+(`assetkinds.py`): any kind a profile names defaults to a brain copy, and only the
+rendered/per-runtime kinds carry an override — so a new brain kind (e.g. a future
+`knowledge`) is purely additive. Runtimes declare what they accept via
+`RuntimeAdapter.supports(kind)`; `export.py` reads placement, write op, and
+per-runtime gating from the registry + capability, never from a name check
+(`if runtime == "claude"` is banned). Cost-of-change for a new kind/runtime/profile
+is ~0 core files. This replaced the F-005 "guards" design, where one kind forced
+edits across six core files; F-005/F-006 are backed up and rebuilt on this base.
+
+## D-009 — The architecture constitution is the global engineering-standards layer (2026-06-19)
+Beyond the three operational rule layers (system/project/user, D-006), there is a
+global engineering-standards layer: `rules/architecture-constitution.md` — how code
+and assets are *designed* (cost-of-change, plugin-first, single-source, local-change,
+no special cases, capability checks, self-explaining files). It ships everywhere and
+governs ASPIS itself. A machine-readable checklist (`config/constitution-checks.yaml`)
+maps each rule to the role that enforces it; the planning lead designs to it, the
+build lead builds to it, the reviewer checks against it. Standards are a reusable
+asset, not prompt text.
