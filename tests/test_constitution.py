@@ -32,3 +32,15 @@ def test_base_profile_ships_the_constitution() -> None:
     catalog = resources.catalog_dir()
     assert (catalog / "rules" / "architecture-constitution.md").exists()
     assert (catalog / "config" / "constitution-checks.yaml").exists()
+
+
+def test_commit_convention_ships_and_is_well_formed() -> None:
+    base = load_profile(resources.data_dir() / "profiles" / "base.yaml")
+    assert "config/commit-convention.yaml" in base.config
+
+    path = resources.catalog_dir() / "config" / "commit-convention.yaml"
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    assert {"feat", "fix"} <= set(data["types"])
+    assert data["scope"]["task_span"] == "T-NN..T-MM"
+    # The no-attribution rule must be present (history reads as human-authored).
+    assert "co-authored-by" in data["forbid_attribution"]

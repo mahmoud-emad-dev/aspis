@@ -1,0 +1,51 @@
+# Commit-message convention — the single source for ASPIS commit style.
+#
+# This is DATA, not machinery. The git subsystem (committer agent + a validate
+# step) consumes it when that feature is built; until then it is the documented
+# convention every agent and human follows. History is scanned later for project
+# history, so it must read as if a careful human wrote it.
+
+# Allowed commit types (the title prefix).
+types: [feat, fix, refactor, docs, chore, test, style, perf]
+
+# Scope — always the feature id; optionally a task, or a task SPAN when one
+# commit covers several tasks. Never label a multi-task commit with only the
+# first task.
+scope:
+  feature: "F-NNN"          # always present, e.g. F-007
+  task: "T-NN"              # one planned task, e.g. T-02
+  task_span: "T-NN..T-MM"   # a commit covering several tasks, e.g. T-01..T-05
+  plan_task: "T-00"         # the plan / scaffold commit
+  examples:
+    - "feat(F-007/T-01..T-05): asset kinds as data + capability model"
+    - "docs(F-007/T-00): plan extensibility core"
+    - "fix(F-003): doctor path resolution"
+
+# Title.
+subject:
+  pattern: "<type>(F-NNN[/T-NN | /T-NN..T-MM]): <imperative title>"
+  max_length: 72
+  imperative: true
+
+# Body.
+body:
+  require: true
+  bullets: "2-10 real change/notes lines (~5 typical); only what a human would record; no filler"
+  tasks_trailer: "for a multi-task commit, end with a 'Tasks: T-NN, ...' (or T-NN..T-MM) line"
+
+# Branch naming (kept here so the whole git convention has one home).
+branch: "<type>/F-NNN-<short-slug>"
+
+# History must read as human-authored — never any AI / model / tool attribution.
+forbid_attribution:
+  - "co-authored-by"
+  - "claude"
+  - "opus"
+  - "sonnet"
+  - "anthropic"
+  - "gpt-"
+  - "openai"
+  - "copilot"
+  - "generated with"
+  - "ai-generated"
+  - "🤖"
