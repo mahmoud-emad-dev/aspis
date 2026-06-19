@@ -47,24 +47,30 @@ def init_core(ctx: Context) -> None:
     for missing in plan.missing:
         ctx.log(f"missing reference (skipped): {missing}")
 
-    # 2) Scaffold the brain, 3) ship context scripts, 4) root files, 5) init git.
+    # 2) Scaffold the brain, 3) ship helper scripts, 4) root files, 5) init git.
     _scaffold_brain(ctx, write=write)
-    _ship_context_scripts(ctx, write=write)
+    _ship_scripts(ctx, write=write)
     _write_root_files(ctx, project_name, profile, write=write, force=force)
     if not ctx.options.get("no_git"):
         _git_init(ctx, write=write)
 
 
-def _ship_context_scripts(ctx: Context, *, write: bool) -> None:
-    """Copy the self-contained context-update scripts into the project."""
-    source = resources.catalog_dir() / "scripts" / "context"
-    dest = ctx.root / BRAIN_DIR / "scripts" / "context"
-    for script in sorted(source.glob("*.py")):
-        target = dest / script.name
-        ctx.log(f"ship {target.relative_to(ctx.root).as_posix()}")
-        if write:
-            dest.mkdir(parents=True, exist_ok=True)
-            target.write_text(script.read_text(encoding="utf-8"), encoding="utf-8")
+def _ship_scripts(ctx: Context, *, write: bool) -> None:
+    """Copy the self-contained helper scripts (context, planning, …) into the project.
+
+    Every group folder under ``catalog/scripts/`` ships to ``.aspis/scripts/<group>/``,
+    so a new script category is added by dropping a folder — no code change here.
+    """
+    root = resources.catalog_dir() / "scripts"
+    groups = (p for p in sorted(root.iterdir()) if p.is_dir() and not p.name.startswith("_"))
+    for group in groups:
+        dest = ctx.root / BRAIN_DIR / "scripts" / group.name
+        for script in sorted(group.glob("*.py")):
+            target = dest / script.name
+            ctx.log(f"ship {target.relative_to(ctx.root).as_posix()}")
+            if write:
+                dest.mkdir(parents=True, exist_ok=True)
+                target.write_text(script.read_text(encoding="utf-8"), encoding="utf-8")
 
 
 def _scaffold_brain(ctx: Context, *, write: bool) -> None:

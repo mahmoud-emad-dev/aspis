@@ -4,6 +4,7 @@
 # back as their features land (e.g. traces with tracing).
 dirs:
   - .aspis/context
+  - .aspis/current
   - .aspis/index
   - .aspis/features
   - .aspis/hooks
