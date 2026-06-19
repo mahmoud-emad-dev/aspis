@@ -8,7 +8,9 @@ registering it — no change to the transformer.
 
 from __future__ import annotations
 
+import shutil
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 import yaml
 
@@ -29,9 +31,37 @@ class RuntimeAdapter(ABC):
     #: A runtime opts out of a per-runtime kind by listing only what it supports.
     capabilities: frozenset[str] | None = None
 
+    #: Scope-guard wiring as (catalog-relative source, project-relative target) pairs.
+    #: Empty ⇒ this runtime emits no runtime hooks (the capability is opt-in by data).
+    runtime_hooks: tuple[tuple[str, str], ...] = ()
+
     def supports(self, kind: str) -> bool:
         """Whether this runtime accepts assets of *kind* (``None`` ⇒ all kinds)."""
         return self.capabilities is None or kind in self.capabilities
+
+    def emit_runtime_hooks(
+        self, catalog_root: Path, target_root: Path, *, force: bool = False, write: bool = False
+    ) -> list[str]:
+        """Place this runtime's scope-guard wiring; honours force/write like the exporter.
+
+        Runtime hooks are runtime-specific files at fixed locations (Claude's
+        ``settings.json``, OpenCode's plugin), so the adapter owns the placement
+        rather than the uniform per-kind target rule.
+        """
+        performed: list[str] = []
+        for src_rel, dst_rel in self.runtime_hooks:
+            source = catalog_root / src_rel
+            destination = target_root / dst_rel
+            if not source.is_file():
+                continue
+            if destination.exists() and not force:
+                performed.append(f"skip (exists): {dst_rel}")
+                continue
+            performed.append(f"copy: {dst_rel}")
+            if write:
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, destination)
+        return performed
 
     def __init__(self) -> None:
         from aspis import resources
