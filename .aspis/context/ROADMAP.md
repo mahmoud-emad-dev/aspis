@@ -35,7 +35,7 @@ run traced so the system measures and improves itself.
   architecture constitution — the global engineering-standards layer — wired
   into the planning, build, and review leads (D-009). Built before more features so
   the next ones are drop-ins.
-- **Phase 3.5 — Deterministic hooks (F-006).** ◐ In progress, built on F-005. A first
+- **Phase 3.5 — Deterministic hooks (F-006).** ✅ Done — non-blocking (`warn`) by default, built on F-005. A first
   cut shipped runtime "guards" but was overengineered (one kind forced edits across
   six core files); it is preserved on `backup/F-005-guards` and rebuilt as real
   **hooks** on the new asset-kind + capability core. Two surfaces: git hooks

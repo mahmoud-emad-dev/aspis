@@ -29,7 +29,8 @@ finish F-006 and move on. Read it fully, then execute the remaining tasks.
 ## Current state
 - Branch: `feat/F-006-hooks` (off `main`, which is `F-004 → F-005` merge `392f17f`).
 - Commits done: `T-00` plan, `T-01` shared core, `T-02` runtime guard, `T-03` non-blocking
-  + CLI + init-arms-hooks, `T-05` tests. **Remaining: T-04, T-06.**
+  + CLI + init-arms-hooks, `T-05` tests, `T-06` docs (D-010 + ARCHITECTURE + ROADMAP).
+  **Remaining: T-04 (dogfood regenerate), then the F-006 merge.**
 - The OLD F-005 guards live on `backup/F-005-guards`; old git on `backup/F-006-git`.
 
 ## Numbering (already done — context only)
@@ -85,7 +86,9 @@ Goal: ASPIS carries its own hooks config + scripts in `.aspis/`, and `.git/hooks
    per the Generated-Artifacts principle; say so in the body).
 7. Run the gate; commit.
 
-### T-06 — Docs (the why)
+### T-06 — Docs (the why) — ✅ DONE
+D-010 appended to DECISIONS.md, ARCHITECTURE.md gained a "Hooks" section, ROADMAP Phase
+3.5 marked ✅ Done, TASKS boxes checked. (Reference content below, for context.)
 1. `.aspis/context/DECISIONS.md` — append **D-010** (date 2026-06-20). Content:
    - Hooks are TWO deterministic surfaces (git-commit boundary + per-runtime tool-use
      boundary) over ONE shared core; no LLM in the pipeline.

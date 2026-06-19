@@ -66,6 +66,16 @@ context scripts under `.aspis/scripts/context/`.
 Deterministic gates (`ruff format`, `ruff check`, `pytest`) are the bar (R-002).
 Tests are spec (R-005). One writer per branch; only the committer commits (R-004).
 
+## Hooks
+
+Two deterministic surfaces (no LLM) over one shared core in `.aspis/scripts/hooks/`,
+driven by data in `config/hooks.yaml` (D-010). The git **commit boundary**
+(`pre-commit`/`commit-msg`/`post-commit`, installed in `.git/hooks/`) and the
+per-runtime **tool-use boundary** (Claude `settings.json`, OpenCode plugin, adapter-
+emitted) share one scope/secret/junk/gitignore implementation. They are **non-blocking
+by default** (`enforcement: warn`): auto-fix what is safe and report the rest; one
+`enforcement: block` switch turns the same checks into walls. They never run the suite.
+
 ## Load-bearing principles
 
 Four ideas the whole design rests on:
