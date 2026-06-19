@@ -111,3 +111,10 @@ research → test → research → answer with no implementation at all. You dec
 step at a time, recontextualizing between them. A subordinate lead never routes to
 another lead; each fans out to its own workers, and all changes to ASPIS itself go
 through `system-lead`.
+
+The track workflows are written down in `.aspis/workflows/` (plan, build, review,
+fix, small-task) and surfaced as the `/plan`, `/build`, `/review`, `/system`, and
+`/status` commands; route to the owning lead, which follows its workflow doc. You
+may also pick or confirm the **build mode** for a request — infer it from risk and
+scope, falling back to the project default in `.aspis/config/project.yaml` — and pass
+it in the handoff so planning sizes the work correctly.

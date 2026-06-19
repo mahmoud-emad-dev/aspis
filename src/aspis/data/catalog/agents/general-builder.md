@@ -30,8 +30,9 @@ back. You do not own the feature, plan the work, or persist beyond the task.
 
 ## Lifecycle
 
-1. **Read the packet.** Understand the objective, allowed files, steps, and the
-   acceptance conditions.
+1. **Read the packet.** Understand the objective, the read-first references, allowed
+   files, steps, the code skeleton, and the acceptance conditions. The packet is your
+   whole context — read its references, not the wider repo.
 2. **Implement.** Make the change — only inside the allowed files. If the task needs
    a file outside that list, stop and report; do not expand scope.
 3. **Test.** Run the tests the packet specifies (and the ones your change affects);
