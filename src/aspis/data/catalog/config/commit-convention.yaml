@@ -8,22 +8,25 @@
 # Allowed commit types (the title prefix).
 types: [feat, fix, refactor, docs, chore, test, style, perf]
 
-# Scope — always the feature id; optionally a task, or a task SPAN when one
-# commit covers several tasks. Never label a multi-task commit with only the
-# first task.
+# Scope — the feature id when the commit belongs to a feature; optionally a task,
+# or a task SPAN when one commit covers several tasks. Never label a multi-task
+# commit with only the first task. Scope is OMITTED for repo-lifecycle commits that
+# belong to no feature (init / bootstrap / release).
 scope:
-  feature: "F-NNN"          # always present, e.g. F-005
+  feature: "F-NNN"          # the feature id, e.g. F-005
   task: "T-NN"              # one planned task, e.g. T-02
   task_span: "T-NN..T-MM"   # a commit covering several tasks, e.g. T-01..T-05
   plan_task: "T-00"         # the plan / scaffold commit
+  optional: true            # omit for non-feature lifecycle commits
   examples:
     - "feat(F-005/T-01..T-05): asset kinds as data + capability model"
     - "docs(F-005/T-00): plan extensibility core"
     - "fix(F-003): doctor path resolution"
+    - "chore: initialize ASPIS project"
 
 # Title.
 subject:
-  pattern: "<type>(F-NNN[/T-NN | /T-NN..T-MM]): <imperative title>"
+  pattern: "<type>[(F-NNN[/T-NN | /T-NN..T-MM])]: <imperative title>"
   max_length: 72
   imperative: true
 

@@ -61,3 +61,21 @@ governs ASPIS itself. A machine-readable checklist (`config/constitution-checks.
 maps each rule to the role that enforces it; the planning lead designs to it, the
 build lead builds to it, the reviewer checks against it. Standards are a reusable
 asset, not prompt text.
+
+## D-010 — Hooks are two deterministic surfaces over one shared core, non-blocking by default (2026-06-20)
+Hooks fire at two boundaries: the git **commit boundary** (`pre-commit`, `commit-msg`,
+`post-commit`) and the per-runtime **tool-use boundary** (Claude `settings.json`
+`PreToolUse`, OpenCode `tool.execute.before`). The scope decision, secret scan, junk
+rules, and gitignore logic live once under `.aspis/scripts/hooks/`; both surfaces
+import them — no LLM in the pipeline. Rules are data in `config/hooks.yaml`.
+**Non-blocking by default**: `enforcement: warn` auto-fixes what it safely can (clean
+junk + stale `.gitkeep`, `ruff format`/`--fix` staged code, re-stage) and only reports
+scope/secret/protected/message issues, so the project is safe to ship to others; a
+single `enforcement: block` switch turns the same checks into hard walls once runtime
+blocking is designed — no code change. Git hooks install into `.git/hooks/` (logic
+stays version-controlled in `.aspis/scripts/hooks/`); we did **not** add a parallel
+`.aspis/githooks/`. Runtime wiring is **adapter-emitted** and capability-gated
+(`RuntimeAdapter.emit_runtime_hooks`, D-002): each runtime owns its file's fixed
+location. `.gitignore` is sourced from the canonical Toptal API with an offline cache.
+Commit scope is optional so repo-lifecycle commits (init/bootstrap) need no feature id.
+This replaced the old F-005 "guards" (preserved on `backup/F-005-guards`).

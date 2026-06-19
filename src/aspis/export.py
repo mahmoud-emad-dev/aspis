@@ -37,6 +37,7 @@ class ExportPlan:
     actions: list[ExportAction] = field(default_factory=list)
     missing: list[str] = field(default_factory=list)
     skipped_by_scope: list[str] = field(default_factory=list)
+    catalog_root: Path | None = None  # carried so the writer can emit runtime hooks
 
 
 def _asset_meta(source: Path, kind: str) -> tuple[str, set[str]]:
@@ -54,7 +55,7 @@ def _asset_meta(source: Path, kind: str) -> tuple[str, set[str]]:
 
 def plan_export(catalog_root: Path, profile: Profile) -> ExportPlan:
     """Compute the export actions for *profile* against *catalog_root* (no writes)."""
-    plan = ExportPlan()
+    plan = ExportPlan(catalog_root=catalog_root)
     for kind, rel in profile.assets():
         source = catalog_root / rel
         if not source.exists():
@@ -98,6 +99,15 @@ def write_export(
         if write:
             destination.parent.mkdir(parents=True, exist_ok=True)
             _apply(action, destination, project_config)
+
+    # Each runtime emits its own scope-guard wiring (adapter-owned placement).
+    if plan.catalog_root is not None:
+        for runtime in sorted({action.runtime for action in plan.actions if action.runtime}):
+            performed.extend(
+                get_adapter(runtime).emit_runtime_hooks(
+                    plan.catalog_root, target_root, force=force, write=write
+                )
+            )
     return performed
 
 

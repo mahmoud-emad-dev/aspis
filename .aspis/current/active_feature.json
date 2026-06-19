@@ -1,9 +1,9 @@
 {
-  "id": "F-005",
-  "slug": "extensibility-core",
-  "title": "Extensibility core + architecture constitution",
-  "path": ".aspis/features/F-005-extensibility-core",
-  "branch": "feat/F-005-extensibility-core",
+  "id": "F-006",
+  "slug": "hooks",
+  "title": "Deterministic hooks — git-hook wall + auto-run + live scope-guard",
+  "path": ".aspis/features/F-006-hooks",
+  "branch": "feat/F-006-hooks",
   "mode": "mvp",
-  "phase": "build"
+  "phase": "plan"
 }

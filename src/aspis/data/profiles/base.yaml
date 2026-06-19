@@ -70,6 +70,7 @@ config:
   - config/models.yaml
   - config/constitution-checks.yaml
   - config/commit-convention.yaml
+  - config/hooks.yaml
 workflows:
   - workflows/plan.md
   - workflows/build.md

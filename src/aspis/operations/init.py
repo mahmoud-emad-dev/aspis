@@ -9,6 +9,7 @@ templates — no runtime-specific logic lives here.
 from __future__ import annotations
 
 import subprocess
+import sys
 
 from aspis import detect, resources
 from aspis.constants import BRAIN_DIR
@@ -47,30 +48,35 @@ def init_core(ctx: Context) -> None:
     for missing in plan.missing:
         ctx.log(f"missing reference (skipped): {missing}")
 
-    # 2) Scaffold the brain, 3) ship helper scripts, 4) root files, 5) init git.
+    # 2) Scaffold the brain, 3) ship helper scripts, 4) root files, 5) init git,
+    # 6) arm the git hooks.
     _scaffold_brain(ctx, write=write)
     _ship_scripts(ctx, write=write)
     _write_root_files(ctx, project_name, profile, write=write, force=force)
     if not ctx.options.get("no_git"):
         _git_init(ctx, write=write)
+        _install_git_hooks(ctx, write=write)
 
 
 def _ship_scripts(ctx: Context, *, write: bool) -> None:
-    """Copy the self-contained helper scripts (context, planning, …) into the project.
+    """Copy the self-contained helper scripts (context, planning, hooks, …) into the project.
 
     Every group folder under ``catalog/scripts/`` ships to ``.aspis/scripts/<group>/``,
-    so a new script category is added by dropping a folder — no code change here.
+    recursively, so a new script category — and any data files it carries (e.g. the
+    gitignore offline cache) — is added by dropping a folder, no code change here.
     """
     root = resources.catalog_dir() / "scripts"
     groups = (p for p in sorted(root.iterdir()) if p.is_dir() and not p.name.startswith("_"))
     for group in groups:
         dest = ctx.root / BRAIN_DIR / "scripts" / group.name
-        for script in sorted(group.glob("*.py")):
-            target = dest / script.name
+        for source in sorted(group.rglob("*")):
+            if not source.is_file() or "__pycache__" in source.parts or source.suffix == ".pyc":
+                continue
+            target = dest / source.relative_to(group)
             ctx.log(f"ship {target.relative_to(ctx.root).as_posix()}")
             if write:
-                dest.mkdir(parents=True, exist_ok=True)
-                target.write_text(script.read_text(encoding="utf-8"), encoding="utf-8")
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
 
 
 def _scaffold_brain(ctx: Context, *, write: bool) -> None:
@@ -113,6 +119,21 @@ def _git_init(ctx: Context, *, write: bool) -> None:
     ctx.log("git init")
     if write:
         subprocess.run(["git", "init", "-q"], cwd=str(ctx.root), capture_output=True, check=False)
+
+
+def _install_git_hooks(ctx: Context, *, write: bool) -> None:
+    """Arm the git hooks by running the shipped installer (writes .git/hooks wrappers)."""
+    installer = ctx.root / BRAIN_DIR / "scripts" / "hooks" / "install.py"
+    if not (ctx.root / ".git").exists():
+        return
+    ctx.log("install git hooks (.git/hooks)")
+    if write and installer.is_file():
+        subprocess.run(
+            [sys.executable, str(installer), str(ctx.root)],
+            cwd=str(ctx.root),
+            capture_output=True,
+            check=False,
+        )
 
 
 def register(engine: Engine) -> None:

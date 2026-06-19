@@ -21,6 +21,8 @@ class OpenCodeAdapter(RuntimeAdapter):
     """Renders catalog assets for the OpenCode runtime."""
 
     name = "opencode"
+    # Scope-guard wiring: a tool.execute.before plugin under .opencode/plugins.
+    runtime_hooks = (("runtime-hooks/opencode/scope-guard.ts", ".opencode/plugins/scope-guard.ts"),)
 
     def render_agent(self, agent: CatalogAgent, *, project_config: dict | None = None) -> str:
         data: dict = {
