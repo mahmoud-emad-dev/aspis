@@ -53,6 +53,7 @@ def _target_and_op(kind: str, runtime: str, rel: str) -> tuple[str, str]:
         "hooks": (f"{BRAIN_DIR}/hooks/{name}", "copy"),
         "scripts": (f"{BRAIN_DIR}/scripts/{name}", "copy"),
         "rules": (f"{BRAIN_DIR}/rules/{name}", "copy"),
+        "config": (f"{BRAIN_DIR}/config/{name}", "copy"),
     }
     return mapping[kind]
 

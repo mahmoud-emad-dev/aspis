@@ -10,3 +10,4 @@ dirs:
   - .aspis/templates
   - .aspis/scripts
   - .aspis/rules
+  - .aspis/config

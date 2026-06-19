@@ -1,6 +1,6 @@
 ---
 name: planning-intake
-description: Use at the start of any planning request to classify the work and size it — what kind of request this is, its complexity and risk, the right mode, and therefore how much planning it needs. Sets the planning depth so effort matches the work.
+description: Use at the start of any planning request to classify the work and size it — what kind of request this is, its complexity and risk, the right mode, and therefore how much planning it needs. Reads .aspis/config/modes.yaml so effort matches the work.
 ---
 
 # Planning Intake
@@ -17,22 +17,32 @@ First, on every planning request, before gathering deep context or writing anyth
 
 ## Procedure
 
-1. **Classify the request.** Question · small fix · task · feature · epic · new
-   project · architecture change · research request. The class sets the path.
+1. **Classify the request — the track.** Question · trivial · small task / bug ·
+   feature · project plan. The track sets the path:
+   - *Question* → answer from project intelligence; no plan, no branch.
+   - *Trivial* → no plan; readiness → change → gate → commit.
+   - *Small task / bug* → one task packet only (no spec/architecture).
+   - *Feature* → the full lifecycle (P1–P5), sized by mode.
+   - *Project plan* → project-level planning, then decompose into features.
 2. **Assess complexity.** Scope, risk, dependencies, unknowns, and blast radius on
-   the existing project.
-3. **Pick the mode.** Production (max rigor), MVP (balanced), or Vibe (speed) —
-   from the request, the project's default, or a quick confirmation.
-4. **Set the planning depth.** Map class + complexity + mode to which artifacts are
-   needed (spec only, spec+plan, or full spec+architecture+tasks) and how granular.
-5. State the plan-of-plan in one or two lines before proceeding.
+   the existing project — this nudges the mode (high risk resists vibe).
+3. **Pick the mode from `.aspis/config/modes.yaml`.** Use the request's stated mode,
+   else the file's `default`. Do not invent knobs — read them from the chosen mode.
+4. **Apply the mode's knobs.** The file gives, per mode: `spec`, `architecture`,
+   `task_size`, `plan_review`, `build_review`, `test_depth`, `docs`, `promotable`.
+   These decide which artifacts P2–P5 produce and how deep each goes (e.g.
+   `architecture: skip` drops P3; `plan_review: skip` drops P5).
+5. **State the plan-of-plan** in one or two lines before proceeding: track, mode, and
+   the artifacts to produce.
 
 ## Outputs
 
-- A classification, complexity read, mode, and the set of artifacts to produce.
+- A classification (track), complexity read, the chosen mode, and the resolved knob
+  set that sizes every downstream phase.
 
 ## Anti-patterns
 
 - Full planning ceremony for a trivial change.
 - Skipping classification and planning everything the same way.
+- Hard-coding mode behaviour instead of reading `modes.yaml`.
 - Choosing a mode the project or user didn't ask for.

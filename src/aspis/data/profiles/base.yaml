@@ -58,3 +58,5 @@ hooks: []
 scripts: []
 rules:
   - rules/system-rules.md
+config:
+  - config/modes.yaml

@@ -142,6 +142,21 @@ def test_system_rules_ship_to_every_project(tmp_path) -> None:
     assert "R-001" in text and "three rule layers" in text.lower()
 
 
+def test_modes_config_ships_and_parses(tmp_path) -> None:
+    import yaml
+
+    _engine().run("init", tmp_path, write=True, no_git=True)  # base → opencode
+
+    modes_file = tmp_path / ".aspis" / "config" / "modes.yaml"
+    assert modes_file.is_file()  # the `config` kind lands in the brain
+    data = yaml.safe_load(modes_file.read_text(encoding="utf-8"))
+    assert data["default"] == "production"
+    assert set(data["modes"]) == {"vibe", "mvp", "production"}
+    # vibe keeps a light review — not "none" (the locked decision)
+    assert data["modes"]["vibe"]["build_review"] == "light"
+    assert data["modes"]["production"]["plan_review"] == "independent"
+
+
 def test_build_lead_is_a_deep_orchestrator(tmp_path) -> None:
     _engine().run("init", tmp_path, write=True, no_git=True)  # base → opencode
 
