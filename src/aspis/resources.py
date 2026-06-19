@@ -36,3 +36,9 @@ def brain_dirs() -> list[str]:
     """Return the brain skeleton directories from ``data/brain.yaml``."""
     data = yaml.safe_load((data_dir() / "brain.yaml").read_text(encoding="utf-8")) or {}
     return list(data.get("dirs", []))
+
+
+def model_map(runtime: str) -> dict[str, str]:
+    """Return the global tier->model map for *runtime* from ``config/models.yaml``."""
+    data = yaml.safe_load((catalog_dir() / "config" / "models.yaml").read_text(encoding="utf-8"))
+    return dict((data or {}).get(runtime, {}))

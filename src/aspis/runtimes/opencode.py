@@ -21,17 +21,12 @@ class OpenCodeAdapter(RuntimeAdapter):
     """Renders catalog assets for the OpenCode runtime."""
 
     name = "opencode"
-    models = {
-        "cheap": "deepseek-v4-flash",
-        "standard": "minimax-m3",
-        "deep": "minimax-m2-pro",
-    }
 
-    def render_agent(self, agent: CatalogAgent) -> str:
+    def render_agent(self, agent: CatalogAgent, *, project_config: dict | None = None) -> str:
         data: dict = {
             "description": agent.description,
             "mode": agent.mode,
-            "model": self.model_for(agent.model),
+            "model": self._resolve_model(agent, project_config),
         }
         if agent.temperature is not None:
             data["temperature"] = agent.temperature

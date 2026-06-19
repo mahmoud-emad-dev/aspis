@@ -13,7 +13,7 @@ import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from aspis import transform
+from aspis import project, transform
 from aspis.catalog import split_frontmatter
 from aspis.constants import BRAIN_DIR
 from aspis.profiles import Profile
@@ -100,6 +100,8 @@ def write_export(
     plan: ExportPlan, target_root: Path, *, force: bool = False, write: bool = False
 ) -> list[str]:
     """Perform (or, with ``write=False``, just describe) the planned actions."""
+    # The target's own settings override model routing (tier maps, per-agent pins).
+    project_config = project.load_project_config(target_root)
     performed: list[str] = []
     for action in plan.actions:
         destination = target_root / action.target
@@ -110,14 +112,18 @@ def write_export(
         performed.append(f"{action.op}: {action.target}")
         if write:
             destination.parent.mkdir(parents=True, exist_ok=True)
-            _apply(action, destination)
+            _apply(action, destination, project_config)
     return performed
 
 
-def _apply(action: ExportAction, destination: Path) -> None:
+def _apply(action: ExportAction, destination: Path, project_config: dict) -> None:
     """Execute a single export action against *destination*."""
     if action.op == "render-agent":
-        text = transform.render_agent(action.source.read_text(encoding="utf-8"), action.runtime)
+        text = transform.render_agent(
+            action.source.read_text(encoding="utf-8"),
+            action.runtime,
+            project_config=project_config,
+        )
         destination.write_text(text, encoding="utf-8", newline="\n")
     elif action.op == "render-command":
         text = transform.render_command(action.source.read_text(encoding="utf-8"), action.runtime)

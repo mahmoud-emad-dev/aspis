@@ -17,11 +17,6 @@ class ClaudeAdapter(RuntimeAdapter):
     """Renders catalog assets for the Claude Code runtime."""
 
     name = "claude"
-    models = {
-        "cheap": "claude-haiku-4-5-20251001",
-        "standard": "claude-sonnet-4-6",
-        "deep": "claude-opus-4-8",
-    }
     # Claude Code uses capitalised tool names.
     tools = {
         "read": "Read",
@@ -34,13 +29,13 @@ class ClaudeAdapter(RuntimeAdapter):
         "websearch": "WebSearch",
     }
 
-    def render_agent(self, agent: CatalogAgent) -> str:
+    def render_agent(self, agent: CatalogAgent, *, project_config: dict | None = None) -> str:
         frontmatter = to_frontmatter(
             {
                 "name": agent.name,
                 "description": agent.description,
                 "tools": self.tools_for(agent.tools),
-                "model": self.model_for(agent.model),
+                "model": self._resolve_model(agent, project_config),
             }
         )
         return f"{frontmatter}\n{agent.body}\n"

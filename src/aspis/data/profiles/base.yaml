@@ -66,6 +66,7 @@ rules:
   - rules/system-rules.md
 config:
   - config/modes.yaml
+  - config/models.yaml
 workflows:
   - workflows/plan.md
   - workflows/build.md

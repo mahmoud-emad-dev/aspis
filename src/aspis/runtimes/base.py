@@ -21,24 +21,41 @@ class RuntimeAdapter(ABC):
     #: Runtime key used in profiles and the registry (e.g. "opencode").
     name: str
 
-    #: Map a model tier (cheap/standard/deep) to this runtime's concrete model id.
-    models: dict[str, str]
-
     #: Map a canonical tool token (read/bash/...) to this runtime's tool name.
     #: Unmapped tokens pass through unchanged.
     tools: dict[str, str] = {}
 
+    def __init__(self) -> None:
+        from aspis import resources
+
+        #: tier->concrete model id, loaded from the global models.yaml (data, not code).
+        self.models: dict[str, str] = resources.model_map(self.name)
+
     def model_for(self, tier: str) -> str:
         """Resolve a model tier to a concrete id, falling back to ``standard``."""
-        return self.models.get(tier, self.models["standard"])
+        return self.models.get(tier, self.models.get("standard", tier))
 
     def tools_for(self, tokens: tuple[str, ...]) -> list[str]:
         """Map canonical tool tokens to this runtime's tool names (order preserved)."""
         return [self.tools.get(token, token) for token in tokens]
 
     @abstractmethod
-    def render_agent(self, agent: CatalogAgent) -> str:
+    def render_agent(self, agent: CatalogAgent, *, project_config: dict | None = None) -> str:
         """Return the runtime's on-disk agent file (frontmatter + body)."""
+
+    def _resolve_model(self, agent: CatalogAgent, project_config: dict | None) -> str:
+        """Resolve an agent's concrete model id, honouring project overrides/pins."""
+        if not project_config:
+            return self.model_for(agent.model)
+        from aspis import models
+
+        return models.effective_model(
+            self.name,
+            agent.name,
+            agent.model,
+            global_map=self.models,
+            project_config=project_config,
+        )
 
     @abstractmethod
     def render_command(self, command: CatalogCommand) -> str:
