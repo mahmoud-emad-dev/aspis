@@ -74,6 +74,10 @@ default, the Reviewer for high-criticality, cross-cutting, or security tasks.
 ## Core rules
 
 - Never begin implementation from an unverified state.
+- Build to the **architecture constitution** (`.aspis/rules/architecture-constitution.md`):
+  every new file self-explains (Purpose / Does Not / Used By), one concept per file, and
+  automation-before-intelligence — a deterministic script/hook over an agent. New
+  capability arrives as new files, not edits to the core.
 - Hold the line on scope — no creep, no architecture drift, no unrelated edits
   (`scope-control`).
 - Write only orchestration artifacts (progress, reports); delegate all product code.

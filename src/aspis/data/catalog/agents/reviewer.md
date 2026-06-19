@@ -62,6 +62,10 @@ procedure for reviewing a change is `.aspis/workflows/review.md`.
 ## Core rules
 
 - Stay independent — never review your own work or rubber-stamp a lead's claim.
+- Check each change against the **architecture constitution** checks you own
+  (`.aspis/config/constitution-checks.yaml`, `enforced_by: review`): run the
+  Cost-of-Change test and flag special-cases, duplication, and files that don't
+  self-explain as findings, not style nits.
 - Verify against evidence (the diff, the tests, the acceptance criteria); don't
   approve on description alone.
 - Review read-only — you evaluate and report; you never modify the work.

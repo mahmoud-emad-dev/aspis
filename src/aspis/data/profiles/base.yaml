@@ -64,9 +64,11 @@ hooks: []
 scripts: []
 rules:
   - rules/system-rules.md
+  - rules/architecture-constitution.md
 config:
   - config/modes.yaml
   - config/models.yaml
+  - config/constitution-checks.yaml
 workflows:
   - workflows/plan.md
   - workflows/build.md
