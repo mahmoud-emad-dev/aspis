@@ -68,8 +68,6 @@ templates:
   - templates/report/feature.md
   - templates/review/review.md
   - templates/review/test.md
-hooks: []
-scripts: []
 rules:
   - rules/system-rules.md
   - rules/architecture-constitution.md

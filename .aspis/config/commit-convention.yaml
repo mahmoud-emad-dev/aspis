@@ -1,8 +1,11 @@
 # Commit-message convention — the single source for ASPIS commit style.
 #
-# This is DATA, not machinery. The git subsystem (committer agent + a validate
-# step) consumes it when that feature is built; until then it is the documented
-# convention every agent and human follows. History is scanned later for project
+# This is DATA the git subsystem (F-007) consumes today: `aspis commit` builds the
+# message with scripts/git/compose.py, and the commit-msg hook enforces it through
+# commitmsg.validate. Machine-enforced keys: `types`, `subject.max_length`,
+# `forbid_attribution`, `attribution_models`. The rest (`scope` shape, `body`,
+# `branch`, `subject.pattern`/`imperative`) are the documented convention every
+# agent and human follows but no code checks — history is scanned later for project
 # history, so it must read as if a careful human wrote it.
 
 # Allowed commit types (the title prefix).
@@ -24,19 +27,19 @@ scope:
     - "fix(F-003): doctor path resolution"
     - "chore: initialize ASPIS project"
 
-# Title.
+# Title. Only `max_length` is machine-enforced; `pattern`/`imperative` are advisory.
 subject:
   pattern: "<type>[(F-NNN[/T-NN | /T-NN..T-MM])]: <imperative title>"
   max_length: 72
   imperative: true
 
-# Body.
+# Body — advisory (documented convention, not machine-checked).
 body:
   require: true
   bullets: "2-10 real change/notes lines (~5 typical); only what a human would record; no filler"
   tasks_trailer: "for a multi-task commit, end with a 'Tasks: T-NN, ...' (or T-NN..T-MM) line"
 
-# Branch naming (kept here so the whole git convention has one home).
+# Branch naming — advisory (kept here so the whole git convention has one home).
 branch: "<type>/F-NNN-<short-slug>"
 
 # History must read as human-authored — never any AI / model / tool attribution.
