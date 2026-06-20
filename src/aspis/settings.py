@@ -26,9 +26,6 @@ class Settings(BaseSettings):
     #: Hook subfolder under the brain (event folders live beneath it).
     hooks_dir: str = constants.HOOKS_DIR
 
-    #: Runtime tools available for export.
-    runtimes: tuple[str, ...] = constants.RUNTIMES
-
 
 @lru_cache
 def get_settings() -> Settings:

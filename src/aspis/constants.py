@@ -16,9 +16,6 @@ BRAIN_DIR = ".aspis"
 #: separate top-level dir — the only ``hooks`` folder is ``scripts/hooks`` (git).
 HOOKS_DIR = "scripts/lifecycle"
 
-#: Runtime tools ASPIS can export to. New runtimes are added here.
-RUNTIMES = ("opencode", "claude")
-
 #: Leads promoted from ``subagent`` to ``primary`` after a successful bootstrap.
 #: Every agent ships as a subagent so a fresh project has a single entry point
 #: (``project-lead``, which is always primary and is *not* listed here). Once the
