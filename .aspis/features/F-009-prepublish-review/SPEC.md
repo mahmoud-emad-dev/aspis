@@ -32,6 +32,18 @@ green gate. Models (point 2) is a parallel track gated on the user's model knowl
 6. **Active-feature integrity.** `active_feature.json` must be auto-updated/validated by
    scripts+checks on a real feature/phase change, guarded against wrong overwrite and against
    switching while a previous feature is unfinished.
+7. **Strip stray `.gitkeep`.** A `.gitkeep` belongs only in an empty dir; remove it the moment
+   a dir has real files. Verified stray: `.aspis/features/`, `.aspis/scripts/`.
+8. **Production feature artifacts.** A production feature folder can hold SPEC/PLAN/TASKS/
+   ACCEPTANCE/(review) + per-task packet folders + per-task builder/reviewer/test report
+   folders — but agents don't hand-author them: a tool copies templates in, and creation is
+   mode/model-gated (vibe/MVP or a frontier planner-builder may skip reports).
+9. **Remove the duplicate hooks dir.** `.aspis/hooks/` (empty) duplicates `.aspis/scripts/hooks/`
+   (real). Drop the empty one from the brain skeleton.
+10. **System gitignore + categorized templates + incremental test ledger.** A `.gitignore` for
+    the system's own generated artifacts; reorganize the flat `templates/` into categories
+    (feature/planning/review/report/context); a dated, cached test ledger so the reviewer/tester
+    can skip a test that already ran with no relevant change.
 
 ## Scope
 
