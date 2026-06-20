@@ -49,10 +49,10 @@ def _seed_existing_feature(root: Path, *, phase: str) -> None:
 
 
 def _seed_templates(root: Path) -> None:
-    templates = root / ".aspis" / "templates"
+    templates = root / ".aspis" / "templates" / "planning"
     templates.mkdir(parents=True, exist_ok=True)
     for name in ("SPEC.md", "PLAN.md", "TASKS.md"):
-        (templates / name).write_text(resources.template(name), encoding="utf-8")
+        (templates / name).write_text(resources.template(f"planning/{name}"), encoding="utf-8")
 
 
 def _run_scaffold(root: Path, *extra: str) -> subprocess.CompletedProcess[str]:

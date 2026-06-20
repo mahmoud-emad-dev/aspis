@@ -59,10 +59,10 @@ commands:
   - commands/system.md
   - commands/status.md
 templates:
-  - templates/SPEC.md
-  - templates/PLAN.md
-  - templates/TASKS.md
-  - templates/TASK_PACKET.md
+  - templates/planning/SPEC.md
+  - templates/planning/PLAN.md
+  - templates/planning/TASKS.md
+  - templates/planning/TASK_PACKET.md
 hooks: []
 scripts: []
 rules:

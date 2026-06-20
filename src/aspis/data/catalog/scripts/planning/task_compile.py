@@ -3,7 +3,7 @@
 
 Self-contained (stdlib only). Ships into ``.aspis/scripts/planning/``. Reads the
 active (or named) feature's ``TASKS.md``, parses each task line, and renders a
-packet from ``.aspis/templates/TASK_PACKET.md`` into the feature's ``tasks/``
+packet from ``.aspis/templates/planning/TASK_PACKET.md`` into the feature's ``tasks/``
 folder — filling the *deterministic* fields (feature id, task id, title, the
 allowed-files list from the task's paths) and leaving the rich fields (context,
 skeleton, acceptance, review routing) as guidance for the Build Lead to enrich
@@ -113,7 +113,9 @@ def compile_tasks(
     tasks_md = feature_dir / "TASKS.md"
     if not tasks_md.is_file():
         raise SystemExit(f"no TASKS.md in {result.feature_dir}")
-    template = (root / ".aspis" / "templates" / "TASK_PACKET.md").read_text(encoding="utf-8")
+    template = (root / ".aspis" / "templates" / "planning" / "TASK_PACKET.md").read_text(
+        encoding="utf-8"
+    )
 
     out_dir = feature_dir / "tasks"
     for task in parse_tasks(tasks_md.read_text(encoding="utf-8")):

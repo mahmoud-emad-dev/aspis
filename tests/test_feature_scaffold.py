@@ -17,10 +17,10 @@ SCRIPT = resources.catalog_dir() / "scripts" / "planning" / "feature_scaffold.py
 
 def _seed_templates(root) -> None:
     """Give the tmp project the planning templates the scaffold copies."""
-    templates = root / ".aspis" / "templates"
+    templates = root / ".aspis" / "templates" / "planning"
     templates.mkdir(parents=True)
     for name in ("SPEC.md", "PLAN.md", "TASKS.md"):
-        (templates / name).write_text(resources.template(name), encoding="utf-8")
+        (templates / name).write_text(resources.template(f"planning/{name}"), encoding="utf-8")
 
 
 def test_scaffold_creates_feature_and_pointer(tmp_path) -> None:

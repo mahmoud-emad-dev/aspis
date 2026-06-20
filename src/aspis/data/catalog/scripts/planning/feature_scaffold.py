@@ -7,7 +7,7 @@ its judgement on content, not bookkeeping:
 
   - allocate the next ``F-NNN`` id and a slug from the name,
   - create ``.aspis/features/F-NNN-slug/`` with a ``tasks/`` packet folder,
-  - copy SPEC/PLAN/TASKS from ``.aspis/templates/`` with the id/title filled in,
+  - copy SPEC/PLAN/TASKS from ``.aspis/templates/planning/`` with the id/title filled in,
   - record ``.aspis/current/active_feature.json``,
   - create+checkout the ``feature/F-NNN-slug`` branch when git is present.
 
@@ -129,7 +129,7 @@ def prepare_feature(
         mode=mode,
     )
 
-    templates_dir = brain / "templates"
+    templates_dir = brain / "templates" / "planning"
     for template in _TEMPLATES:
         source = templates_dir / template
         target = feature_dir / template

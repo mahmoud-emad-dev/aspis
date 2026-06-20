@@ -110,9 +110,9 @@ def _seed_authored_files(ctx: Context, project_name: str, *, write: bool, force:
     """
     seeds = {
         ".aspis/context/ARCHITECTURE.md": render(
-            resources.template("ARCHITECTURE.md"), project_name=project_name
+            resources.template("context/ARCHITECTURE.md"), project_name=project_name
         ),
-        ".aspis/config/purposes.json": resources.template("purposes.json"),
+        ".aspis/config/purposes.json": resources.scaffold("purposes.json"),
     }
     for rel, content in seeds.items():
         destination = ctx.root / rel
@@ -130,11 +130,11 @@ def _write_root_files(
 ) -> None:
     """Write AGENTS.md, .gitignore, and (when claude is a target) a full CLAUDE.md."""
     files = {
-        "AGENTS.md": render(resources.template("AGENTS.md"), project_name=project_name),
-        ".gitignore": resources.template("gitignore"),
+        "AGENTS.md": render(resources.scaffold("AGENTS.md"), project_name=project_name),
+        ".gitignore": resources.scaffold("gitignore"),
     }
     if "claude" in profile.runtimes:
-        files["CLAUDE.md"] = render(resources.template("CLAUDE.md"), project_name=project_name)
+        files["CLAUDE.md"] = render(resources.scaffold("CLAUDE.md"), project_name=project_name)
 
     for name, content in files.items():
         destination = ctx.root / name
