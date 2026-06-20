@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import yaml
 
-from aspis import promotion
+from aspis import promotion, runtimes
 from aspis.constants import PROMOTE_TO_PRIMARY
 from aspis.engine import build_engine
 from aspis.operations import register_all
@@ -68,6 +68,18 @@ def test_all_promote_leads_are_present_and_flipped(tmp_path) -> None:
     # path — but the shipped base profile carries the full set.)
     assert set(result.promoted) == set(PROMOTE_TO_PRIMARY)
     assert result.missing == []
+
+
+def test_promote_defaults_to_the_mode_runtime(tmp_path) -> None:
+    # No explicit runtime → promotion targets whichever runtime expresses `mode`,
+    # resolved from the adapter capability rather than a hardcoded name.
+    _engine().run("init", tmp_path, write=True, no_git=True)
+
+    result = promotion.promote_leads(tmp_path, write=True)  # default runtime
+
+    assert runtimes.mode_runtime() == "opencode"
+    assert result.promoted  # the mode runtime's leads were flipped
+    assert _mode(_agent(tmp_path, "system-lead")) == "primary"
 
 
 def test_project_lead_is_always_primary(tmp_path) -> None:
