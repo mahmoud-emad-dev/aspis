@@ -21,6 +21,20 @@ def test_init_scaffolds_brain_and_root_files(tmp_path) -> None:
     assert not (tmp_path / "CLAUDE.md").exists()
 
 
+def test_reinit_does_not_replant_gitkeep_in_populated_dir(tmp_path) -> None:
+    # A re-init over a brain whose directory already holds content must not drop a
+    # stale .gitkeep next to that content.
+    _engine().run("init", tmp_path, write=True, no_git=True, name="demo")
+    features = tmp_path / ".aspis" / "features"
+    (features / ".gitkeep").unlink()  # simulate the reaped state
+    (features / "F-001-demo").mkdir()
+    (features / "F-001-demo" / "SPEC.md").write_text("x", encoding="utf-8")
+
+    _engine().run("init", tmp_path, write=True, force=True, no_git=True, name="demo")
+
+    assert not (features / ".gitkeep").exists()
+
+
 def test_init_writes_claude_md_only_for_claude_runtime(tmp_path) -> None:
     _engine().run("init", tmp_path, write=True, no_git=True, runtimes=["claude"])
     assert (tmp_path / "CLAUDE.md").is_file()
