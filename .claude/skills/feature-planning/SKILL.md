@@ -26,7 +26,7 @@ Once the request is classified and clarified, before architecture and tasks.
    checkable conditions for "done."
 6. **Record assumptions and open questions** carried from clarification.
 
-Fill the `.aspis/templates/SPEC.md` template; keep it free of implementation detail
+Fill the `.aspis/templates/planning/SPEC.md` template; keep it free of implementation detail
 (that belongs in the architecture).
 
 ## Outputs
