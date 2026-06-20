@@ -18,6 +18,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from aspis.constants import PROMOTE_TO_PRIMARY
+from aspis.runtimes import get_adapter
 
 # The first ``mode:`` line in a frontmatter block; groups keep prefix + trailing.
 _MODE_RE = re.compile(r"^(mode:[ \t]*)(\S+)(.*)$", re.MULTILINE)
@@ -40,7 +41,7 @@ def promote_leads(
 ) -> PromotionResult:
     """Flip the post-bootstrap leads to ``primary`` in *target_root*'s runtime dir."""
     result = PromotionResult()
-    agents_dir = target_root / f".{runtime}" / "agents"
+    agents_dir = target_root / get_adapter(runtime).runtime_dir / "agents"
     for name in PROMOTE_TO_PRIMARY:
         path = agents_dir / f"{name}.md"
         if not path.is_file():
