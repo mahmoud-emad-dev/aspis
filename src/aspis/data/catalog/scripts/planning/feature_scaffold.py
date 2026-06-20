@@ -30,9 +30,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import _console
+import active_feature
 
 _TEMPLATES = ("SPEC.md", "PLAN.md", "TASKS.md")
 _STOP = {"a", "an", "the", "to", "for", "of", "and", "add", "make", "in", "on"}
+
+
+class FeatureActiveError(RuntimeError):
+    """Raised when a new feature would overwrite a still-unfinished active feature."""
 
 
 @dataclass
@@ -90,9 +95,15 @@ def prepare_feature(
     slug: str | None = None,
     mode: str = "production",
     create_branch: bool = True,
+    force: bool = False,
     write: bool = False,
 ) -> ScaffoldResult:
-    """Plan (and optionally perform) the scaffold for a new feature."""
+    """Plan (and optionally perform) the scaffold for a new feature.
+
+    Refuses to overwrite the active pointer while a previous feature is still in a
+    working phase, unless *force* is set — guarding the source of truth from a silent
+    switch. Raises :class:`FeatureActiveError` when blocked (only on a real write).
+    """
     brain = root / ".aspis"
     features_dir = brain / "features"
     feature_id = _next_id(features_dir)
@@ -100,6 +111,14 @@ def prepare_feature(
     title = name.strip()
     feature_dir = features_dir / f"{feature_id}-{slug}"
     branch = f"feature/{feature_id}-{slug}"
+
+    if write and not force:
+        existing = active_feature.read_pointer(root)
+        if active_feature.is_unfinished(existing) and existing.get("id") != feature_id:
+            raise FeatureActiveError(
+                f"active feature {existing['id']} is still in phase '{existing['phase']}'. "
+                "Finish it (active_feature.py --set-phase done|merged) or pass --force to switch."
+            )
 
     result = ScaffoldResult(
         feature_id=feature_id,
@@ -174,19 +193,27 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--no-branch", action="store_true", help="do not create a git branch")
     parser.add_argument(
+        "--force", action="store_true", help="switch even if a previous feature is unfinished"
+    )
+    parser.add_argument(
         "--dry-run", action="store_true", help="show what would be created, write nothing"
     )
     args = parser.parse_args(argv if argv is not None else sys.argv[1:])
 
     root = Path(args.root).resolve()
-    result = prepare_feature(
-        root,
-        args.name,
-        slug=args.slug,
-        mode=args.mode or _default_mode(root),
-        create_branch=not args.no_branch,
-        write=not args.dry_run,
-    )
+    try:
+        result = prepare_feature(
+            root,
+            args.name,
+            slug=args.slug,
+            mode=args.mode or _default_mode(root),
+            create_branch=not args.no_branch,
+            force=args.force,
+            write=not args.dry_run,
+        )
+    except FeatureActiveError as exc:
+        print(f"refused: {exc}")
+        return 2
     verb = "would create" if args.dry_run else "created"
     print(f"{result.feature_id} ({result.mode}) → {result.feature_dir}")
     for item in result.created:
