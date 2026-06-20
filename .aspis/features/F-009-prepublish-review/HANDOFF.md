@@ -4,6 +4,36 @@ You are picking up F-009 (pre-publish hardening) in the **ASPIS** repo. The user
 reviewing the project file-by-file and feeding fix points; some are built, the rest
 are listed here. **Continue on the same branch `feat/F-009-prepublish-review`.**
 
+## Session update — T-07..T-12 done (2026-06-20), gate green on WSL, tree clean
+
+Points **7, 8, 9, 10a, 10b, 10c are now BUILT and committed** (each per-unit via `aspis commit`):
+- **T-07 — Point 7** (`.gitkeep`): the reaper now counts subdirectories (a subdir-only dir
+  like `.aspis/features/` is non-empty → its `.gitkeep` is stale); init won't re-plant into a
+  populated dir; the two real strays removed. `scripts/hooks/cleanup.py`, `operations/init.py`.
+- **T-08 — Point 9** (hooks): one hooks folder. Lifecycle engine now reads
+  `.aspis/scripts/lifecycle/<event>/` (`HOOKS_DIR`); `.aspis/hooks/` removed from the skeleton.
+- **T-09 — Point 10b** (templates): categorised into `templates/{planning,context,report,review}/`;
+  init-only scaffolding (AGENTS/CLAUDE/gitignore/purposes.json) moved to `catalog/scaffold/` with
+  `resources.scaffold()`; `assetkinds.target()` now preserves a sub-path under the kind (was
+  basename-only; behaviour-preserving for flat assets).
+- **T-10 — Point 8** (artifacts): `aspis artifact <build|feature|review|test|acceptance>` copies a
+  template into the active feature folder, stamps fixed fields (id/title/task/date), is mode-gated
+  off `modes.yaml` (vibe skips reports unless `--force`), lazy + no-overwrite. New templates under
+  `report/`, `review/`, `planning/ACCEPTANCE`. build-lead + reviewer wired. D-013.
+- **T-11 — Points 10a + 10c**: brain owns its hygiene via `.aspis/.gitignore` (seeded at init;
+  brain entries removed from the project-root `.gitignore`); `aspis tests record|check` = a
+  file-first ledger at `.aspis/index/test-ledger.json` keyed by a content fingerprint, so a passing
+  test is not re-run while nothing relevant changed. `selective-testing` skill checks it first. D-014.
+- **T-12 — dogfood**: regenerated this repo's `.opencode`/`.claude` from the catalog.
+
+Templates were informed by mining the **old ASPS repo** (`../asps/templates/`) and **spec-kit**
+(`../asps/local/vendor/spec-kit`) — kept the lean skeletons (BUILD_DONE_STATUS / REVIEW_REPORT
+shapes, spec-kit's spec/plan/tasks separation), skipped the museum.
+
+**Still open:** Point 2 (models), Point 3 (modes↔task-size), Point 1c (headless purpose
+auto-fill) — all GATED on the user's model file; Point 5 (context consolidation) — user-led.
+See sections 2 and 4 below for the model + ASPS-re-analysis detail (still valid).
+
 ## 0. Read first / ground rules
 
 - Repo: `P:\AI_Empire\Projects\Agentic Software Production System\ASPIS` (Windows path).
