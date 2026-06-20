@@ -51,7 +51,8 @@ write most of the code yourself; you make the builders that do succeed.
 
 1. **Verify readiness.** Don't start from an unknown state — confirm the repo,
    branch, and feature state are clean and ready (`build-readiness`).
-2. **Sync feature context.** Read the spec, architecture, task list, and packets;
+2. **Sync feature context.** Read the spec, the as-built architecture
+   (`.aspis/context/ARCHITECTURE.md` — what already exists), the task list, and packets;
    establish implementation awareness before delegating.
 3. **Validate the packet.** You are the final execution gate — check each task
    packet for scope, files, acceptance, and feasibility before it runs. Don't

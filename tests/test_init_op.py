@@ -33,6 +33,25 @@ def test_init_ships_context_scripts(tmp_path) -> None:
     assert (context / "build_registry.py").is_file()
 
 
+def test_init_seeds_as_built_architecture(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True, name="demo")
+
+    arch = tmp_path / ".aspis" / "context" / "ARCHITECTURE.md"
+    text = arch.read_text(encoding="utf-8")
+    assert text.startswith("# demo — Architecture (as-built)")
+    assert "docs/ARCHITECTURE.md" in text  # documents the intended/as-built split
+
+
+def test_init_does_not_clobber_existing_architecture(tmp_path) -> None:
+    context = tmp_path / ".aspis" / "context"
+    context.mkdir(parents=True)
+    (context / "ARCHITECTURE.md").write_text("# hand-written, keep me\n", encoding="utf-8")
+
+    _engine().run("init", tmp_path, write=True, no_git=True, name="demo")
+
+    assert (context / "ARCHITECTURE.md").read_text(encoding="utf-8") == "# hand-written, keep me\n"
+
+
 def test_init_dry_run_writes_nothing(tmp_path) -> None:
     ctx = _engine().run("init", tmp_path, write=False, no_git=True)
     assert ctx.messages
