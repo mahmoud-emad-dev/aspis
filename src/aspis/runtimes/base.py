@@ -35,6 +35,25 @@ class RuntimeAdapter(ABC):
     #: Empty ⇒ this runtime emits no runtime hooks (the capability is opt-in by data).
     runtime_hooks: tuple[tuple[str, str], ...] = ()
 
+    #: This runtime's own root-guide filename written at the project root (e.g.
+    #: ``"CLAUDE.md"``). ``None`` ⇒ the runtime relies on the universal ``AGENTS.md``
+    #: and gets no extra guide. Lets init emit guides without naming a runtime.
+    root_guide: str | None = None
+
+    #: Whether this runtime expresses an agent ``mode`` field in frontmatter. Only
+    #: such a runtime can have its leads promoted from subagent to primary, so lead
+    #: promotion targets the runtime that sets this rather than a hardcoded name.
+    supports_mode: bool = False
+
+    @property
+    def runtime_dir(self) -> str:
+        """This runtime's on-disk project dir (e.g. ``.claude``), derived from name.
+
+        The single source of the ``.<runtime>`` convention: callers that need a
+        runtime's directory ask the adapter instead of rebuilding ``f".{name}"``.
+        """
+        return f".{self.name}"
+
     def supports(self, kind: str) -> bool:
         """Whether this runtime accepts assets of *kind* (``None`` ⇒ all kinds)."""
         return self.capabilities is None or kind in self.capabilities

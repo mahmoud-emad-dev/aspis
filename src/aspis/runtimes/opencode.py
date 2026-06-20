@@ -21,6 +21,8 @@ class OpenCodeAdapter(RuntimeAdapter):
     """Renders catalog assets for the OpenCode runtime."""
 
     name = "opencode"
+    # OpenCode expresses an agent ``mode`` field, so its leads can be promoted.
+    supports_mode = True
     # Scope-guard wiring: a tool.execute.before plugin under .opencode/plugins.
     runtime_hooks = (("runtime-hooks/opencode/scope-guard.ts", ".opencode/plugins/scope-guard.ts"),)
 
