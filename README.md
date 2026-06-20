@@ -53,7 +53,8 @@ aspis doctor            # check the environment + project health
 ```
 
 New here? Follow the **[Quickstart](docs/QUICKSTART.md)** — from a clone to your first
-`plan → build → review` loop in a few minutes.
+`plan → build → review` loop in a few minutes — then see a real feature built end-to-end
+in **[Your first ASPIS build](docs/FIRST-BUILD.md)**.
 
 ## How it's built
 

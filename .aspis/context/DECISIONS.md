@@ -92,3 +92,19 @@ refreshes the brain. The message rules live once in `commit-convention.yaml` (F-
 copy. Three skills ship the human "how" — commit-message, commit-splitting,
 clean-tree-precondition. Pushing, PRs, worktrees, and conflict resolution are deferred.
 This replaced the old F-006 git cut (preserved on `backup/F-006-git`).
+
+## D-012 — Generated brain indexes are untracked; attribution is matched by phrase (2026-06-20)
+Two v0 (F-008) cleanups. (1) The generated brain indexes — `CURRENT_STATE.md`,
+`RECENT_CHANGES.md`, `CODE_MAP.md`, `FILE_REGISTRY.yaml` — are **not tracked** in Git.
+They are derived artifacts (constitution rule 8, Generated Artifacts), regenerated on
+demand / post-commit, so the working tree stays clean after every commit instead of
+churning. The init `.gitignore` template ignores them; durable context (DECISIONS,
+ARCHITECTURE, ROADMAP, rules) stays tracked. (2) The commit-message attribution check
+matches **attribution phrases and credited model names** (`Co-Authored-By`,
+"generated with", "by/with <model>", "<model>-generated", 🤖) rather than the bare token
+`claude`, so a commit may legitimately name the `.claude` / `.opencode` runtime
+directories. Rules stay data in `commit-convention.yaml` (`forbid_attribution` +
+`attribution_models`). Also v0: CI runs the gate on a Windows + Linux matrix
+(rule 12 / C-PORTABLE), and the README + `docs/QUICKSTART.md` + `docs/FIRST-BUILD.md`
+onboard a newcomer. Model routing, OpenCode provider detection, the research subagent,
+real-env A/B testing, and tracing are deferred to the post-F-007 backlog.
