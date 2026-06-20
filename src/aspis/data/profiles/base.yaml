@@ -63,6 +63,11 @@ templates:
   - templates/planning/PLAN.md
   - templates/planning/TASKS.md
   - templates/planning/TASK_PACKET.md
+  - templates/planning/ACCEPTANCE.md
+  - templates/report/build.md
+  - templates/report/feature.md
+  - templates/review/review.md
+  - templates/review/test.md
 hooks: []
 scripts: []
 rules:

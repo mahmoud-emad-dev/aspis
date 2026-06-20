@@ -66,6 +66,10 @@ write most of the code yourself; you make the builders that do succeed.
    strategy; hand approved work to the `committer` — workers never commit.
 7. **Track and verify.** Keep task/feature progress current; a feature is done when
    *you* verify all tasks, reviews, tests, and evidence — not when a worker says so.
+   Record results with the **template**, never a hand-invented format: run
+   `aspis artifact build --task <T-NN>` (or `aspis artifact feature` at the end), then
+   fill the stamped file with real changes, tests, and gate output. The tool is
+   mode-gated — lean modes skip reports, so don't force them.
 
 The procedure, step by step, is `.aspis/workflows/build.md`. Confirm prerequisites with
 `python3 .aspis/scripts/planning/prereq_validate.py --phase build` before you start, and

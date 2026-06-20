@@ -108,3 +108,17 @@ directories. Rules stay data in `commit-convention.yaml` (`forbid_attribution` +
 (rule 12 / C-PORTABLE), and the README + `docs/QUICKSTART.md` + `docs/FIRST-BUILD.md`
 onboard a newcomer. Model routing, OpenCode provider detection, the research subagent,
 real-env A/B testing, and tracing are deferred to the post-F-007 backlog.
+
+## D-013 — Feature artifacts are template-driven, tool-created, and mode-gated (2026-06-20)
+Agents never hand-author the *shape* of an output. Every feature artifact — the planning
+set (SPEC/PLAN/TASKS/TASK_PACKET/ACCEPTANCE), build/feature reports, and review/test
+reports — has a template under `catalog/templates/<category>/`, and `aspis artifact <kind>`
+copies it into the active feature's folder with the deterministic fields stamped (feature
+id + title, task, date), leaving the body for the agent to fill with real results. This
+kills format hallucination and saves tokens (one command vs. re-deriving the layout).
+Creation is **lazy and mode-gated**: the tool reads the active feature's mode and the
+`modes.yaml` knobs (`docs`, `build_review`, `test_depth`), so a lean mode (e.g. `vibe`)
+writes no reports unless `--force` — only the artifacts a mode earns are created. Templates
+are organised by output purpose (`planning/`, `context/`, `report/`, `review/`); init-only
+scaffolding (`AGENTS.md`, `CLAUDE.md`, `gitignore`, `purposes.json`) lives apart in
+`catalog/scaffold/` because project agents never author it (D-012 split, refined here).
