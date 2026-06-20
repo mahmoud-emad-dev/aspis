@@ -14,12 +14,12 @@ state first; open source files only once you know which the task needs.
 - `.aspis/context/CURRENT_STATE.md` — where the project is right now.
 - `.aspis/context/RECENT_CHANGES.md` — what changed recently, newest first.
 - `.aspis/index/FILE_REGISTRY.yaml` — every file and its purpose; use it to locate
-  code without scanning the tree. A file's purpose is derived in three layers: its
-  own top docstring/comment; a common-purpose map for well-known files (extend it
-  for your own patterns in `.aspis/index/COMMON_PURPOSES.json`); and an explicit
-  `.aspis/index/PURPOSES.json` (`{"path": "purpose"}`). When you create a file that
-  can't carry a docstring (JSON, data) and is not a known type, record its purpose
-  in `PURPOSES.json`.
+  code without scanning the tree. A file's purpose is derived in three layers, all
+  configured in one file, `.aspis/config/purposes.json`: its own top docstring/comment;
+  a common-purpose map for well-known files (`names`/`patterns`); and explicit per-file
+  purposes (`files`: `{"path": "purpose"}`). When you create a file that can't carry a
+  docstring (JSON, data) and is not a known type, register it under `files`. No file
+  should have a blank purpose — `build_registry.py --check` lists the gaps.
 - `.aspis/index/CODE_MAP.md` — each Python file's skeleton (signatures + imports);
   use it to understand a file without reading its body.
 

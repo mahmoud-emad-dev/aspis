@@ -1,0 +1,6 @@
+{
+  "_note": "File purposes for the registry (.aspis/index/FILE_REGISTRY.yaml). 'files': exact relpath -> purpose (highest priority; register files that can't carry a docstring here). 'names': basename -> purpose. 'patterns': glob -> purpose. These extend/override the built-in defaults. Find gaps with: python .aspis/scripts/context/build_registry.py --check",
+  "files": {},
+  "names": {},
+  "patterns": {}
+}

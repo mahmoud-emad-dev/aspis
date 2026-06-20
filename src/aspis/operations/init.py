@@ -52,7 +52,7 @@ def init_core(ctx: Context) -> None:
     # 6) arm the git hooks.
     _scaffold_brain(ctx, write=write)
     _ship_scripts(ctx, write=write)
-    _seed_context(ctx, project_name, write=write, force=force)
+    _seed_authored_files(ctx, project_name, write=write, force=force)
     _write_root_files(ctx, project_name, profile, write=write, force=force)
     if not ctx.options.get("no_git"):
         _git_init(ctx, write=write)
@@ -92,22 +92,28 @@ def _scaffold_brain(ctx: Context, *, write: bool) -> None:
             keep.write_text("", encoding="utf-8", newline="\n")
 
 
-def _seed_context(ctx: Context, project_name: str, *, write: bool, force: bool) -> None:
-    """Seed hand-grown context files that agents maintain (the as-built architecture).
+def _seed_authored_files(ctx: Context, project_name: str, *, write: bool, force: bool) -> None:
+    """Seed hand-grown brain files that agents maintain, never clobbering an existing one.
 
-    Unlike CURRENT_STATE/CODE_MAP (generated, untracked), the as-built architecture is
-    authored by agents over time, so init only plants a skeleton and never clobbers an
-    existing one.
+    Unlike CURRENT_STATE/CODE_MAP (generated, untracked), these are authored over time:
+    the as-built architecture and the file-purpose config the registry reads. Init only
+    plants a skeleton.
     """
-    destination = ctx.root / ".aspis" / "context" / "ARCHITECTURE.md"
-    if destination.exists() and not force:
-        ctx.log("skip (exists): .aspis/context/ARCHITECTURE.md")
-        return
-    ctx.log("write .aspis/context/ARCHITECTURE.md")
-    if write:
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        content = render(resources.template("ARCHITECTURE.md"), project_name=project_name)
-        destination.write_text(content, encoding="utf-8", newline="\n")
+    seeds = {
+        ".aspis/context/ARCHITECTURE.md": render(
+            resources.template("ARCHITECTURE.md"), project_name=project_name
+        ),
+        ".aspis/config/purposes.json": resources.template("purposes.json"),
+    }
+    for rel, content in seeds.items():
+        destination = ctx.root / rel
+        if destination.exists() and not force:
+            ctx.log(f"skip (exists): {rel}")
+            continue
+        ctx.log(f"write {rel}")
+        if write:
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_text(content, encoding="utf-8", newline="\n")
 
 
 def _write_root_files(

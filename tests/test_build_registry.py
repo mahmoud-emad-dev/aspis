@@ -75,51 +75,58 @@ def test_common_map_is_fallback_when_file_has_no_purpose(tmp_path) -> None:
     assert files["Makefile"]["purpose"] == "Build/automation targets"
 
 
-def test_common_purposes_json_extends_and_overrides_defaults(tmp_path) -> None:
+def _write_config(root, payload: dict) -> None:
     import json
 
-    (tmp_path / "weird.xyz").write_text("binary-ish\n", encoding="utf-8")
-    (tmp_path / "LICENSE").write_text("MIT\n", encoding="utf-8")
-    index = tmp_path / ".aspis" / "index"
-    index.mkdir(parents=True)
-    (index / "COMMON_PURPOSES.json").write_text(
-        json.dumps(
-            {
-                "exact": {"LICENSE": "Custom license terms"},  # override a built-in default
-                "patterns": {"*.xyz": "Project widget file"},  # extend with a new pattern
-            }
-        ),
-        encoding="utf-8",
+    config = root / ".aspis" / "config"
+    config.mkdir(parents=True, exist_ok=True)
+    (config / "purposes.json").write_text(json.dumps(payload), encoding="utf-8")
+
+
+def test_purposes_config_one_file_covers_all_three_layers(tmp_path) -> None:
+    # One .aspis/config/purposes.json holds explicit files, common names, and patterns.
+    (tmp_path / "data.json").write_text('{"k": 1}\n', encoding="utf-8")  # no docstring
+    (tmp_path / "app.py").write_text('"""Weak line."""\n', encoding="utf-8")  # docstring overridden
+    (tmp_path / "weird.xyz").write_text("binary-ish\n", encoding="utf-8")  # via pattern
+    (tmp_path / "LICENSE").write_text("MIT\n", encoding="utf-8")  # override a built-in name
+
+    _write_config(
+        tmp_path,
+        {
+            "_note": "agent/human-maintained file purposes",
+            "files": {"data.json": "Seed config for the demo", "app.py": "The real entrypoint"},
+            "names": {"LICENSE": "Custom license terms"},
+            "patterns": {"*.xyz": "Project widget file"},
+        },
     )
 
     subprocess.run([sys.executable, str(SCRIPT), str(tmp_path)], check=True, capture_output=True)
 
-    files = yaml.safe_load((index / "FILE_REGISTRY.yaml").read_text(encoding="utf-8"))["files"]
-    assert files["LICENSE"]["purpose"] == "Custom license terms"  # project override wins
-    assert files["weird.xyz"]["purpose"] == "Project widget file"  # user-added pattern
+    files = yaml.safe_load(
+        (tmp_path / ".aspis" / "index" / "FILE_REGISTRY.yaml").read_text(encoding="utf-8")
+    )["files"]
+    assert files["data.json"]["purpose"] == "Seed config for the demo"  # files: filled
+    assert files["app.py"]["purpose"] == "The real entrypoint"  # files: wins over docstring
+    assert files["LICENSE"]["purpose"] == "Custom license terms"  # names: override built-in
+    assert files["weird.xyz"]["purpose"] == "Project widget file"  # patterns: user-added
 
 
-def test_purposes_json_overrides_and_fills(tmp_path) -> None:
-    import json
+def test_check_reports_files_without_a_purpose(tmp_path) -> None:
+    (tmp_path / "app.py").write_text('"""Has a purpose."""\n', encoding="utf-8")
+    (tmp_path / "mystery.dat").write_text("opaque\n", encoding="utf-8")  # no purpose anywhere
 
-    # A data file that cannot carry a docstring, and a .py whose docstring we override.
-    (tmp_path / "data.json").write_text('{"k": 1}\n', encoding="utf-8")
-    (tmp_path / "app.py").write_text('"""Weak line."""\n', encoding="utf-8")
-    index = tmp_path / ".aspis" / "index"
-    index.mkdir(parents=True)
-    (index / "PURPOSES.json").write_text(
-        json.dumps(
-            {
-                "_note": "agent-maintained purposes for non-self-documenting files",
-                "data.json": "Seed config for the demo",
-                "app.py": "The real entrypoint",
-            }
-        ),
-        encoding="utf-8",
+    result = subprocess.run(
+        [sys.executable, str(SCRIPT), str(tmp_path), "--check"],
+        capture_output=True,
+        text=True,
     )
+    assert result.returncode == 1
+    assert "mystery.dat" in result.stdout
+    assert "app.py" not in result.stdout  # covered files are not reported
 
-    subprocess.run([sys.executable, str(SCRIPT), str(tmp_path)], check=True, capture_output=True)
-
-    files = yaml.safe_load((index / "FILE_REGISTRY.yaml").read_text(encoding="utf-8"))["files"]
-    assert files["data.json"]["purpose"] == "Seed config for the demo"  # filled from JSON
-    assert files["app.py"]["purpose"] == "The real entrypoint"  # override wins over docstring
+    # Register it, and --check passes.
+    _write_config(tmp_path, {"files": {"mystery.dat": "Opaque fixture for the parser test"}})
+    ok = subprocess.run(
+        [sys.executable, str(SCRIPT), str(tmp_path), "--check"], capture_output=True, text=True
+    )
+    assert ok.returncode == 0

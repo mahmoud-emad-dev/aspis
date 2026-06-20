@@ -42,6 +42,16 @@ def test_init_seeds_as_built_architecture(tmp_path) -> None:
     assert "docs/ARCHITECTURE.md" in text  # documents the intended/as-built split
 
 
+def test_init_seeds_purposes_config(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True, name="demo")
+
+    purposes = tmp_path / ".aspis" / "config" / "purposes.json"
+    import json
+
+    data = json.loads(purposes.read_text(encoding="utf-8"))
+    assert set(data) >= {"files", "names", "patterns"}  # the three layers, one file
+
+
 def test_init_does_not_clobber_existing_architecture(tmp_path) -> None:
     context = tmp_path / ".aspis" / "context"
     context.mkdir(parents=True)
