@@ -20,10 +20,10 @@ TASKS = """# F-001 — Tasks
 
 def _seed_feature(root):
     """Create a feature with a TASKS.md, the packet template, and an active pointer."""
-    templates = root / ".aspis" / "templates"
+    templates = root / ".aspis" / "templates" / "planning"
     templates.mkdir(parents=True)
     (templates / "TASK_PACKET.md").write_text(
-        resources.template("TASK_PACKET.md"), encoding="utf-8"
+        resources.template("planning/TASK_PACKET.md"), encoding="utf-8"
     )
 
     feature = root / ".aspis" / "features" / "F-001-retries"

@@ -1,9 +1,9 @@
 {
-  "id": "F-008",
-  "slug": "publish",
-  "title": "v0 publish-readiness — CI, docs, fix findings, worked example",
-  "path": ".aspis/features/F-008-publish",
-  "branch": "feat/F-008-publish",
+  "id": "F-009",
+  "slug": "prepublish-review",
+  "title": "pre-publish review hardening",
+  "path": ".aspis/features/F-009-prepublish-review",
+  "branch": "feat/F-009-prepublish-review",
   "mode": "mvp",
   "phase": "build"
 }

@@ -8,8 +8,8 @@ from aspis.engine import build_engine
 
 
 def _write_hook(root: Path, event: str, name: str, body: str) -> None:
-    """Drop a hook script under the project's hooks/<event>/ folder."""
-    event_dir = root / ".aspis" / "hooks" / event
+    """Drop a hook script under the project's scripts/lifecycle/<event>/ folder."""
+    event_dir = root / ".aspis" / "scripts" / "lifecycle" / event
     event_dir.mkdir(parents=True, exist_ok=True)
     (event_dir / name).write_text(body, encoding="utf-8")
 

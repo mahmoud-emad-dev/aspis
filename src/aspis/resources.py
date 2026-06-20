@@ -28,8 +28,23 @@ def catalog_dir() -> Path:
 
 
 def template(name: str) -> str:
-    """Return the text of a bundled template under ``catalog/templates/``."""
+    """Return the text of a bundled output-shape template under ``catalog/templates/``.
+
+    Templates are the shapes agents and scripts fill so an output's format is never
+    invented (planning artifacts, task/feature reports, review/test results). *name*
+    may include a category sub-path, e.g. ``planning/SPEC.md`` or ``report/task.md``.
+    """
     return (catalog_dir() / "templates" / name).read_text(encoding="utf-8")
+
+
+def scaffold(name: str) -> str:
+    """Return the text of a bundled scaffold file under ``catalog/scaffold/``.
+
+    Scaffold files are generated once by the system at init/bootstrap (the runtime
+    root guides ``AGENTS.md``/``CLAUDE.md``, ``gitignore``, the ``purposes.json`` seed)
+    — project agents never author them, so they are kept apart from agent templates.
+    """
+    return (catalog_dir() / "scaffold" / name).read_text(encoding="utf-8")
 
 
 def brain_dirs() -> list[str]:

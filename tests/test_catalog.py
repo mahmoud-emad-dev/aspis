@@ -128,7 +128,7 @@ def test_planning_lead_skills_and_templates_are_shipped(tmp_path) -> None:
     ):
         assert (skills / skill / "SKILL.md").is_file()
 
-    templates = tmp_path / ".aspis" / "templates"
+    templates = tmp_path / ".aspis" / "templates" / "planning"
     for template in ("SPEC.md", "PLAN.md", "TASKS.md", "TASK_PACKET.md"):
         assert (templates / template).is_file()
 

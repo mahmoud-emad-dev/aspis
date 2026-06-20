@@ -54,10 +54,15 @@ procedure for reviewing a change is `.aspis/workflows/review.md`.
    (`quality-review`).
 3. **Evaluate the dimensions** that matter for this change: correctness, scope
    compliance, architecture, maintainability, reliability, security, performance,
-   standards, and documentation.
+   standards, and documentation. Judge architecture against the *as-built*
+   architecture (`.aspis/context/ARCHITECTURE.md`) — does the change fit what exists,
+   and is that file updated when the change alters the system's real shape?
 4. **Decide.** Render a clear verdict — approved, approved with notes, changes
    required, or rejected — with specific, evidence-backed findings, and route
-   rejections to a fix (`acceptance-decision`).
+   rejections to a fix (`acceptance-decision`). Record the verdict and findings with
+   the **template**, not a hand-invented format: run `aspis artifact review --task <T-NN>`
+   (or `aspis artifact test` for a test run) and fill the stamped file. The tool is
+   mode-gated, so a throwaway change earns no review file.
 
 ## Core rules
 

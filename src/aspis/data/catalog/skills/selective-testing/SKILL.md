@@ -17,16 +17,20 @@ test at feature completion.
 
 ## Procedure
 
-1. **Trace the impact.** Changed files → affected components → the tests that cover
+1. **Check the ledger first.** Before running anything, ask
+   `aspis tests check <the code/test files>`. If it reports `cached: pass`, those files
+   are unchanged since they last passed — reuse that result and skip the run. Only run
+   when it reports `stale`. Don't re-test what hasn't changed.
+2. **Trace the impact.** Changed files → affected components → the tests that cover
    them. Test that set first.
-2. **Run task-level tests.** Unit and targeted tests for the change, plus the
+3. **Run task-level tests.** Unit and targeted tests for the change, plus the
    integration or smoke tests its components touch.
-3. **Scale to risk.** Higher-risk or cross-cutting changes widen the net; small,
+4. **Scale to risk.** Higher-risk or cross-cutting changes widen the net; small,
    isolated changes stay narrow.
-4. **Run the full gate at the right moments.** Reserve the whole-suite run for
+5. **Run the full gate at the right moments.** Reserve the whole-suite run for
    feature completion or when impact is broad — not after every task.
-5. **Record evidence.** Capture what ran and the pass/fail result so review and
-   feature completion can reuse it.
+6. **Record evidence.** After a run, `aspis tests record <files> --result pass|fail` so
+   the next task/review reuses it; capture what ran for the build/review report.
 
 ## Outputs
 

@@ -7,7 +7,6 @@ dirs:
   - .aspis/current
   - .aspis/index
   - .aspis/features
-  - .aspis/hooks
   - .aspis/templates
   - .aspis/scripts
   - .aspis/rules

@@ -102,6 +102,26 @@ def test_cleanup_junk_and_gitkeep(tmp_path: Path) -> None:
     assert not cleanup.clean(root, [])  # idempotent: nothing left to do
 
 
+def test_cleanup_reaps_gitkeep_when_dir_holds_only_subdirs(tmp_path: Path) -> None:
+    # A directory whose only direct entries are subdirectories is still non-empty,
+    # so its .gitkeep is stale (regression: the reaper used to count files only).
+    root = _project(tmp_path)
+    features = root / "container"
+    (features / "child").mkdir(parents=True)
+    (features / ".gitkeep").write_text("", encoding="utf-8")
+    (features / "child" / "real.md").write_text("x", encoding="utf-8")
+
+    result = cleanup.clean(root, [])
+    assert "container/.gitkeep" in result.gitkeep
+    assert not (features / ".gitkeep").exists()
+    # An empty directory keeps its .gitkeep.
+    empty = root / "empty"
+    empty.mkdir()
+    (empty / ".gitkeep").write_text("", encoding="utf-8")
+    assert "empty/.gitkeep" not in cleanup.clean(root, []).gitkeep
+    assert (empty / ".gitkeep").exists()
+
+
 # --- gitignore maintainer (offline) ------------------------------------------
 
 

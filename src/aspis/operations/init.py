@@ -52,6 +52,7 @@ def init_core(ctx: Context) -> None:
     # 6) arm the git hooks.
     _scaffold_brain(ctx, write=write)
     _ship_scripts(ctx, write=write)
+    _seed_authored_files(ctx, project_name, write=write, force=force)
     _write_root_files(ctx, project_name, profile, write=write, force=force)
     if not ctx.options.get("no_git"):
         _git_init(ctx, write=write)
@@ -80,15 +81,49 @@ def _ship_scripts(ctx: Context, *, write: bool) -> None:
 
 
 def _scaffold_brain(ctx: Context, *, write: bool) -> None:
-    """Create the empty brain directories, each kept by a ``.gitkeep``."""
+    """Create the empty brain directories, each kept by a ``.gitkeep``.
+
+    A ``.gitkeep`` is only planted while the directory is genuinely empty — on a
+    re-init over a populated brain, a directory that already holds content is left
+    untouched (its content already makes git track it; a ``.gitkeep`` there would
+    just be stale junk the cleanup hook has to reap).
+    """
     for brain_dir in resources.brain_dirs():
-        keep = ctx.root / brain_dir / ".gitkeep"
+        directory = ctx.root / brain_dir
+        keep = directory / ".gitkeep"
         if keep.exists():
+            continue
+        if directory.is_dir() and any(directory.iterdir()):
             continue
         ctx.log(f"scaffold {brain_dir}/.gitkeep")
         if write:
-            keep.parent.mkdir(parents=True, exist_ok=True)
+            directory.mkdir(parents=True, exist_ok=True)
             keep.write_text("", encoding="utf-8", newline="\n")
+
+
+def _seed_authored_files(ctx: Context, project_name: str, *, write: bool, force: bool) -> None:
+    """Seed hand-grown brain files that agents maintain, never clobbering an existing one.
+
+    Unlike CURRENT_STATE/CODE_MAP (generated, untracked), these are authored over time:
+    the as-built architecture and the file-purpose config the registry reads. Init only
+    plants a skeleton.
+    """
+    seeds = {
+        ".aspis/context/ARCHITECTURE.md": render(
+            resources.template("context/ARCHITECTURE.md"), project_name=project_name
+        ),
+        ".aspis/config/purposes.json": resources.scaffold("purposes.json"),
+        ".aspis/.gitignore": resources.scaffold("brain.gitignore"),
+    }
+    for rel, content in seeds.items():
+        destination = ctx.root / rel
+        if destination.exists() and not force:
+            ctx.log(f"skip (exists): {rel}")
+            continue
+        ctx.log(f"write {rel}")
+        if write:
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_text(content, encoding="utf-8", newline="\n")
 
 
 def _write_root_files(
@@ -96,11 +131,11 @@ def _write_root_files(
 ) -> None:
     """Write AGENTS.md, .gitignore, and (when claude is a target) a full CLAUDE.md."""
     files = {
-        "AGENTS.md": render(resources.template("AGENTS.md"), project_name=project_name),
-        ".gitignore": resources.template("gitignore"),
+        "AGENTS.md": render(resources.scaffold("AGENTS.md"), project_name=project_name),
+        ".gitignore": resources.scaffold("gitignore"),
     }
     if "claude" in profile.runtimes:
-        files["CLAUDE.md"] = render(resources.template("CLAUDE.md"), project_name=project_name)
+        files["CLAUDE.md"] = render(resources.scaffold("CLAUDE.md"), project_name=project_name)
 
     for name, content in files.items():
         destination = ctx.root / name

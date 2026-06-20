@@ -21,12 +21,12 @@ handoff to the Build Lead.
 1. **Decompose.** Break the plan into tasks scoped to one coherent change each;
    size to complexity, risk, and mode.
 2. **Sequence.** Order by dependency; mark which tasks can run in parallel.
-3. **Write packets.** For each task, fill `.aspis/templates/TASK_PACKET.md`: objective,
+3. **Write packets.** For each task, fill the `.aspis/templates/planning/TASK_PACKET.md` shape: objective,
    allowed files, steps, inputs, tests, and observable "done when" acceptance — so
    it stands alone without the rest of the plan.
 4. **Set strategy.** Define the execution order, the review level per task (worker
    vs lead), and the testing depth — scaled to risk.
-5. Record the task list in `.aspis/templates/TASKS.md`.
+5. Record the task list in the feature's `TASKS.md` (shape: `.aspis/templates/planning/TASKS.md`).
 
 ## Outputs
 

@@ -73,11 +73,14 @@ def target(name: str, runtime: str, rel: str) -> str:
     """Project-relative destination for one asset of *name* under *runtime*.
 
     Per-runtime kinds land under ``.<runtime>/<kind>/``; brain kinds land once
-    under ``.aspis/<kind>/``. The sub-directory is always the kind name.
+    under ``.aspis/<kind>/``. Any category sub-path *under* the kind dir is kept,
+    so a categorised source like ``templates/planning/SPEC.md`` lands at
+    ``.aspis/templates/planning/SPEC.md`` — for a flat source it is just the leaf.
     """
-    leaf = Path(rel).name
+    parts = Path(rel).parts
+    sub = Path(*parts[1:]).as_posix() if parts and parts[0] == name else Path(rel).name
     prefix = f".{runtime}/{name}" if kind(name).per_runtime else f"{BRAIN_DIR}/{name}"
-    return f"{prefix}/{leaf}"
+    return f"{prefix}/{sub}"
 
 
 def op(name: str) -> str:

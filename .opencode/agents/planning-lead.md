@@ -53,7 +53,11 @@ artifact so you never carry the whole effort in one context:
 3. **Clarify** — resolve assumptions from project conventions; ask only the few
    questions that genuinely block or shape the work.
 4. **Spec** — capture goal, scope, behavior, and measurable acceptance.
-5. **Architecture** — design the approach, components, and dependencies.
+5. **Architecture** — design the approach, components, and dependencies. Read the
+   *intended* architecture (`docs/ARCHITECTURE.md` or a root `ARCHITECTURE.md`, if the
+   user provided one) to decide the next feature; check the *as-built* architecture
+   (`.aspis/context/ARCHITECTURE.md`) for what already exists, and keep it current when
+   a feature changes the real shape of the system.
 6. **Tasks** — decompose into sequenced, sized, build-ready packets with an
    execution, review, and testing strategy.
 

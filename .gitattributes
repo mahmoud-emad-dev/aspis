@@ -1,0 +1,17 @@
+# Keep every working copy byte-identical across Windows and WSL/Linux (and GitHub):
+# normalize all text to LF in the repo and on checkout, so crossing OSes never shows
+# spurious whole-file diffs (constitution rule 12 — Portable by Default).
+* text=auto eol=lf
+
+# Scripts that must stay LF to run under bash / git hooks.
+*.sh text eol=lf
+*.py text eol=lf
+
+# Binary assets must never be line-ending normalized.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.gz binary
+*.zip binary

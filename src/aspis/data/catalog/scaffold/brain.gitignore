@@ -1,0 +1,12 @@
+# ASPIS brain — local hygiene for the brain itself (paths are relative to .aspis/).
+# These are generated indexes and local caches, regenerated on demand by
+# .aspis/scripts/ — derived artifacts (constitution rule 8), so they are not tracked.
+# Durable context (DECISIONS, ARCHITECTURE, ROADMAP, rules, features) stays tracked.
+index/FILE_REGISTRY.yaml
+index/CODE_MAP.md
+index/test-ledger.json
+context/CURRENT_STATE.md
+context/RECENT_CHANGES.md
+traces/
+*.db
+__pycache__/

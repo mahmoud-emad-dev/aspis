@@ -6,8 +6,8 @@ Two idempotent jobs, both no-ops on an already-clean tree:
 1. **Junk files** — shell-redirect ghosts (names beginning ``=``/``*``/``-`` or
    ending ``:``/``,``) and bare extensionless root words that are not on the keep
    list. Removed from disk (and unstaged if they were staged).
-2. **Stale ``.gitkeep``** — once a folder holds a real file, its ``.gitkeep`` has
-   done its job and is deleted.
+2. **Stale ``.gitkeep``** — once a folder holds any real content (a file *or* a
+   subdirectory), its ``.gitkeep`` has done its job and is deleted.
 
 Rules (prefixes, suffixes, keep list, skip dirs) are data in ``hooks.yaml``.
 """
@@ -72,7 +72,7 @@ def clean(root: Path, files: list[str] | None = None) -> CleanResult:
     skip = set(rules.get("skip_dirs") or [])
     for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = [d for d in dirnames if d not in skip]
-        if ".gitkeep" in filenames and any(f != ".gitkeep" for f in filenames):
+        if ".gitkeep" in filenames and (dirnames or any(f != ".gitkeep" for f in filenames)):
             keep = Path(dirpath) / ".gitkeep"
             keep.unlink()
             result.gitkeep.append(keep.relative_to(root).as_posix())
