@@ -170,7 +170,12 @@ def bootstrap_core(ctx: Context) -> None:
 def _git(root: Path, *args: str) -> str:
     """Run a git command in *root*; return stripped stdout."""
     result = subprocess.run(
-        ["git", "-C", str(root), *args], capture_output=True, text=True, check=False
+        ["git", "-C", str(root), *args],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        check=False,
     )
     return result.stdout.strip()
 
