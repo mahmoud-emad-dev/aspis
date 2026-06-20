@@ -5,5 +5,5 @@
   "path": ".aspis/features/F-011-runtime-contract-hardening",
   "branch": "feat/F-011-runtime-contract-hardening",
   "mode": "mvp",
-  "phase": "build"
+  "phase": "review"
 }
