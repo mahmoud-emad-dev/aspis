@@ -113,6 +113,7 @@ def _seed_authored_files(ctx: Context, project_name: str, *, write: bool, force:
             resources.template("context/ARCHITECTURE.md"), project_name=project_name
         ),
         ".aspis/config/purposes.json": resources.scaffold("purposes.json"),
+        ".aspis/.gitignore": resources.scaffold("brain.gitignore"),
     }
     for rel, content in seeds.items():
         destination = ctx.root / rel

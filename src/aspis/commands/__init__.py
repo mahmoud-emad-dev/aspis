@@ -8,7 +8,17 @@ this tuple, so it never needs to change when a verb is added.
 
 from __future__ import annotations
 
-from aspis.commands import artifact, bootstrap, commit, doctor, gitignore, init, mode, status
+from aspis.commands import (
+    artifact,
+    bootstrap,
+    commit,
+    doctor,
+    gitignore,
+    init,
+    mode,
+    status,
+    testledger,
+)
 
 #: Command modules, in the order their verbs appear in ``aspis --help``.
-COMMAND_MODULES = (init, bootstrap, status, mode, gitignore, commit, artifact, doctor)
+COMMAND_MODULES = (init, bootstrap, status, mode, gitignore, commit, artifact, testledger, doctor)

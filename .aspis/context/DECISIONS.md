@@ -122,3 +122,17 @@ writes no reports unless `--force` — only the artifacts a mode earns are creat
 are organised by output purpose (`planning/`, `context/`, `report/`, `review/`); init-only
 scaffolding (`AGENTS.md`, `CLAUDE.md`, `gitignore`, `purposes.json`) lives apart in
 `catalog/scaffold/` because project agents never author it (D-012 split, refined here).
+
+## D-014 — The brain owns its hygiene; a file-first test ledger skips unchanged re-runs (2026-06-20)
+Two related cleanups. (1) **Brain gitignore.** The brain's generated indexes, caches, and
+traces are ignored by `.aspis/.gitignore` (paths relative to `.aspis/`), seeded at init —
+not scattered through the project-root `.gitignore`. Things that change together live
+together: brain hygiene lives with the brain, the root `.gitignore` keeps only project/stack
+ignores. (2) **Test ledger.** `aspis tests record|check` keeps a file-first ledger at
+`.aspis/index/test-ledger.json` (a local cache, gitignored): a result is stored against a
+content **fingerprint** of the files a run covered, keyed by scope (default: active feature).
+Before testing, an agent runs `aspis tests check <files>` — a `cached: pass` (fingerprint
+unchanged) means reuse the result and skip the run; `stale` means a covered file changed (or
+the last run failed) and tests must run, then `record`. The `selective-testing` skill makes
+this its first step, so reviewers/tasks stop re-running tests that nothing relevant changed.
+Deliberately simple; richer per-run history is the future tracing spine, not this.

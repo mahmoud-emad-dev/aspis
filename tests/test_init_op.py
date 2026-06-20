@@ -35,6 +35,17 @@ def test_reinit_does_not_replant_gitkeep_in_populated_dir(tmp_path) -> None:
     assert not (features / ".gitkeep").exists()
 
 
+def test_init_seeds_brain_gitignore(tmp_path) -> None:
+    _engine().run("init", tmp_path, write=True, no_git=True, name="demo")
+
+    brain_ignore = tmp_path / ".aspis" / ".gitignore"
+    text = brain_ignore.read_text(encoding="utf-8")
+    # The brain owns its generated-index + cache hygiene (paths relative to .aspis/).
+    assert "index/FILE_REGISTRY.yaml" in text
+    assert "index/test-ledger.json" in text
+    assert "context/CURRENT_STATE.md" in text
+
+
 def test_init_writes_claude_md_only_for_claude_runtime(tmp_path) -> None:
     _engine().run("init", tmp_path, write=True, no_git=True, runtimes=["claude"])
     assert (tmp_path / "CLAUDE.md").is_file()
