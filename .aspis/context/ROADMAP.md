@@ -39,8 +39,8 @@ run traced so the system measures and improves itself.
   cut shipped runtime "guards" but was overengineered (one kind forced edits across
   six core files); it is preserved on `backup/F-005-guards` and rebuilt as real
   **hooks** on the new asset-kind + capability core. Two surfaces: git hooks
-  (`core.hooksPath = .aspis/hooks`) at the commit boundary and a per-runtime
-  scope-guard at the tool-use boundary. They enforce scope-guard, R-009 protect-paths,
+  (logic in `.aspis/scripts/hooks/`, installed into `.git/hooks/`) at the commit
+  boundary and a per-runtime scope-guard at the tool-use boundary. They enforce scope-guard, R-009 protect-paths,
   secrets, and the commit convention as walls the model can't cross, and run light
   auto-run scripts — clean junk, maintain `.gitignore` by stack, refresh context —
   never the test suite. Turns R-001/R-002/R-004 into machine-checked invariants.

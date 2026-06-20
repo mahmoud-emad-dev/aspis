@@ -11,9 +11,10 @@ from __future__ import annotations
 BRAIN_DIR = ".aspis"
 
 #: Subfolder under the brain where lifecycle hook scripts live, grouped by event.
-#: Lifecycle hooks are transient (removed after bootstrap), so they share the
-#: hooks folder rather than a separate top-level dir.
-HOOKS_DIR = "hooks"
+#: Lifecycle hooks are transient (init/bootstrap pre/post helpers, often removed
+#: after bootstrap), so they live under the single ``scripts/`` tree rather than a
+#: separate top-level dir — the only ``hooks`` folder is ``scripts/hooks`` (git).
+HOOKS_DIR = "scripts/lifecycle"
 
 #: Runtime tools ASPIS can export to. New runtimes are added here.
 RUNTIMES = ("opencode", "claude")
