@@ -1,7 +1,10 @@
 # ASPIS — Architecture
 
-The target architecture, kept lean. This is the contract; when it changes, update
-it here first, record the decision in `DECISIONS.md`, then change the code.
+**As-built**, kept lean — what ASPIS actually is today, and the contract build and
+review compare against. For the stable design intent (the *why* and target shape that
+planning reads), see [`docs/ARCHITECTURE.md`](../../docs/ARCHITECTURE.md). When the
+architecture changes, update this file first, record the decision in `DECISIONS.md`,
+then change the code.
 
 ## Three layers
 

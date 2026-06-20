@@ -5,5 +5,5 @@
   "path": ".aspis/features/F-009-prepublish-review",
   "branch": "feat/F-009-prepublish-review",
   "mode": "mvp",
-  "phase": "build"
+  "phase": "merged"
 }
