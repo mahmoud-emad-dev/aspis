@@ -1,9 +1,9 @@
 {
-  "id": "F-007",
-  "slug": "git",
-  "title": "Git subsystem — committer as single commit authority + aspis commit",
-  "path": ".aspis/features/F-007-git",
-  "branch": "feat/F-007-git",
+  "id": "F-008",
+  "slug": "publish",
+  "title": "v0 publish-readiness — CI, docs, fix findings, worked example",
+  "path": ".aspis/features/F-008-publish",
+  "branch": "feat/F-008-publish",
   "mode": "mvp",
   "phase": "build"
 }

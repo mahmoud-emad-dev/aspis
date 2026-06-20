@@ -42,12 +42,21 @@ def validate(message: str, convention: dict[str, Any]) -> list[str]:
         return []
 
     errors: list[str] = []
-    forbidden = [t.lower() for t in convention.get("forbid_attribution") or []]
     lowered = message.lower()
-    for token in forbidden:
+    # Unambiguous attribution phrases — substring match.
+    for token in (t.lower() for t in convention.get("forbid_attribution") or []):
         if token in lowered:
+            errors.append(f"forbidden attribution: '{token}' (history must read as human-authored)")
+    # Model/tool names only when credited (e.g. "by claude", "claude-generated"); a bare
+    # mention of the `.claude` / `.opencode` runtime dirs is fine domain vocabulary.
+    for model in (m.lower() for m in convention.get("attribution_models") or []):
+        name = re.escape(model)
+        credited = re.search(rf"\b(?:by|with|from)\s+{name}\b", lowered) or re.search(
+            rf"\b{name}[-\s](?:generated|authored|assisted|wrote|co-authored)\b", lowered
+        )
+        if credited:
             errors.append(
-                f"forbidden attribution token: '{token}' (history must read as human-authored)"
+                f"forbidden attribution: '{model}' credited (history must read as human-authored)"
             )
 
     match = _SUBJECT.match(subject)
