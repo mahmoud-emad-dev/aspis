@@ -43,11 +43,17 @@ aspis --version
 ## Usage
 
 ```bash
-aspis --help        # show available commands
-aspis status        # report whether the current directory is an ASPIS project
+aspis --help            # all commands
+aspis init <dir>        # scaffold an ASPIS project (dry-run by default; --write to apply)
+aspis bootstrap         # onboarding wizard — make an initialized project live
+aspis status            # report project state
+aspis commit <paths…>   # the committer's tool: compose a conventional message and commit
+aspis gitignore         # write/refresh .gitignore for the detected stack
+aspis doctor            # check the environment + project health
 ```
 
-More commands (`init`, `build`, `review`) arrive as their core parts land.
+New here? Follow the **[Quickstart](docs/QUICKSTART.md)** — from a clone to your first
+`plan → build → review` loop in a few minutes.
 
 ## How it's built
 
@@ -56,7 +62,7 @@ ASPIS separates four layers:
 | Layer       | What it is                                         | Lifetime    |
 |-------------|----------------------------------------------------|-------------|
 | **Factory** | this repository — the catalog, rules, and engine   | source      |
-| **Brain**   | `.asps/` — a project's durable, tool-neutral memory | permanent   |
+| **Brain**   | `.aspis/` — a project's durable, tool-neutral memory | permanent   |
 | **Runtime** | `.claude/`, `.opencode/` — generated tool configs   | disposable  |
 | **Product** | `src/`, `tests/`, `docs/` — the software being built | the deliverable |
 
