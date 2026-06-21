@@ -141,17 +141,37 @@ class OpenCodeAdapter(RuntimeAdapter):
         return tuple(data) if isinstance(data, dict) else ()
 
     def _available_models(self) -> tuple[str, ...]:
-        """Parse `opencode models` for available `provider/model` strings (empty if absent)."""
-        if shutil.which("opencode") is None:
+        """Parse `opencode models` for available `provider/model` strings (empty if it fails).
+
+        Self-contained and never raises: a missing binary, a Windows ``.CMD`` shim that
+        won't exec, a non-zero exit, or a timeout all degrade to ``()`` so detection still
+        returns the connected providers it already read. Uses the path resolved by
+        ``shutil.which`` (which carries the ``.CMD``/``.EXE`` suffix Windows needs).
+        """
+        executable = shutil.which("opencode")
+        if executable is None:
             return ()
-        proc = subprocess.run(
-            ["opencode", "models"],
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            timeout=20,
-        )
+        # Windows `.CMD`/`.BAT` shims (how npm installs `opencode`) cannot be exec'd
+        # argv-style via CreateProcess — they must go through the shell. Everywhere
+        # else, run the resolved path directly (no shell).
+        if os.name == "nt" and executable.lower().endswith((".cmd", ".bat")):
+            command: str | list[str] = f'"{executable}" models'
+            shell = True
+        else:
+            command = [executable, "models"]
+            shell = False
+        try:
+            proc = subprocess.run(
+                command,
+                shell=shell,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=30,
+            )
+        except (OSError, subprocess.SubprocessError):
+            return ()
         if proc.returncode != 0:
             return ()
         return _parse_models(proc.stdout)

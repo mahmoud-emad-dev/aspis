@@ -161,6 +161,23 @@ def test_opencode_detect_never_raises_on_malformed_auth(monkeypatch) -> None:
     assert OpenCodeAdapter().detect() is None  # swallowed, never raised
 
 
+def test_opencode_detect_keeps_providers_when_model_listing_fails(monkeypatch) -> None:
+    # Regression: a failing `opencode models` (e.g. a Windows .CMD that won't exec) must
+    # NOT discard the providers already read from auth.json — detection degrades, not dies.
+    monkeypatch.setattr(opencode_mod.shutil, "which", lambda _name: "/fake/opencode")
+
+    def _boom(*_args, **_kwargs):
+        raise OSError("cannot exec the shim")
+
+    monkeypatch.setattr(opencode_mod.subprocess, "run", _boom)
+    monkeypatch.setenv(
+        "OPENCODE_AUTH_CONTENT", json.dumps({"opencode-go": {"type": "api", "key": "x"}})
+    )
+    inv = OpenCodeAdapter().detect()
+    assert inv is not None and inv.providers == ("opencode-go",)
+    assert inv.models == ()  # listing failed -> empty, but providers survived
+
+
 def test_claude_detect_reads_settings_dir(monkeypatch, tmp_path) -> None:
     _no_runtime_binary(monkeypatch)
     (tmp_path / "settings.json").write_text('{"model": "opus"}', encoding="utf-8")
