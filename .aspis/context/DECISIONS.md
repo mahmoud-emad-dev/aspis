@@ -169,6 +169,19 @@ runtime is a new adapter, a new model/provider is a data row (#2/#3/#4). The tie
 catalog. `scores`/`confidence` are seeded low and are the field the tracing spine (Phase 4)
 later fills — the seam is open, no schema change required.
 
+## D-017 — One resolver routes tier→canonical→runtime string; tier stays the agent dial (2026-06-21)
+`models.resolve()` is the single routing engine the adapters call at render. It applies the
+full precedence **per-agent pin > project override > global `~/.aspis` override > tier map**,
+bounds the choice by the catalog's hard `limits` (escalating to the cheapest model that
+clears a task's required complexity — FR-007), then translates the canonical id into the
+runtime's exact string via the adapter's `model_string()` against the detected inventory.
+With no translate/inventory it returns the canonical id — byte-identical to today's output —
+so detection is optional and the system works for any user (FR-006/FR-009). Agents keep
+declaring a **tier** (cheap/standard/deep), preserving R-007; capability-aware selection is a
+later additive layer over the same resolver, not a re-architecture. The original
+`effective_model()` is kept intact (its callers/tests unchanged); `resolve()` adds the new
+rungs on top. Records the seam for the R-008 `model:`→`tier:` rename and capability routing.
+
 ## D-018 — Detection records provider *presence*, never plan/quota or secrets (2026-06-21)
 `detect()` answers "what can this machine actually run," not "what plan is the user on" —
 because no runtime exposes plan/quota/rate-limit natively (verified). For **OpenCode** it

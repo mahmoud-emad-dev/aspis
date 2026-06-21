@@ -1,0 +1,95 @@
+"""Tests for the F-010 resolver (T-08): precedence, hard limits, translation, fallback.
+
+``resolve`` layers the F-010 behaviour on top of ``effective_model``: a machine-wide
+``~/.aspis`` override rung below the project, hard-limit escalation (FR-007), and
+translation of the canonical id into a runtime string via the adapter + inventory —
+falling back to the canonical id (today's output) when nothing is detected.
+"""
+
+from __future__ import annotations
+
+from aspis import models
+
+_GLOBAL = {"cheap": "cheapM", "standard": "stdM", "deep": "deepM"}
+_CATALOG = {
+    "cheapM": {"limits": {"max_task_complexity": "low"}},
+    "stdM": {"limits": {"max_task_complexity": "medium"}},
+    "deepM": {"limits": {"max_task_complexity": "high"}},
+}
+
+
+def test_resolve_with_no_translate_is_canonical() -> None:
+    # Bare resolve == effective_model precedence (the graceful, detection-free path).
+    assert models.resolve("opencode", "x", "deep", global_map=_GLOBAL) == "deepM"
+
+
+def test_project_override_beats_global_beats_tier_map() -> None:
+    project = {"models": {"opencode": {"deep": "P"}}}
+    glob = {"models": {"opencode": {"deep": "G"}}}
+    # tier map only
+    assert models.resolve("opencode", "x", "deep", global_map=_GLOBAL) == "deepM"
+    # global ~/.aspis rung beats the tier map
+    assert models.resolve("opencode", "x", "deep", global_map=_GLOBAL, global_config=glob) == "G"
+    # project override beats the global rung
+    got = models.resolve(
+        "opencode", "x", "deep", global_map=_GLOBAL, project_config=project, global_config=glob
+    )
+    assert got == "P"
+
+
+def test_agent_pin_in_project_wins_over_global_pin() -> None:
+    project = {"agents": {"reviewer": "cheap"}}
+    glob = {"agents": {"reviewer": "deep"}}
+    got = models.resolve(
+        "opencode",
+        "reviewer",
+        "standard",
+        global_map=_GLOBAL,
+        project_config=project,
+        global_config=glob,
+    )
+    assert got == "cheapM"  # project pin wins
+
+
+def test_translate_is_applied_with_inventory() -> None:
+    captured: dict = {}
+
+    def fake_translate(canonical_id, inventory):
+        captured["canonical"] = canonical_id
+        captured["inventory"] = inventory
+        return f"opencode-go/{canonical_id}"
+
+    sentinel = object()
+    got = models.resolve(
+        "opencode", "x", "deep", global_map=_GLOBAL, translate=fake_translate, inventory=sentinel
+    )
+    assert got == "opencode-go/deepM"
+    assert captured == {"canonical": "deepM", "inventory": sentinel}
+
+
+def test_within_limits() -> None:
+    assert models.within_limits("cheapM", "low", _CATALOG) is True
+    assert models.within_limits("cheapM", "high", _CATALOG) is False
+    assert models.within_limits("deepM", "high", _CATALOG) is True
+    # unknown model -> not blocked (graceful)
+    assert models.within_limits("mystery", "high", _CATALOG) is True
+
+
+def test_limits_escalate_to_cheapest_model_that_fits() -> None:
+    # A cheap agent on a high-complexity task bumps up to the cheapest model that clears it.
+    got = models.resolve(
+        "opencode", "x", "cheap", global_map=_GLOBAL, catalog=_CATALOG, required_complexity="high"
+    )
+    assert got == "deepM"  # cheapM(low)->stdM(medium)->deepM(high) is the first that fits
+
+
+def test_limits_leave_a_fitting_model_untouched() -> None:
+    got = models.resolve(
+        "opencode",
+        "x",
+        "standard",
+        global_map=_GLOBAL,
+        catalog=_CATALOG,
+        required_complexity="medium",
+    )
+    assert got == "stdM"  # already clears medium -> no bump
