@@ -1,0 +1,22 @@
+# Capability taxonomy — the stable vocabulary agents route by (F-010, D-017).
+#
+# Agents declare a TIER today (R-007). This file is the seam that lets routing be
+# capability-aware: each capability maps to a preferred tier, so a later, additive
+# change can let agents declare a capability instead of a tier without re-architecting
+# the resolver. The vocabulary is deliberately small and stable — model names change
+# monthly, capabilities rarely.
+#
+# preferred_tier ∈ {cheap, standard, deep}. Seed from the agent→capability→tier table
+# in the F-010 SPEC; refined later from tracing.
+
+capabilities:
+  planning:       {preferred_tier: deep}    # architecture reasoning, spec quality
+  architecture:   {preferred_tier: deep}    # system design, trade-offs
+  review:         {preferred_tier: deep}    # bug + architecture finding in a diff
+  orchestration:  {preferred_tier: deep}    # coordinating multi-step work
+  research:       {preferred_tier: standard} # gathering + validating external knowledge
+  implementation: {preferred_tier: standard} # writing correct code to a spec
+  testing:        {preferred_tier: standard} # designing + running tests
+  debugging:      {preferred_tier: standard} # root-cause + corrective fix
+  documentation:  {preferred_tier: cheap}   # writing docs from existing material
+  exploration:    {preferred_tier: cheap}   # read-only repo navigation/summary

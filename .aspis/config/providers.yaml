@@ -1,0 +1,53 @@
+# Provider registry — where models come from and how each names them (F-010, D-016/D-018).
+#
+# A runtime (e.g. OpenCode) reaches models through one or more providers, and the SAME
+# canonical model is spelled differently per provider (verified: opencode/claude-opus-4-8
+# vs openrouter/anthropic/claude-opus-4.8; opencode-go/minimax-m3 vs minimax/MiniMax-M3).
+# This registry is data the adapter's `model_string()` consults; detection records which
+# providers a user actually has (provider PRESENCE, not plan/quota — not exposed natively).
+#
+# Fields:
+#   runtimes  which runtime(s) expose this provider
+#   detect    how presence is detected (auth_json = OpenCode auth.json key;
+#             claude_settings = Claude ~/.claude config)
+#   prefer    preference rank when a canonical model is available via several providers
+#             (lower = preferred; tune per cost). Overridable in project/global config.
+#   naming    how a canonical id becomes this provider's model string (documentation;
+#             the adapter prefers matching against detected `opencode models` output)
+
+providers:
+  anthropic:
+    runtimes: [claude]
+    detect: claude_settings
+    prefer: 1
+    naming: "Claude alias (opus/sonnet/haiku) or claude-* full id"
+
+  opencode-go:
+    runtimes: [opencode]
+    detect: auth_json
+    prefer: 1
+    naming: "opencode-go/<canonical-id lowercase>"   # flat low-cost subscription — preferred
+
+  opencode:
+    runtimes: [opencode]
+    detect: auth_json
+    prefer: 2
+    naming: "opencode/<canonical-id lowercase>"       # OpenCode Zen curated set
+
+  minimax:
+    runtimes: [opencode]
+    detect: auth_json
+    prefer: 3
+    naming: "minimax/MiniMax-<M.. capitalized>"
+
+  openrouter:
+    runtimes: [opencode]
+    detect: auth_json
+    prefer: 4
+    naming: "openrouter/<vendor>/<model>"             # widest catalog, per-token cost
+
+  github-copilot:
+    runtimes: [opencode]
+    detect: auth_json
+    prefer: 5
+    naming: "github-copilot/<model>"
