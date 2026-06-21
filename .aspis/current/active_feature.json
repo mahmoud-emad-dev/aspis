@@ -1,9 +1,9 @@
 {
-  "id": "F-010",
-  "slug": "models",
-  "title": "model intelligence foundation",
-  "path": ".aspis/features/F-010-models",
-  "branch": "feat/F-010-models",
+  "id": "F-012",
+  "slug": "commit-msg-intel",
+  "title": "commit-message intelligence",
+  "path": ".aspis/features/F-012-commit-msg-intel",
+  "branch": "feat/F-012-commit-msg-intel",
   "mode": "production",
-  "phase": "merged"
+  "phase": "planning"
 }
