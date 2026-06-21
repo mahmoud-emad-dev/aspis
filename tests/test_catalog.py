@@ -232,7 +232,9 @@ def test_build_workers_are_scoped(tmp_path) -> None:
     builder = _frontmatter(
         (tmp_path / ".opencode" / "agents" / "general-builder.md").read_text(encoding="utf-8")
     )
-    assert builder["model"] == _tier("opencode", "standard")  # standard tier — executes packets
+    assert builder["model"] == _tier(
+        "opencode", "cheap"
+    )  # cheap tier — disposable execution worker
     assert builder["permission"]["edit"] == "allow"  # it writes code
     assert builder["permission"]["bash"]["git commit*"] == "deny"  # but never commits
 
