@@ -12,10 +12,13 @@ function Say($m)  { Write-Host "[aspis] $m" -ForegroundColor Cyan }
 function Fail($m) { Write-Host "[aspis] error: $m" -ForegroundColor Red; exit 1 }
 
 # 1. Python 3.11+
+# Parse `python --version` rather than passing a quoted one-liner to native
+# python: Windows PowerShell strips the embedded quotes, corrupting the script.
 if (-not (Get-Command python -ErrorAction SilentlyContinue)) { Fail "Python 3.11+ is required - https://python.org/downloads" }
-$pv = & python -c 'import sys;print("%d.%d"%sys.version_info[:2])'
-& python -c 'import sys;raise SystemExit(0 if sys.version_info[:2]>=(3,11) else 1)'
-if ($LASTEXITCODE -ne 0) { Fail "Python >= 3.11 required (found $pv)" }
+$raw = (& python --version 2>&1) -replace '^Python\s+', ''
+try { $ver = [version]($raw.Trim() -split '\s+')[0] } catch { Fail "could not read Python version (got '$raw')" }
+$pv = "$($ver.Major).$($ver.Minor)"
+if ($ver -lt [version]'3.11') { Fail "Python >= 3.11 required (found $pv)" }
 Say "Python $pv"
 
 # 2. Git (recommended, not required)
