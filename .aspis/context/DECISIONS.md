@@ -152,3 +152,19 @@ source of runtimes — `constants.RUNTIMES` / `settings.runtimes`, which no engi
 read — is removed; the real sources stay **profiles** (which runtimes a project targets)
 and **`available_runtimes()`** (auto-discovery of registered adapters). Net: adding or
 renaming a runtime is a one-file change, upholding D-008's cost-of-change discipline.
+
+## D-016 — A canonical model catalog is the source of truth; runtime strings are derived (2026-06-21)
+A model is defined **once** in `catalog/config/model_catalog.yaml` by a canonical,
+provider-neutral id (`minimax-m3`, `claude-opus-4-8`) carrying its facts (provider,
+context, capability scores, cost tier, pricing, hard limits, confidence). The *string a
+runtime uses* is derived from that id per runtime/provider — the same model is spelled
+`opencode-go/minimax-m3`, `minimax/MiniMax-M3`, `openrouter/anthropic/claude-opus-4.8`, or
+the Claude alias `opus`. So the `RuntimeAdapter` contract gains `detect()` (what the runtime
+offers on this machine — a `RuntimeInventory` of connected providers + available model
+strings, or `None` when absent) and `model_string(canonical_id, inventory)` (canonical →
+the runtime's exact string, matched against the detected strings; identity by default). The
+registry adds `detect_all()`. No core code name-checks a runtime (Constitution #9); a new
+runtime is a new adapter, a new model/provider is a data row (#2/#3/#4). The tier map
+(`models.yaml`) now holds canonical ids only — a cross-check test forbids drift from the
+catalog. `scores`/`confidence` are seeded low and are the field the tracing spine (Phase 4)
+later fills — the seam is open, no schema change required.

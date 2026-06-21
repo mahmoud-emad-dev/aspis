@@ -10,11 +10,28 @@ from __future__ import annotations
 
 import shutil
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import yaml
 
 from aspis.catalog import CatalogAgent, CatalogCommand
+
+
+@dataclass(frozen=True)
+class RuntimeInventory:
+    """What a runtime offers on the current machine — provider *presence*, not plan/quota.
+
+    Produced by :meth:`RuntimeAdapter.detect` and persisted (per machine) as generated
+    state. ``providers`` are the connected provider ids; ``models`` are the concrete
+    runtime model strings actually available (e.g. ``"opencode-go/minimax-m3"``), which
+    :meth:`RuntimeAdapter.model_string` matches a canonical id against.
+    """
+
+    runtime: str
+    installed: bool = False
+    providers: tuple[str, ...] = ()
+    models: tuple[str, ...] = field(default_factory=tuple)
 
 
 class RuntimeAdapter(ABC):
@@ -91,6 +108,28 @@ class RuntimeAdapter(ABC):
     def model_for(self, tier: str) -> str:
         """Resolve a model tier to a concrete id, falling back to ``standard``."""
         return self.models.get(tier, self.models.get("standard", tier))
+
+    def detect(self) -> RuntimeInventory | None:
+        """Detect what this runtime offers on the current machine.
+
+        Returns ``None`` when the runtime is not installed/usable here, so detection
+        is a per-runtime plugin and the orchestrator never name-checks a runtime. The
+        base default is "not installed"; each adapter overrides with its own probe.
+        Implementations MUST be cross-platform and MUST never raise — any failure
+        means "not detected" (return ``None``), never a crash (FR-004/FR-006).
+        """
+        return None
+
+    def model_string(self, canonical_id: str, inventory: RuntimeInventory | None = None) -> str:
+        """Translate a canonical model id into the exact string this runtime expects.
+
+        The canonical id (e.g. ``"minimax-m3"``) is provider-neutral; a runtime spells
+        it differently per connected provider. When an *inventory* is given, adapters
+        match the canonical id against the real available strings; with no inventory the
+        base default is the identity (the canonical id is already a usable string), which
+        preserves today's behaviour and keeps the resolver working for any user.
+        """
+        return canonical_id
 
     def tools_for(self, tokens: tuple[str, ...]) -> list[str]:
         """Map canonical tool tokens to this runtime's tool names (order preserved)."""

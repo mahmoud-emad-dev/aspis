@@ -46,6 +46,15 @@ adapter; init emits a root guide for any runtime that declares one; lead promoti
 targets `runtimes.mode_runtime()`. "Which runtimes exist" has one source — **profiles**
 (targets) + **`available_runtimes()`** (discovery); there is no `constants.RUNTIMES`.
 
+**Models are canonical; runtime strings are derived (D-016).** A model is defined once in
+`catalog/config/model_catalog.yaml` by a provider-neutral canonical id; the adapter's
+`detect()` reports what the machine offers (a `RuntimeInventory`) and `model_string()`
+translates a canonical id into the runtime's exact string (matched against detected
+availability). `model_catalog.yaml` (facts/scores/limits) + `capabilities.yaml` (capability→
+tier) + `providers.yaml` (provider naming/preference) are the data; `models.yaml` maps
+tier→canonical id only. Capability scores carry a `confidence` and are the seam the tracing
+spine fills later — no core change to add models, providers, or a new runtime adapter.
+
 ## Agents
 
 - **Agent = thin instruction + skills.** The instruction holds identity, rules,
