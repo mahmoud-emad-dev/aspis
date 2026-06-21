@@ -41,13 +41,19 @@ class ClaudeAdapter(RuntimeAdapter):
         "websearch": "WebSearch",
     }
 
-    def render_agent(self, agent: CatalogAgent, *, project_config: dict | None = None) -> str:
+    def render_agent(
+        self,
+        agent: CatalogAgent,
+        *,
+        project_config: dict | None = None,
+        inventory: RuntimeInventory | None = None,
+    ) -> str:
         frontmatter = to_frontmatter(
             {
                 "name": agent.name,
                 "description": agent.description,
                 "tools": self.tools_for(agent.tools),
-                "model": self._resolve_model(agent, project_config),
+                "model": self._resolve_model(agent, project_config, inventory),
             }
         )
         return f"{frontmatter}\n{agent.body}\n"
@@ -78,13 +84,18 @@ class ClaudeAdapter(RuntimeAdapter):
             return None
 
     def model_string(self, canonical_id: str, inventory: RuntimeInventory | None = None) -> str:
-        """Translate a canonical ``claude-<family>-*`` id to its durable alias (else identity)."""
-        cid = canonical_id.lower()
-        if cid.startswith("claude-"):
-            family = cid[len("claude-") :]
-            for alias in _CLAUDE_ALIASES:
-                if family.startswith(alias):
-                    return alias
+        """Translate a canonical ``claude-<family>-*`` id to its durable alias when detected.
+
+        Only translates when an *inventory* offers the alias — so with no detection the
+        rendered output is the canonical id, identical to today (SC-004, dogfood parity).
+        """
+        if inventory and inventory.models:
+            cid = canonical_id.lower()
+            if cid.startswith("claude-"):
+                family = cid[len("claude-") :]
+                for alias in _CLAUDE_ALIASES:
+                    if family.startswith(alias) and alias in inventory.models:
+                        return alias
         return canonical_id
 
     @staticmethod

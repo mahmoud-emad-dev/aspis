@@ -32,11 +32,17 @@ class OpenCodeAdapter(RuntimeAdapter):
     # Scope-guard wiring: a tool.execute.before plugin under .opencode/plugins.
     runtime_hooks = (("runtime-hooks/opencode/scope-guard.ts", ".opencode/plugins/scope-guard.ts"),)
 
-    def render_agent(self, agent: CatalogAgent, *, project_config: dict | None = None) -> str:
+    def render_agent(
+        self,
+        agent: CatalogAgent,
+        *,
+        project_config: dict | None = None,
+        inventory: RuntimeInventory | None = None,
+    ) -> str:
         data: dict = {
             "description": agent.description,
             "mode": agent.mode,
-            "model": self._resolve_model(agent, project_config),
+            "model": self._resolve_model(agent, project_config, inventory),
         }
         if agent.temperature is not None:
             data["temperature"] = agent.temperature

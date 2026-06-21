@@ -103,12 +103,23 @@ def test_opencode_model_string_is_identity_without_inventory() -> None:
     assert OpenCodeAdapter().model_string("minimax-m3", empty) == "minimax-m3"
 
 
-def test_claude_model_string_maps_to_durable_alias() -> None:
+def test_claude_model_string_maps_to_durable_alias_when_detected() -> None:
     adapter = ClaudeAdapter()
-    assert adapter.model_string("claude-opus-4-8") == "opus"
-    assert adapter.model_string("claude-sonnet-4-6") == "sonnet"
-    assert adapter.model_string("claude-haiku-4-5") == "haiku"
-    assert adapter.model_string("minimax-m3") == "minimax-m3"  # non-claude -> identity
+    inv = RuntimeInventory(
+        runtime="claude",
+        installed=True,
+        providers=("anthropic",),
+        models=("opus", "sonnet", "haiku"),
+    )
+    assert adapter.model_string("claude-opus-4-8", inv) == "opus"
+    assert adapter.model_string("claude-sonnet-4-6", inv) == "sonnet"
+    assert adapter.model_string("claude-haiku-4-5", inv) == "haiku"
+    assert adapter.model_string("minimax-m3", inv) == "minimax-m3"  # non-claude -> identity
+
+
+def test_claude_model_string_is_identity_without_inventory() -> None:
+    # SC-004 / dogfood parity: no detection -> the canonical id, unchanged from today.
+    assert ClaudeAdapter().model_string("claude-opus-4-8") == "claude-opus-4-8"
 
 
 # --- detect() (env-driven, fixture-backed) -----------------------------------

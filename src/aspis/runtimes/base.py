@@ -136,21 +136,38 @@ class RuntimeAdapter(ABC):
         return [self.tools.get(token, token) for token in tokens]
 
     @abstractmethod
-    def render_agent(self, agent: CatalogAgent, *, project_config: dict | None = None) -> str:
+    def render_agent(
+        self,
+        agent: CatalogAgent,
+        *,
+        project_config: dict | None = None,
+        inventory: RuntimeInventory | None = None,
+    ) -> str:
         """Return the runtime's on-disk agent file (frontmatter + body)."""
 
-    def _resolve_model(self, agent: CatalogAgent, project_config: dict | None) -> str:
-        """Resolve an agent's concrete model id, honouring project overrides/pins."""
-        if not project_config:
-            return self.model_for(agent.model)
+    def _resolve_model(
+        self,
+        agent: CatalogAgent,
+        project_config: dict | None,
+        inventory: RuntimeInventory | None = None,
+    ) -> str:
+        """Resolve an agent's model and translate it to this runtime's string.
+
+        Runs the full resolver: tier/pin/override precedence to a canonical id, then
+        ``model_string()`` against the detected *inventory*. With no inventory the
+        translation is the identity, so rendered output is unchanged for any user who
+        has not run detection (and the committed dogfood stays canonical).
+        """
         from aspis import models
 
-        return models.effective_model(
+        return models.resolve(
             self.name,
             agent.name,
             agent.model,
             global_map=self.models,
-            project_config=project_config,
+            project_config=project_config or {},
+            translate=self.model_string,
+            inventory=inventory,
         )
 
     @abstractmethod

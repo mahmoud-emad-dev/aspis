@@ -8,14 +8,25 @@ this file.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from aspis.catalog import parse_agent, parse_command
 from aspis.runtimes import get_adapter
 
+if TYPE_CHECKING:
+    from aspis.runtimes.base import RuntimeInventory
 
-def render_agent(catalog_text: str, runtime: str, *, project_config: dict | None = None) -> str:
-    """Render a catalog agent's markdown for *runtime* (applying project overrides)."""
+
+def render_agent(
+    catalog_text: str,
+    runtime: str,
+    *,
+    project_config: dict | None = None,
+    inventory: RuntimeInventory | None = None,
+) -> str:
+    """Render a catalog agent's markdown for *runtime* (overrides + detected inventory)."""
     return get_adapter(runtime).render_agent(
-        parse_agent(catalog_text), project_config=project_config
+        parse_agent(catalog_text), project_config=project_config, inventory=inventory
     )
 
 
