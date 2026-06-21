@@ -63,6 +63,7 @@ aspis bootstrap         # onboarding wizard — make an initialized project live
 aspis status            # report project state
 aspis models            # show the model each agent resolves to, per runtime (see below)
 aspis commit <paths…>   # the committer's tool: compose a conventional message and commit
+aspis commits           # audit commit-message history (--fix repairs the auto-fixable)
 aspis gitignore         # write/refresh .gitignore for the detected stack
 aspis doctor            # check the environment + project health
 ```
