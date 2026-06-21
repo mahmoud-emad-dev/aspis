@@ -8,6 +8,29 @@ Legend: ✅ pass · ⚠️ warn-but-ok · ❌ fix before publish.
 
 ---
 
+## S0 — Automated smoke test (run this first)
+
+One command proves a **fresh install** drives the whole pipeline — install →
+version → doctor → init → status → models (`--sync`/`--available`) → per-agent
+pin → bootstrap — in a throwaway venv + temp project, with **zero effect on your
+global tools or this repo**.
+
+**Linux / macOS / WSL**
+```bash
+./scripts/smoke-test.sh           # add --keep to inspect the sandbox
+```
+**Windows (PowerShell)**
+```powershell
+.\scripts\smoke-test.ps1          # add -Keep to inspect the sandbox
+```
+Expect: `[smoke] ALL 14 CHECKS PASSED — fresh install works end-to-end.`
+(exit 0). Any `FAIL` line names the step and what it expected. Run it on
+**both** Windows and Linux/WSL — that is the cross-platform proof (S6) for the
+core flow. The scenarios below (S1–S7) are the deeper manual pass for things the
+smoke test cannot assert automatically (real shells, `gh`, the agent loop).
+
+---
+
 ## S1 — One-command install
 
 **Linux / macOS**
