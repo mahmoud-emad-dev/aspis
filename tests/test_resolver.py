@@ -37,6 +37,44 @@ def test_project_override_beats_global_beats_tier_map() -> None:
     assert got == "P"
 
 
+def test_per_runtime_agent_pin_routes_differently_per_runtime() -> None:
+    # The headline flexibility: one agent, a different model on each runtime.
+    cfg = {
+        "runtimes": {
+            "claude": {"agents": {"build-lead": "sonnet"}},
+            "opencode": {"agents": {"build-lead": "deep"}},  # a tier here
+        }
+    }
+    assert (
+        models.resolve("claude", "build-lead", "deep", global_map=_GLOBAL, project_config=cfg)
+        == "sonnet"  # model-id pin passes through
+    )
+    assert (
+        models.resolve("opencode", "build-lead", "cheap", global_map=_GLOBAL, project_config=cfg)
+        == "deepM"  # tier pin maps through the tier table
+    )
+
+
+def test_per_runtime_agent_pin_beats_per_agent_pin() -> None:
+    cfg = {
+        "agents": {"reviewer": "cheap"},  # all-runtime pin
+        "runtimes": {"opencode": {"agents": {"reviewer": "glm-5.1"}}},  # more specific
+    }
+    assert (
+        models.resolve("opencode", "reviewer", "deep", global_map=_GLOBAL, project_config=cfg)
+        == "glm-5.1"  # the per-runtime-agent pin wins
+    )
+    assert (
+        models.resolve("claude", "reviewer", "deep", global_map=_GLOBAL, project_config=cfg)
+        == "cheapM"  # claude has no runtime-agent pin -> falls back to the per-agent pin
+    )
+
+
+def test_runtimes_block_can_override_a_tier() -> None:
+    cfg = {"runtimes": {"opencode": {"models": {"deep": "X"}}}}
+    assert models.resolve("opencode", "a", "deep", global_map=_GLOBAL, project_config=cfg) == "X"
+
+
 def test_agent_pin_in_project_wins_over_global_pin() -> None:
     project = {"agents": {"reviewer": "cheap"}}
     glob = {"agents": {"reviewer": "deep"}}

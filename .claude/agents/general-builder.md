@@ -8,7 +8,7 @@ tools:
 - Edit
 - Write
 - Bash
-model: claude-haiku-4-5
+model: sonnet
 ---
 
 # General Builder

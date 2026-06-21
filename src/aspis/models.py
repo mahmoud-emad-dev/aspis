@@ -2,11 +2,16 @@
 
 Agents declare a *tier* (cheap/standard/deep). The global tier->model map lives in
 ``catalog/config/models.yaml`` (data, per runtime) and now points at **canonical**
-model ids (F-010). A project can override that map or pin an individual agent in
+model ids (F-010). A project can override that map or pin an agent in
 ``.aspis/config/project.yaml``; a machine-wide ``~/.aspis/config`` sits one rung below
 the project. Full resolution order (high -> low):
 
-  per-agent pin  >  project tier override  >  global ``~/.aspis`` override  >  tier map
+  per-(runtime, agent) pin  >  per-agent pin  >  project/global tier override  >  tier map
+
+The per-(runtime, agent) pin (``runtimes.<runtime>.agents.<name>``) is what makes the
+system fully flexible: the *same* agent can use a different model on each runtime — e.g.
+``build-lead`` on ``sonnet`` under Claude but ``deepseek-v4-pro`` under OpenCode — and any
+agent can be pinned to any model (a tier or a concrete id) without touching code.
 
 ``effective_model`` keeps the original two-layer behaviour (its callers and tests are
 unchanged). ``resolve`` adds the F-010 layers on top: the global config rung, hard-limit
@@ -55,11 +60,38 @@ def effective_model(
 
 
 def _resolved_table(runtime: str, global_map: dict[str, str], *configs: dict) -> dict[str, str]:
-    """Merge the tier map with each config's per-runtime override (later configs lose)."""
+    """Merge the tier map with each config's per-runtime tier override (earlier configs win).
+
+    A config may override a tier two ways: the flat ``models.<runtime>.<tier>`` or, under
+    the unified ``runtimes.<runtime>.models.<tier>`` block. Both feed the same table.
+    """
     table = dict(global_map)
     for config in reversed(configs):  # apply low->high priority so earlier configs win
         table.update((config.get("models") or {}).get(runtime) or {})
+        runtime_block = (config.get("runtimes") or {}).get(runtime) or {}
+        table.update(runtime_block.get("models") or {})
     return table
+
+
+def _agent_pin(runtime: str, agent_name: str, configs: tuple[dict, ...]) -> str | None:
+    """The most specific override for *agent_name* on *runtime* — tier or concrete model id.
+
+    Precedence, highest first: a per-(runtime, agent) pin
+    (``runtimes.<runtime>.agents.<name>``) beats a per-agent pin that applies to every
+    runtime (``agents.<name>``); within each, an earlier config (project) beats a later
+    one (global). This is what lets one agent use a different model per runtime — e.g.
+    ``sonnet`` on Claude but ``deepseek-v4-pro`` on OpenCode.
+    """
+    for config in configs:  # per-(runtime, agent) — the most specific
+        runtime_block = (config.get("runtimes") or {}).get(runtime) or {}
+        pin = (runtime_block.get("agents") or {}).get(agent_name)
+        if pin:
+            return pin
+    for config in configs:  # per-agent across all runtimes
+        pin = (config.get("agents") or {}).get(agent_name)
+        if pin:
+            return pin
+    return None
 
 
 def _canonical_id(
@@ -70,12 +102,10 @@ def _canonical_id(
     global_map: dict[str, str],
     configs: tuple[dict, ...],
 ) -> str:
-    """Apply the full precedence (pin > each config tier override > tier map) to a canonical id."""
-    for config in configs:  # configs are highest-priority first (project, then global)
-        pin = (config.get("agents") or {}).get(agent_name)
-        if pin:
-            tier = pin
-            break
+    """Apply the full precedence (per-runtime-agent / agent pin > tier override > tier map)."""
+    pin = _agent_pin(runtime, agent_name, configs)
+    if pin:
+        tier = pin  # a tier name maps through the table; a model id passes through
     table = _resolved_table(runtime, global_map, *configs)
     return table[tier] if tier in table else tier
 
