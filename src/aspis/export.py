@@ -87,8 +87,9 @@ def write_export(
     plan: ExportPlan, target_root: Path, *, force: bool = False, write: bool = False
 ) -> list[str]:
     """Perform (or, with ``write=False``, just describe) the planned actions."""
-    # The target's own settings override model routing (tier maps, per-agent pins).
-    project_config = project.load_project_config(target_root)
+    # The target's own settings override model routing — project.yaml plus the
+    # authoritative per-agent assignments in agent-models.yaml (aspis models --sync).
+    project_config = project.load_effective_config(target_root)
     # Detected runtime inventory (None when detection has not run here) — lets render
     # emit the model strings the machine can actually run. Loaded once for all actions.
     inventory = load_inventory(target_root)

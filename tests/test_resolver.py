@@ -152,6 +152,59 @@ def test_cheap_model_gets_strictly_smaller_tasks_than_frontier() -> None:
         assert _ORDER.index(cheap) < _ORDER.index(frontier), mode
 
 
+_CAP_CATALOG = {
+    "flashM": {
+        "cost_tier": "cheap",
+        "pricing": {"in": 0.1},
+        "scores": {"review": 7, "implementation": 8},
+    },
+    "proM": {
+        "cost_tier": "standard",
+        "pricing": {"in": 0.5},
+        "scores": {"review": 9, "implementation": 9},
+    },
+    "opusM": {
+        "cost_tier": "frontier",
+        "pricing": {"in": 5.0},
+        "scores": {"review": 10, "implementation": 10},
+    },
+}
+_AVAIL = ["flashM", "proM", "opusM"]
+
+
+def test_best_available_model_is_capability_aware_and_cost_conscious() -> None:
+    # review, deep budget: opusM(10) is best but proM(9) is within tolerance and cheaper -> proM.
+    assert (
+        models.best_available_model("review", "deep", catalog=_CAP_CATALOG, available_ids=_AVAIL)
+        == "proM"
+    )
+    # implementation, cheap budget: only the cheap-cost flashM qualifies.
+    assert (
+        models.best_available_model(
+            "implementation", "cheap", catalog=_CAP_CATALOG, available_ids=_AVAIL
+        )
+        == "flashM"
+    )
+    # implementation, standard budget: flashM(8) is within 1 of proM(9) and cheaper -> flashM.
+    assert (
+        models.best_available_model(
+            "implementation", "standard", catalog=_CAP_CATALOG, available_ids=_AVAIL
+        )
+        == "flashM"
+    )
+
+
+def test_best_available_model_falls_back_and_handles_empty() -> None:
+    # Only a frontier model available but a cheap budget -> ignore the budget, don't return None.
+    assert (
+        models.best_available_model(
+            "review", "cheap", catalog=_CAP_CATALOG, available_ids=["opusM"]
+        )
+        == "opusM"
+    )
+    assert models.best_available_model("review", "deep", catalog={}, available_ids=["x"]) is None
+
+
 def test_effective_task_size_falls_back_safely() -> None:
     # Unknown mode -> medium baseline; unknown model -> no shift; never raises.
     assert models.effective_task_size("???", "weak", catalog=_SIZE_CATALOG, modes=_MODES) == "small"

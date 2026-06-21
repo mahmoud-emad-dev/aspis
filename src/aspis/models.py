@@ -161,6 +161,53 @@ def resolve(
     return translate(canonical, inventory)
 
 
+# Cost ordering and how a tier (the agent's budget) caps the models it may pick from.
+_COST_RANK = {"cheap": 0, "standard": 1, "deep": 2, "frontier": 3}
+_TIER_MAX_COST = {"cheap": "cheap", "standard": "standard", "deep": "frontier"}
+
+
+def _price(model: dict) -> tuple[float, float, int]:
+    """Cost sort key (input $/Mtok, output $/Mtok, cost-tier rank); cheaper sorts first."""
+    pricing = model.get("pricing") or {}
+    return (
+        pricing.get("in", 999.0),
+        pricing.get("out", 999.0),
+        _COST_RANK.get(model.get("cost_tier"), 3),
+    )
+
+
+def best_available_model(
+    dimension: str,
+    budget_tier: str,
+    *,
+    catalog: dict,
+    available_ids: list[str],
+    tolerance: int = 1,
+) -> str | None:
+    """Pick the *cheapest* available model that is near-best at *dimension* within the budget.
+
+    Capability-based and cost-conscious: among the runnable models within the agent's cost
+    budget, take those scoring within *tolerance* of the best score for the capability, then
+    choose the cheapest. So a reviewer gets a strong *reviewer* and a builder a strong
+    *implementer*, but a budget plan lands on its affordable workhorse (e.g. deepseek-v4-pro)
+    rather than an expensive frontier model that happens to also be connected. Falls back to
+    ignoring the budget when nothing fits it; ``None`` only when nothing is known.
+    """
+    max_cost = _COST_RANK.get(_TIER_MAX_COST.get(budget_tier, "frontier"), 3)
+    known = [(mid, catalog[mid]) for mid in available_ids if mid in catalog]
+    pool = [(mid, m) for mid, m in known if _COST_RANK.get(m.get("cost_tier"), 3) <= max_cost]
+    pool = pool or known
+    if not pool:
+        return None
+
+    def _score(model: dict) -> int:
+        return (model.get("scores") or {}).get(dimension, 0)
+
+    best = max(_score(m) for _, m in pool)
+    near_best = [(mid, m) for mid, m in pool if _score(m) >= best - tolerance]
+    return min(near_best, key=lambda pair: _price(pair[1]))[0]
+
+
 def effective_task_size(
     mode: str,
     canonical_id: str,
