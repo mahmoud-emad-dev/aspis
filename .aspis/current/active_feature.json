@@ -1,9 +1,9 @@
 {
-  "id": "F-011",
-  "slug": "runtime-contract-hardening",
-  "title": "runtime-contract consolidation & pre-models hardening",
-  "path": ".aspis/features/F-011-runtime-contract-hardening",
-  "branch": "feat/F-011-runtime-contract-hardening",
-  "mode": "mvp",
-  "phase": "merged"
+  "id": "F-010",
+  "slug": "models",
+  "title": "model intelligence foundation",
+  "path": ".aspis/features/F-010-models",
+  "branch": "feat/F-010-models",
+  "mode": "production",
+  "phase": "build"
 }
