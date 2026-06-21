@@ -1,7 +1,7 @@
 ---
 description: The knowledge layer — acquires, validates, and packages external knowledge so the rest of the system never researches the same thing twice. Closes the model's knowledge gap (new versions, current docs, APIs), and turns findings into reusable reference assets. It researches; it does not build, plan, or review.
 mode: subagent
-model: minimax-m3
+model: minimax-m2.7
 temperature: 0.1
 permission:
   read: allow

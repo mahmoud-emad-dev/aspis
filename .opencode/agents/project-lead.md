@@ -1,7 +1,7 @@
 ---
 description: The project's intelligence layer and primary entry point. Understands the whole project better than any other agent by retrieving knowledge on demand, coordinates the specialist leads, protects project direction, and delegates with enriched, project-aware context.
 mode: primary
-model: minimax-m3
+model: minimax-m2.7
 temperature: 0.1
 permission:
   read: allow

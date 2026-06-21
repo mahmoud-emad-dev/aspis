@@ -1,7 +1,7 @@
 ---
 description: The owner of feature implementation — turns an approved plan into completed software by orchestrating builders, reviews, tests, and commits. Validates readiness, enriches each task packet with context, delegates execution, enforces scope, tracks progress, and verifies the feature is truly done. It coordinates implementation; it does not write most of the code itself.
 mode: primary
-model: minimax-m2-pro
+model: minimax-m3
 temperature: 0.1
 permission:
   read: allow

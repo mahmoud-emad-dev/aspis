@@ -1,7 +1,7 @@
 ---
 description: The recovery authority — resolves bugs, failures, and regressions by fixing the root cause, not the symptom. Reproduces the problem, diagnoses the true cause, applies the smallest safe correction, and verifies no regression. It repairs; it does not plan features or build new ones.
 mode: subagent
-model: minimax-m2-pro
+model: minimax-m3
 temperature: 0.1
 permission:
   read: allow

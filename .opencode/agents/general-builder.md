@@ -1,7 +1,7 @@
 ---
 description: A disposable execution worker that implements one task packet — refactoring, integration, configuration, enhancements, and cross-cutting changes — within its allowed files, tests the change, and reports back. Handles most implementation work; specialized builders are used only where their expertise clearly helps.
 mode: subagent
-model: minimax-m3
+model: minimax-m2.7
 temperature: 0.1
 permission:
   read: allow
