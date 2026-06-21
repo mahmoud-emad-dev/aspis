@@ -8,5 +8,6 @@ index/test-ledger.json
 context/CURRENT_STATE.md
 context/RECENT_CHANGES.md
 traces/
+state/
 *.db
 __pycache__/
