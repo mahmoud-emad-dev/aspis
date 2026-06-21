@@ -20,6 +20,7 @@ from aspis.commands import (
     models,
     status,
     testledger,
+    uninstall,
 )
 
 #: Command modules, in the order their verbs appear in ``aspis --help``.
@@ -35,4 +36,5 @@ COMMAND_MODULES = (
     artifact,
     testledger,
     doctor,
+    uninstall,
 )

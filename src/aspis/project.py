@@ -9,11 +9,11 @@ on what "a project" means and where its settings are.
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import yaml
 
+from aspis import paths
 from aspis.constants import BRAIN_DIR
 
 #: The build modes a project may default to (matches config/modes.yaml).
@@ -42,14 +42,14 @@ def load_project_config(root: Path) -> dict:
 
 
 def global_config_path() -> Path:
-    """Path to the machine-wide ASPIS settings (``~/.aspis/config/project.yaml``).
+    """Path to the machine-wide ASPIS settings file (``project.yaml``).
 
-    ``ASPIS_HOME`` overrides the ``~/.aspis`` base — used by tests and for relocating
-    the per-user config. This layer sits below project config in model resolution.
+    The directory is the OS-standard config home (see :mod:`aspis.paths`):
+    ``ASPIS_HOME`` overrides it, an existing legacy ``~/.aspis`` is honoured, else
+    ``~/.config/aspis`` / ``%APPDATA%\\ASPIS``. This layer sits below project config
+    in model resolution.
     """
-    base = os.environ.get("ASPIS_HOME")
-    root = Path(base) if base else Path.home() / BRAIN_DIR
-    return root / "config" / "project.yaml"
+    return paths.config_home() / "project.yaml"
 
 
 def load_global_config() -> dict:

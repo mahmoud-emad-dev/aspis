@@ -19,6 +19,12 @@ def register(subparsers: argparse._SubParsersAction) -> None:
     parser.add_argument(
         "path", nargs="?", default=".", help="Project directory (default: current)."
     )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Also show where ASPIS lives (CLI, config, data, cache) and detected runtimes.",
+    )
     parser.set_defaults(func=_run)
 
 
@@ -33,6 +39,9 @@ def _run(args: argparse.Namespace) -> int:
     for check in checks:
         label = _LABELS.get(check.status, check.status)
         print(f"  [{label}] {check.name:<8} {check.detail}")
+
+    if getattr(args, "verbose", False):
+        _report_locations_and_runtimes()
 
     # Refresh detection and flag when the connected plans changed since the last
     # `aspis models --sync` — the moment to re-sync. Best-effort; never fails a check.
@@ -70,6 +79,34 @@ def _report_model_drift(root: Path) -> None:
         print(f"  [warn] models   connected plans changed ({change}) — run `aspis models --sync`")
         return
     print(f"  [info] models   detected: {names} (in sync)")
+
+
+def _report_locations_and_runtimes() -> None:
+    """Show where ASPIS lives and which runtimes are present (verbose, never fails)."""
+    import shutil
+
+    from aspis import paths, runtime_inventory
+
+    print("\nInstallation:")
+    cli = shutil.which("aspis") or "(not on PATH — using the current interpreter)"
+    print(f"  cli      {cli}")
+    for name, path in paths.all_locations().items():
+        print(f"  {name:<8} {path}")
+
+    detected = runtime_inventory.detect_runtimes()
+    present = runtime_inventory.available(detected)
+    print("\nRuntimes (PATH presence only):")
+    if present:
+        for name in present:
+            print(f"  [ok  ] {name:<10} {detected[name]}")
+    missing = [n for n in runtime_inventory.KNOWN_RUNTIMES if n not in present]
+    if missing:
+        print(f"  not found: {', '.join(sorted(missing))}")
+    try:
+        saved = runtime_inventory.save_inventory(detected)
+        print(f"\n  inventory written to {saved}")
+    except OSError:
+        pass
 
 
 def _report_commit_health(root: Path) -> None:
