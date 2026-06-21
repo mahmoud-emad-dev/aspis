@@ -5,5 +5,5 @@
   "path": ".aspis/features/F-010-models",
   "branch": "feat/F-010-models",
   "mode": "production",
-  "phase": "build"
+  "phase": "review"
 }
