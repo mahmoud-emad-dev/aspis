@@ -1,7 +1,7 @@
 ---
 description: The validation authority — determines whether software behaves as expected and produces objective testing evidence for planning, building, fixing, and review. Generates and runs tests, captures results, and reports confidence. It produces evidence; it does not approve the work (that is the Reviewer's call).
 mode: subagent
-model: minimax-m2.7
+model: minimax-m3
 temperature: 0.1
 permission:
   read: allow

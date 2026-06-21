@@ -22,7 +22,7 @@ models:
   claude-opus-4-8:
     provider: anthropic
     family: claude
-    context_window: 200000
+    context_window: 1000000
     scores: {planning: 10, implementation: 10, review: 10, reasoning: 10}
     cost_tier: frontier
     pricing: {in: 5.00, out: 25.00}
@@ -32,7 +32,7 @@ models:
   claude-sonnet-4-6:
     provider: anthropic
     family: claude
-    context_window: 200000
+    context_window: 1000000
     scores: {planning: 9, implementation: 9, review: 9, reasoning: 9}
     cost_tier: deep
     pricing: {in: 3.00, out: 15.00}
@@ -52,7 +52,7 @@ models:
   gpt-5.5:
     provider: openai
     family: gpt
-    context_window: 256000
+    context_window: 400000
     scores: {planning: 10, implementation: 10, review: 10, reasoning: 10}
     cost_tier: frontier
     pricing: {in: 5.00, out: 30.00}
@@ -283,6 +283,6 @@ models:
 # limited and terms unverified — try-it defaults, not production routing.
 free_to_test:
   cheap: opencode/north-mini-code-free
-  standard: openrouter/qwen/qwen3-coder:free
-  deep: openrouter/openai/gpt-oss-120b:free
+  standard: opencode/nemotron-3-ultra-free
+  deep: opencode/mimo-v2.5-free
   overall_default: opencode/deepseek-v4-flash-free

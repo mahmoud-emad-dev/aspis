@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import yaml
 
+from aspis import resources
 from aspis.runtimes.base import RuntimeInventory
 from aspis.transform import render_agent
 
@@ -31,18 +32,19 @@ def _model(rendered: str) -> str:
 
 def test_opencode_without_inventory_renders_canonical_tier() -> None:
     # SC-004: no detection -> today's tier map value (the deep canonical id).
-    assert _model(render_agent(_DEEP_AGENT, "opencode")) == "minimax-m3"
+    assert _model(render_agent(_DEEP_AGENT, "opencode")) == resources.model_map("opencode")["deep"]
 
 
 def test_opencode_with_inventory_renders_connected_provider_string() -> None:
+    deep = resources.model_map("opencode")["deep"]
     inv = RuntimeInventory(
         runtime="opencode",
         installed=True,
         providers=("opencode-go",),
-        models=("opencode-go/minimax-m3", "minimax/MiniMax-M3"),
+        models=(f"opencode-go/{deep}",),
     )
     out = _model(render_agent(_DEEP_AGENT, "opencode", inventory=inv))
-    assert out == "opencode-go/minimax-m3"  # SC-001: a real, runnable string
+    assert out == f"opencode-go/{deep}"  # SC-001: a real, runnable string
 
 
 def test_claude_without_inventory_renders_canonical_id() -> None:

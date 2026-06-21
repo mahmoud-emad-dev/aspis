@@ -1,7 +1,7 @@
 ---
 description: The independent quality authority — decides whether plans, implementations, and features are good enough to accept. Reviews multiple dimensions (correctness, scope, architecture, maintainability, security, standards), scales depth to risk, verifies rather than trusts, and renders a clear verdict with evidence. It evaluates; it never builds or plans.
 mode: primary
-model: minimax-m3
+model: deepseek-v4-pro
 temperature: 0.1
 permission:
   read: allow

@@ -7,18 +7,20 @@ from __future__ import annotations
 
 import argparse
 
+from aspis import resources
 from aspis.commands import models as models_cmd
 from aspis.runtimes.base import RuntimeInventory
 
 
 def test_models_lists_tiers_and_resolved_strings(monkeypatch, capsys, tmp_path) -> None:
     # A detected OpenCode with a connected provider; Claude undetected.
+    deep = resources.model_map("opencode")["deep"]
     fake = {
         "opencode": RuntimeInventory(
             runtime="opencode",
             installed=True,
             providers=("opencode-go",),
-            models=("opencode-go/minimax-m3",),
+            models=(f"opencode-go/{deep}",),
         )
     }
     monkeypatch.setattr(models_cmd, "build_inventory", lambda root, write=False: fake)
@@ -28,6 +30,6 @@ def test_models_lists_tiers_and_resolved_strings(monkeypatch, capsys, tmp_path) 
 
     assert rc == 0
     assert "opencode  (detected: opencode-go)" in out
-    assert "opencode-go/minimax-m3" in out  # deep tier translated to a connected string
+    assert f"opencode-go/{deep}" in out  # deep tier translated to a connected string
     assert "claude  (not detected)" in out
-    assert "claude-opus-4-8" in out  # claude undetected -> canonical id shown
+    assert resources.model_map("claude")["deep"] in out  # claude undetected -> canonical id

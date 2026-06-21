@@ -1,7 +1,7 @@
 ---
 description: The executive owner of the ASPIS runtime and system infrastructure — the machine that makes ASPIS work inside a project. Evolves the system deterministic-first, authors and governs its assets, protects and repairs the runtime, validates every change, and is the only lead that may modify protected system areas.
 mode: primary
-model: minimax-m3
+model: deepseek-v4-pro
 temperature: 0.1
 permission:
   read: allow

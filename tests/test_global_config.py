@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import yaml
 
-from aspis import project
+from aspis import project, resources
 from aspis.transform import render_agent
 
 _DEEP_AGENT = """---
@@ -54,4 +54,4 @@ def test_project_override_beats_global(monkeypatch, tmp_path) -> None:
 def test_no_global_config_is_canonical(monkeypatch, tmp_path) -> None:
     # ASPIS_HOME pointing at an empty dir -> no override -> the tier-map canonical id.
     monkeypatch.setenv("ASPIS_HOME", str(tmp_path))
-    assert _model(render_agent(_DEEP_AGENT, "opencode")) == "minimax-m3"
+    assert _model(render_agent(_DEEP_AGENT, "opencode")) == resources.model_map("opencode")["deep"]
