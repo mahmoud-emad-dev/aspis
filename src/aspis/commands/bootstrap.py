@@ -64,4 +64,14 @@ def _run(args: argparse.Namespace) -> int:
     print(f"{header} — bootstrap {ctx.root}")
     for message in ctx.messages:
         print(f"  {message}")
+    if not args.write:
+        print("\nNothing was written (dry-run). Re-run with --write to apply:")
+        print("  aspis bootstrap --write")
+        return 0
+
+    print("\nProject is live. Next:")
+    print("  1. aspis models --sync   # review/assign the model each agent uses")
+    print("  2. open AGENTS.md        # the project goal + how the agents operate")
+    print("  3. start your runtime    # ask the project-lead to plan your first feature")
+    print("  4. aspis status          # check project state anytime")
     return 0

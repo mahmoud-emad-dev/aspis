@@ -54,5 +54,13 @@ def _run(args: argparse.Namespace) -> int:
     for message in ctx.messages:
         print(f"  {message}")
     if not args.write:
-        print("\nRun again with --write to apply.")
+        print("\nNothing was written (dry-run). Re-run with --write to apply:")
+        print(f"  aspis init {args.path} --write")
+        return 0
+
+    print("\nInitialized. Next:")
+    print("  1. aspis bootstrap --write   # make the project live (sets goal, promotes leads)")
+    print("  2. aspis models --sync       # assign a model to each agent for this machine")
+    print("  3. open AGENTS.md            # the project's entry point")
+    print("  4. start your runtime        # OpenCode, or add --runtime claude for Claude Code")
     return 0
