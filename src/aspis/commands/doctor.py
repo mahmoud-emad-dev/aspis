@@ -5,7 +5,9 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from aspis.constants import BRAIN_DIR
 from aspis.health import run_checks
+from aspis.inventory import build_inventory
 
 #: Label shown per status. ASCII-safe so it renders on any console.
 _LABELS = {"ok": "ok  ", "warn": "warn", "fail": "FAIL"}
@@ -31,6 +33,16 @@ def _run(args: argparse.Namespace) -> int:
     for check in checks:
         label = _LABELS.get(check.status, check.status)
         print(f"  [{label}] {check.name:<8} {check.detail}")
+
+    # Refresh the per-machine runtime inventory so model routing reflects what is
+    # actually installed. Best-effort — detection never fails a health check.
+    if (root / BRAIN_DIR).is_dir():
+        try:
+            detected = build_inventory(root)
+            names = ", ".join(sorted(detected)) or "none"
+            print(f"  [info] models   detected runtimes: {names}")
+        except Exception:
+            pass
 
     failed = [c for c in checks if c.status == "fail"]
     if failed:

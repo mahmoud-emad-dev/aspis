@@ -16,9 +16,21 @@ from aspis.commands import (
     gitignore,
     init,
     mode,
+    models,
     status,
     testledger,
 )
 
 #: Command modules, in the order their verbs appear in ``aspis --help``.
-COMMAND_MODULES = (init, bootstrap, status, mode, gitignore, commit, artifact, testledger, doctor)
+COMMAND_MODULES = (
+    init,
+    bootstrap,
+    status,
+    mode,
+    models,
+    gitignore,
+    commit,
+    artifact,
+    testledger,
+    doctor,
+)
