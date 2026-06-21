@@ -54,6 +54,16 @@ def test_providers_schema() -> None:
         assert p["naming"]
 
 
+def test_tier_map_references_catalog() -> None:
+    # Single source of truth: every runtime/tier value in models.yaml MUST be a
+    # canonical id defined in the catalog (so the map never drifts from the catalog).
+    catalog = set(_config("model_catalog.yaml")["models"])
+    tier_map = _config("models.yaml")
+    for runtime, tiers in tier_map.items():
+        for tier, model_id in tiers.items():
+            assert model_id in catalog, f"{runtime}.{tier} -> {model_id} not in catalog"
+
+
 def test_free_to_test_default_exists() -> None:
     # A brand-new user must have a $0 default to run end-to-end (FR-011).
     free = _config("model_catalog.yaml")["free_to_test"]

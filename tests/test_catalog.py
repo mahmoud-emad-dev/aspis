@@ -90,7 +90,7 @@ def test_project_explorer_is_a_cheap_readonly_subagent(tmp_path) -> None:
 
     text = (tmp_path / ".claude" / "agents" / "project-explorer.md").read_text(encoding="utf-8")
     fm = _frontmatter(text)
-    assert fm["model"] == "claude-haiku-4-5-20251001"  # cheap tier
+    assert fm["model"] == "claude-haiku-4-5"  # cheap tier
     assert fm["tools"] == ["Read", "Grep", "Glob", "Bash"]  # bash is guarded to context tools
 
 
@@ -206,7 +206,7 @@ def test_build_lead_is_a_deep_orchestrator(tmp_path) -> None:
 
     text = (tmp_path / ".opencode" / "agents" / "build-lead.md").read_text(encoding="utf-8")
     fm = _frontmatter(text)
-    assert fm["model"] == "minimax-m2-pro"  # deep tier — the reasoning orchestrator
+    assert fm["model"] == "minimax-m3"  # deep tier — the reasoning orchestrator
     assert fm["mode"] == "subagent"  # promoted at bootstrap
     perm = fm["permission"]
     assert perm["bash"]["git commit*"] == "deny"  # commits go through the committer
@@ -222,7 +222,7 @@ def test_build_workers_are_scoped(tmp_path) -> None:
     builder = _frontmatter(
         (tmp_path / ".opencode" / "agents" / "general-builder.md").read_text(encoding="utf-8")
     )
-    assert builder["model"] == "minimax-m3"  # standard tier — executes packets
+    assert builder["model"] == "minimax-m2.7"  # standard tier — executes packets
     assert builder["permission"]["edit"] == "allow"  # it writes code
     assert builder["permission"]["bash"]["git commit*"] == "deny"  # but never commits
 
@@ -294,7 +294,7 @@ def test_fix_lead_is_a_deep_repair_subagent(tmp_path) -> None:
     text = (tmp_path / ".opencode" / "agents" / "fix-lead.md").read_text(encoding="utf-8")
     fm = _frontmatter(text)
     assert fm["mode"] == "subagent"  # a support lead — never promoted
-    assert fm["model"] == "minimax-m2-pro"  # deep tier — diagnosis needs reasoning
+    assert fm["model"] == "minimax-m3"  # deep tier — diagnosis needs reasoning
     perm = fm["permission"]
     assert perm["bash"]["git commit*"] == "deny"  # commits go through the committer
     # reuses build/review skills (single-sourced), plus its own diagnosis skills
@@ -309,7 +309,7 @@ def test_test_lead_is_an_evidence_subagent(tmp_path) -> None:
     text = (tmp_path / ".opencode" / "agents" / "test-lead.md").read_text(encoding="utf-8")
     fm = _frontmatter(text)
     assert fm["mode"] == "subagent"  # a support lead — never promoted
-    assert fm["model"] == "minimax-m3"  # standard tier
+    assert fm["model"] == "minimax-m2.7"  # standard tier
     perm = fm["permission"]
     assert perm["edit"] == "allow"  # it writes tests
     assert perm["bash"]["git commit*"] == "deny"
