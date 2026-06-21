@@ -93,3 +93,31 @@ def test_limits_leave_a_fitting_model_untouched() -> None:
         required_complexity="medium",
     )
     assert got == "stdM"  # already clears medium -> no bump
+
+
+# --- task sizing (FR-008 / SC-005) -------------------------------------------
+
+_MODES = {
+    "vibe": {"task_size": "large"},
+    "mvp": {"task_size": "medium"},
+    "production": {"task_size": "small"},
+}
+_SIZE_CATALOG = {"weak": {"cost_tier": "cheap"}, "strong": {"cost_tier": "frontier"}}
+_ORDER = ("small", "medium", "large")
+
+
+def test_cheap_model_gets_strictly_smaller_tasks_than_frontier() -> None:
+    # SC-005: under the SAME mode, a cheap-capability model is sized smaller than a frontier one.
+    for mode in ("vibe", "mvp", "production"):
+        cheap = models.effective_task_size(mode, "weak", catalog=_SIZE_CATALOG, modes=_MODES)
+        frontier = models.effective_task_size(mode, "strong", catalog=_SIZE_CATALOG, modes=_MODES)
+        assert _ORDER.index(cheap) < _ORDER.index(frontier), mode
+
+
+def test_effective_task_size_falls_back_safely() -> None:
+    # Unknown mode -> medium baseline; unknown model -> no shift; never raises.
+    assert models.effective_task_size("???", "weak", catalog=_SIZE_CATALOG, modes=_MODES) == "small"
+    assert (
+        models.effective_task_size("mvp", "mystery", catalog=_SIZE_CATALOG, modes=_MODES)
+        == "medium"
+    )

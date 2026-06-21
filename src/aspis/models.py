@@ -29,6 +29,12 @@ _COMPLEXITY = {"low": 0, "medium": 1, "high": 2}
 # cheapest model that still clears a task's required ceiling.
 _TIERS = ("cheap", "standard", "deep")
 
+# Task-packet granularity, smallest (finest, most rigor) to largest (coarsest).
+_TASK_SIZES = ("small", "medium", "large")
+# How a model's cost tier shifts the mode's base task size: a weaker (cheaper) model
+# gets finer tasks to compensate; a frontier model can take coarser ones (FR-008).
+_CAPABILITY_SHIFT = {"cheap": -1, "standard": 0, "deep": 1, "frontier": 1}
+
 
 def effective_model(
     runtime: str,
@@ -123,3 +129,32 @@ def resolve(
     if translate is None:
         return canonical
     return translate(canonical, inventory)
+
+
+def effective_task_size(
+    mode: str,
+    canonical_id: str,
+    *,
+    catalog: dict | None = None,
+    modes: dict | None = None,
+) -> str:
+    """Combine a mode's base ``task_size`` with the model's capability (FR-008).
+
+    The mode sets the baseline granularity (``modes.yaml``); the model's cost tier
+    shifts it — a weaker model gets finer tasks to compensate, a frontier model can
+    take coarser ones. Returns one of ``small``/``medium``/``large``. Unknown mode or
+    model falls back to the mode's base size (or ``medium``), never raising.
+    """
+    from aspis import resources
+
+    modes = modes if modes is not None else resources.config("modes.yaml").get("modes", {})
+    catalog = (
+        catalog if catalog is not None else resources.config("model_catalog.yaml").get("models", {})
+    )
+
+    base = (modes.get(mode) or {}).get("task_size", "medium")
+    base_index = _TASK_SIZES.index(base) if base in _TASK_SIZES else 1
+    cost_tier = (catalog.get(canonical_id) or {}).get("cost_tier")
+    shifted = base_index + _CAPABILITY_SHIFT.get(cost_tier, 0)
+    shifted = max(0, min(len(_TASK_SIZES) - 1, shifted))
+    return _TASK_SIZES[shifted]
