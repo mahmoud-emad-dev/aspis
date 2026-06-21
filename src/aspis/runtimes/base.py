@@ -158,8 +158,9 @@ class RuntimeAdapter(ABC):
         translation is the identity, so rendered output is unchanged for any user who
         has not run detection (and the committed dogfood stays canonical).
         """
-        from aspis import models, project
+        from aspis import models, project, resources
 
+        agent_caps = resources.config("agent-capabilities.yaml").get("agents", {})
         return models.resolve(
             self.name,
             agent.name,
@@ -169,6 +170,7 @@ class RuntimeAdapter(ABC):
             global_config=project.load_global_config(),
             translate=self.model_string,
             inventory=inventory,
+            agent_capability=agent_caps.get(agent.name),
         )
 
     @abstractmethod

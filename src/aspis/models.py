@@ -73,24 +73,37 @@ def _resolved_table(runtime: str, global_map: dict[str, str], *configs: dict) ->
     return table
 
 
-def _agent_pin(runtime: str, agent_name: str, configs: tuple[dict, ...]) -> str | None:
+def _agent_pin(
+    runtime: str, agent_name: str, capability: str | None, configs: tuple[dict, ...]
+) -> str | None:
     """The most specific override for *agent_name* on *runtime* — tier or concrete model id.
 
-    Precedence, highest first: a per-(runtime, agent) pin
-    (``runtimes.<runtime>.agents.<name>``) beats a per-agent pin that applies to every
-    runtime (``agents.<name>``); within each, an earlier config (project) beats a later
-    one (global). This is what lets one agent use a different model per runtime — e.g.
-    ``sonnet`` on Claude but ``deepseek-v4-pro`` on OpenCode.
+    Precedence, highest first, project config before global within each rung:
+      1. per-(runtime, agent)   ``runtimes.<rt>.agents.<name>``
+      2. per-agent (all rt)     ``agents.<name>``
+      3. per-(runtime, capability) ``runtimes.<rt>.by_capability.<cap>``
+      4. per-capability (all rt)   ``by_capability.<cap>``
+    The capability rungs are the scalable middle layer: set a model once per kind of work
+    (review/implementation/…) and every agent of that capability inherits it, so a 50-agent
+    roster is configured by ~10 lines, not 50. The per-(runtime, agent) rung still lets one
+    agent differ per runtime (``sonnet`` on Claude, ``deepseek-v4-pro`` on OpenCode).
     """
-    for config in configs:  # per-(runtime, agent) — the most specific
-        runtime_block = (config.get("runtimes") or {}).get(runtime) or {}
-        pin = (runtime_block.get("agents") or {}).get(agent_name)
-        if pin:
-            return pin
-    for config in configs:  # per-agent across all runtimes
-        pin = (config.get("agents") or {}).get(agent_name)
-        if pin:
-            return pin
+    lookups = (
+        lambda c: (c.get("runtimes", {}).get(runtime, {}).get("agents") or {}).get(agent_name),
+        lambda c: (c.get("agents") or {}).get(agent_name),
+    )
+    if capability:
+        lookups += (
+            lambda c: (c.get("runtimes", {}).get(runtime, {}).get("by_capability") or {}).get(
+                capability
+            ),
+            lambda c: (c.get("by_capability") or {}).get(capability),
+        )
+    for lookup in lookups:
+        for config in configs:  # project before global
+            value = lookup(config)
+            if value:
+                return value
     return None
 
 
@@ -101,9 +114,10 @@ def _canonical_id(
     *,
     global_map: dict[str, str],
     configs: tuple[dict, ...],
+    capability: str | None = None,
 ) -> str:
-    """Apply the full precedence (per-runtime-agent / agent pin > tier override > tier map)."""
-    pin = _agent_pin(runtime, agent_name, configs)
+    """Apply the full precedence (agent pin > capability override > tier override > tier map)."""
+    pin = _agent_pin(runtime, agent_name, capability, configs)
     if pin:
         tier = pin  # a tier name maps through the table; a model id passes through
     table = _resolved_table(runtime, global_map, *configs)
@@ -142,17 +156,25 @@ def resolve(
     inventory: RuntimeInventory | None = None,
     catalog: dict | None = None,
     required_complexity: str | None = None,
+    agent_capability: str | None = None,
 ) -> str:
     """Resolve an agent's model to the runtime string it should render with.
 
-    Precedence (high->low): per-agent pin, project override, global ``~/.aspis`` override,
+    Precedence (high->low): per-(runtime,agent) pin, per-agent pin, per-capability override,
     tier map. The resulting canonical id is bounded by hard limits when a *catalog* and a
     *required_complexity* are supplied (FR-007), then translated into the runtime's exact
     string via *translate* against the detected *inventory*. With no translate/inventory it
     returns the canonical id — exactly today's output — so detection is optional (FR-006/FR-009).
     """
     configs = tuple(c for c in (project_config, global_config) if c)
-    canonical = _canonical_id(runtime, agent_name, tier, global_map=global_map, configs=configs)
+    canonical = _canonical_id(
+        runtime,
+        agent_name,
+        tier,
+        global_map=global_map,
+        configs=configs,
+        capability=agent_capability,
+    )
     if catalog and required_complexity:
         table = _resolved_table(runtime, global_map, *configs)
         canonical = _enforce_limits(canonical, required_complexity, table, catalog)
@@ -174,6 +196,14 @@ def _price(model: dict) -> tuple[float, float, int]:
         pricing.get("out", 999.0),
         _COST_RANK.get(model.get("cost_tier"), 3),
     )
+
+
+def affordable(available_ids: list[str], budget_tier: str, catalog: dict) -> list[str]:
+    """Known model ids within *budget_tier*'s cost cap (all known, if none qualify)."""
+    cap = _COST_RANK.get(_TIER_MAX_COST.get(budget_tier, "frontier"), 3)
+    known = [mid for mid in available_ids if mid in catalog]
+    within = [mid for mid in known if _COST_RANK.get(catalog[mid].get("cost_tier"), 3) <= cap]
+    return within or known
 
 
 def best_available_model(

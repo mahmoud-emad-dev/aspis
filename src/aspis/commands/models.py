@@ -132,27 +132,44 @@ def _sync(root: Path, inventory: dict) -> int:
             shown = " > ".join(f"{mid}({score})" for score, mid in ranked[:12])
             out.append(f"#   {label:<26}: {shown}")
 
-    out += ["", "runtimes:"]
+    used_capabilities = sorted(set(agent_caps.values()))
+    out += [
+        "",
+        "# Set a model per CAPABILITY — covers every agent of that kind, so a roster of any",
+        "# size is configured by a handful of lines. Pre-filled with the best-value available",
+        "# model; change any. The per-agent section below overrides this for individual agents.",
+        "runtimes:",
+    ]
     for runtime in available_runtimes():
         ids = runtime_ids[runtime]
-        pinned = (existing.get(runtime) or {}).get("agents", {})
+        existing_runtime = existing.get(runtime) or {}
         out.append(f"  {runtime}:")
+        out.append("    by_capability:")
+        existing_caps = existing_runtime.get("by_capability") or {}
+        for capability in used_capabilities:
+            spec = capabilities.get(capability) or {}
+            dimension = spec.get("scored_by", "implementation")
+            budget = spec.get("preferred_tier", "standard")
+            value = existing_caps.get(capability) or (
+                routing.best_available_model(dimension, budget, catalog=catalog, available_ids=ids)
+                or budget
+            )
+            ranked = _rank(dimension, routing.affordable(ids, budget, catalog), catalog)[:3]
+            hint = " > ".join(f"{mid}({score})" for score, mid in ranked) or "(none)"
+            out.append(_yaml_line(f"      {capability}: {value}", f"options: {hint}"))
+        out.append("    # Override a single agent here (uncomment a line):")
         out.append("    agents:")
+        existing_agents = existing_runtime.get("agents") or {}
         for agent, tier in agent_tiers.items():
-            if agent in pinned:
-                value = pinned[agent]  # preserve a hand edit
+            capability = agent_caps.get(agent, "implementation")
+            if agent in existing_agents:  # a real, active override the user added
+                out.append(_yaml_line(f"      {agent}: {existing_agents[agent]}", capability))
             else:
-                capability = agent_caps.get(agent, "implementation")
                 dimension = (capabilities.get(capability) or {}).get("scored_by", "implementation")
-                value = (
-                    routing.best_available_model(
-                        dimension, tier, catalog=catalog, available_ids=ids
-                    )
-                    or tier
+                best = routing.best_available_model(
+                    dimension, tier, catalog=catalog, available_ids=ids
                 )
-            assignment = f"      {agent}: {value}"
-            pad = " " * max(1, 40 - len(assignment))  # always >=1 space before '#' (valid YAML)
-            out.append(f"{assignment}{pad}# {agent_caps.get(agent, '')}".rstrip())
+                out.append(_yaml_line(f"      # {agent}: {best or tier}", capability))
 
     path = root / project.AGENT_MODELS_REL
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -196,6 +213,12 @@ def _available_catalog_ids(runtime: str, catalog: dict, inv, adapter) -> list[st
     if inv and inv.models:
         return [mid for mid in catalog if adapter.model_string(mid, inv) in inv.models]
     return list(catalog)
+
+
+def _yaml_line(text: str, comment: str) -> str:
+    """A YAML line with its inline comment, padded so there is always a space before ``#``."""
+    pad = " " * max(1, 44 - len(text))
+    return f"{text}{pad}# {comment}".rstrip()
 
 
 def _rank(dimension: str, ids: list[str], catalog: dict) -> list[tuple[int, str]]:

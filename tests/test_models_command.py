@@ -95,12 +95,14 @@ def test_sync_generates_an_editable_agent_models_file(monkeypatch, tmp_path) -> 
     assert "AVAILABLE MODELS, ranked per capability" in text  # the menu header
     assert "review (reviewers)" in text  # per-capability ranking
     data = yaml.safe_load(text)
-    agents = data["runtimes"]["opencode"]["agents"]
     available = {"deepseek-v4-pro", "deepseek-v4-flash", "minimax-m3"}
-    # every agent is auto-assigned a model drawn only from the connected provider's catalog.
-    assert agents["reviewer"] in available
-    assert agents["committer"] in available
-    assert set(agents.values()) <= available
+    by_capability = data["runtimes"]["opencode"]["by_capability"]
+    # the scalable layer: a model per capability, drawn only from the connected provider.
+    assert by_capability["review"] in available
+    assert set(by_capability.values()) <= available
+    # per-agent overrides ship commented out (by_capability drives by default).
+    assert (data["runtimes"]["opencode"].get("agents") or {}) == {}
+    assert "# Override a single agent" in text
 
 
 def test_models_available_lists_the_menu_by_provider(monkeypatch, capsys, tmp_path) -> None:

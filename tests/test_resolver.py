@@ -75,6 +75,66 @@ def test_runtimes_block_can_override_a_tier() -> None:
     assert models.resolve("opencode", "a", "deep", global_map=_GLOBAL, project_config=cfg) == "X"
 
 
+def test_by_capability_routes_every_agent_of_that_capability() -> None:
+    # The scalable middle layer: set review once, every review agent inherits it.
+    cfg = {"by_capability": {"review": "rev-model"}}
+    got = models.resolve(
+        "opencode",
+        "reviewer",
+        "deep",
+        global_map=_GLOBAL,
+        project_config=cfg,
+        agent_capability="review",
+    )
+    assert got == "rev-model"
+    # an agent of a different capability is unaffected
+    other = models.resolve(
+        "opencode",
+        "builder",
+        "deep",
+        global_map=_GLOBAL,
+        project_config=cfg,
+        agent_capability="implementation",
+    )
+    assert other == "deepM"
+
+
+def test_per_agent_pin_beats_by_capability_beats_runtime_capability() -> None:
+    cfg = {
+        "by_capability": {"review": "global-cap"},
+        "agents": {"reviewer": "agent-pin"},
+        "runtimes": {"opencode": {"by_capability": {"review": "rt-cap"}}},
+    }
+    # per-agent pin wins
+    assert (
+        models.resolve(
+            "opencode",
+            "reviewer",
+            "deep",
+            global_map=_GLOBAL,
+            project_config=cfg,
+            agent_capability="review",
+        )
+        == "agent-pin"
+    )
+    # without an agent pin, the runtime capability beats the global capability
+    cfg2 = {
+        "by_capability": {"review": "global-cap"},
+        "runtimes": {"opencode": {"by_capability": {"review": "rt-cap"}}},
+    }
+    assert (
+        models.resolve(
+            "opencode",
+            "x",
+            "deep",
+            global_map=_GLOBAL,
+            project_config=cfg2,
+            agent_capability="review",
+        )
+        == "rt-cap"
+    )
+
+
 def test_agent_pin_in_project_wins_over_global_pin() -> None:
     project = {"agents": {"reviewer": "cheap"}}
     glob = {"agents": {"reviewer": "deep"}}
