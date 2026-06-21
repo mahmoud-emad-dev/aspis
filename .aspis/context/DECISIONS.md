@@ -168,3 +168,19 @@ runtime is a new adapter, a new model/provider is a data row (#2/#3/#4). The tie
 (`models.yaml`) now holds canonical ids only — a cross-check test forbids drift from the
 catalog. `scores`/`confidence` are seeded low and are the field the tracing spine (Phase 4)
 later fills — the seam is open, no schema change required.
+
+## D-018 — Detection records provider *presence*, never plan/quota or secrets (2026-06-21)
+`detect()` answers "what can this machine actually run," not "what plan is the user on" —
+because no runtime exposes plan/quota/rate-limit natively (verified). For **OpenCode** it
+reads the connected providers from `auth.json` — the **keys only** (`anthropic`,
+`opencode-go`, …), never the secret values — resolving the path the XDG way
+(`$XDG_DATA_HOME` or `~/.local/share/opencode`; on Windows that is
+`%USERPROFILE%\.local\share`, NOT `%APPDATA%` — a verified landmine), and lists available
+`provider/model` strings from `opencode models` (only when the binary is present). For
+**Claude** it reads the presence of `~/.claude/settings.json` (no secrets) and reports the
+durable alias set (`opus`/`sonnet`/`haiku`/`fable`) — aliases, not dated ids, because they
+survive model bumps. Both are **cross-platform, env-overridable for testing, and never
+raise** — any failure returns `None`/`()` so the resolver degrades to today's tier map
+(FR-004/FR-006, Constitution #12). `model_string()` then matches a canonical id against the
+detected strings, preferring the lowest-`prefer`-rank *connected* provider (`providers.yaml`),
+so routing only ever emits a string the machine can run; with no inventory it is the identity.

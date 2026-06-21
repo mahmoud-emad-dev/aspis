@@ -9,8 +9,16 @@ NOT bind to an agent (the binding is dropped). Model ids are data and editable.
 
 from __future__ import annotations
 
+import os
+import shutil
+from pathlib import Path
+
 from aspis.catalog import CatalogAgent, CatalogCommand
-from aspis.runtimes.base import RuntimeAdapter, to_frontmatter
+from aspis.runtimes.base import RuntimeAdapter, RuntimeInventory, to_frontmatter
+
+# Durable aliases Claude Code accepts for --model / frontmatter (verified, more
+# stable than dated ids). A canonical ``claude-<family>-*`` id maps to its alias.
+_CLAUDE_ALIASES = ("opus", "sonnet", "haiku", "fable")
 
 
 class ClaudeAdapter(RuntimeAdapter):
@@ -47,3 +55,41 @@ class ClaudeAdapter(RuntimeAdapter):
     def render_command(self, command: CatalogCommand) -> str:
         # Claude commands are not bound to an agent — drop the binding.
         return f"{to_frontmatter({'description': command.description})}\n{command.body}\n"
+
+    # --- detection (D-018) -------------------------------------------------
+    # Claude Code keeps a readable settings.json (no secrets) under ~/.claude
+    # (or %USERPROFILE%\.claude); its presence — or the `claude` binary on PATH —
+    # means the runtime is usable here. Available models are the durable alias set;
+    # plan/quota is not scriptable, so we record provider presence only.
+
+    def detect(self) -> RuntimeInventory | None:
+        """Report Claude presence (settings.json or binary) + the durable alias set."""
+        try:
+            installed = self._settings_path().is_file() or shutil.which("claude") is not None
+            if not installed:
+                return None
+            return RuntimeInventory(
+                runtime=self.name,
+                installed=True,
+                providers=("anthropic",),
+                models=_CLAUDE_ALIASES,
+            )
+        except Exception:
+            return None
+
+    def model_string(self, canonical_id: str, inventory: RuntimeInventory | None = None) -> str:
+        """Translate a canonical ``claude-<family>-*`` id to its durable alias (else identity)."""
+        cid = canonical_id.lower()
+        if cid.startswith("claude-"):
+            family = cid[len("claude-") :]
+            for alias in _CLAUDE_ALIASES:
+                if family.startswith(alias):
+                    return alias
+        return canonical_id
+
+    @staticmethod
+    def _settings_path() -> Path:
+        """Resolve ~/.claude/settings.json cross-platform (``CLAUDE_CONFIG_DIR`` overrides)."""
+        base = os.environ.get("CLAUDE_CONFIG_DIR")
+        root = Path(base) if base else Path.home() / ".claude"
+        return root / "settings.json"
