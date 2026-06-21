@@ -51,6 +51,20 @@ run traced so the system measures and improves itself.
   `git commit` so the hooks enforce. Split: agent composes · tool builds the message ·
   hooks enforce (pre = fix/check, commit-msg = convention, post = refresh). Three skills
   ship the "how". A first cut is preserved on `backup/F-006-git`; push/PRs/worktrees deferred.
+- **Phase 3.7 — Model intelligence foundation (F-010).** ✅ Done, built on the F-011
+  runtime-contract consolidation. A canonical **model catalog** (`config/model_catalog.yaml`)
+  is the single source of truth for what each model *is* (provider, context, capability
+  scores, cost tier, hard limits, confidence); `capabilities.yaml` + `providers.yaml` carry
+  the taxonomy and per-provider naming, and the thin `models.yaml` maps tier→canonical id.
+  Each adapter gained `detect()` + `model_string()`, so detection (read OpenCode `auth.json`
+  + `opencode models`; Claude `settings.json`) and per-`(runtime,provider)` translation are
+  plugins, not core branches. A detection orchestrator writes generated
+  `.aspis/state/runtime_inventory.json`; the **resolver** (`models.resolve`) maps an agent's
+  tier→canonical→available runtime string under the full precedence (pin > project > global
+  `~/.aspis` > tier map), enforcing hard limits and degrading to today's map when nothing is
+  detected. `task_size` became `f(mode, model)`; `aspis models` surfaces it. Scores carry a
+  `confidence` seam the Phase-4 tracing fills. Deferred (seams open): capability-declared
+  agents (R-008), evaluation/benchmark scoring (Phase 4/5), cost/quota fallback.
 - **Phase 4 — Tracing spine.** ⏳ Reserved. One writer keyed by `run_id`,
   append-only JSONL truth, a normalized store; cost + quality measurable per
   feature/agent/model. (Capture runs in parallel with Phase 3.)

@@ -46,14 +46,31 @@ adapter; init emits a root guide for any runtime that declares one; lead promoti
 targets `runtimes.mode_runtime()`. "Which runtimes exist" has one source — **profiles**
 (targets) + **`available_runtimes()`** (discovery); there is no `constants.RUNTIMES`.
 
+## Model intelligence
+
 **Models are canonical; runtime strings are derived (D-016).** A model is defined once in
-`catalog/config/model_catalog.yaml` by a provider-neutral canonical id; the adapter's
-`detect()` reports what the machine offers (a `RuntimeInventory`) and `model_string()`
-translates a canonical id into the runtime's exact string (matched against detected
-availability). `model_catalog.yaml` (facts/scores/limits) + `capabilities.yaml` (capability→
-tier) + `providers.yaml` (provider naming/preference) are the data; `models.yaml` maps
-tier→canonical id only. Capability scores carry a `confidence` and are the seam the tracing
-spine fills later — no core change to add models, providers, or a new runtime adapter.
+`catalog/config/model_catalog.yaml` by a provider-neutral canonical id with its facts
+(provider, context, capability scores, cost tier, hard limits, confidence).
+`capabilities.yaml` (capability→tier) + `providers.yaml` (provider naming/preference) carry
+the taxonomy; `models.yaml` maps tier→canonical id only — a cross-check test forbids drift.
+
+**Detection is per-runtime and records presence, not plan/quota (D-018).** Each adapter's
+`detect()` returns a `RuntimeInventory` of connected providers + available model strings, or
+`None` when the runtime is absent — OpenCode reads `auth.json` keys (never secret values) and
+`opencode models`; Claude reads `settings.json` presence and the durable alias set. The
+registry's `detect_all()` orchestrator (via `inventory.build_inventory`) writes generated
+`.aspis/state/runtime_inventory.json` (gitignored). All probes are cross-platform and never
+raise (Constitution #12); a Windows `.CMD` shim is run through the shell.
+
+**One resolver routes; tier stays the agent dial (D-017).** `models.resolve()` applies the
+precedence **agent pin > project > global `~/.aspis` > tier map** to a canonical id, bounds it
+by the catalog's hard `limits` (escalating to the cheapest model that clears a task), then
+calls the adapter's `model_string()` against the inventory to emit the exact runtime string.
+With no inventory it returns the canonical id — byte-identical to today's render, so the
+committed dogfood stays reproducible and any user works without detection. `task_size` is now
+`effective_task_size(mode, model)`; `aspis models` surfaces the resolution and `aspis doctor`
+refreshes the inventory. Capability scores carry a `confidence` — the seam the Phase-4 tracing
+spine fills. No core change is needed to add a model/provider (data) or a runtime (a new adapter).
 
 ## Agents
 
