@@ -27,6 +27,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from aspis.constants import BRAIN_DIR
+from aspis.runtimes import get_adapter
 
 #: Placement: the durable brain (once) vs. each target runtime dir.
 BRAIN = "brain"
@@ -79,7 +80,10 @@ def target(name: str, runtime: str, rel: str) -> str:
     """
     parts = Path(rel).parts
     sub = Path(*parts[1:]).as_posix() if parts and parts[0] == name else Path(rel).name
-    prefix = f".{runtime}/{name}" if kind(name).per_runtime else f"{BRAIN_DIR}/{name}"
+    if kind(name).per_runtime:
+        prefix = f"{get_adapter(runtime).runtime_dir}/{name}"
+    else:
+        prefix = f"{BRAIN_DIR}/{name}"
     return f"{prefix}/{sub}"
 
 

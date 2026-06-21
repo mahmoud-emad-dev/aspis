@@ -136,3 +136,19 @@ unchanged) means reuse the result and skip the run; `stale` means a covered file
 the last run failed) and tests must run, then `record`. The `selective-testing` skill makes
 this its first step, so reviewers/tasks stop re-running tests that nothing relevant changed.
 Deliberately simple; richer per-run history is the future tracing spine, not this.
+
+## D-015 — Runtime identity lives on the adapter; one source of "which runtimes exist" (2026-06-20)
+A runtime's identity — its on-disk dir (`.claude`), its root-guide file (`CLAUDE.md`),
+and whether it expresses an agent `mode` — belongs to its adapter, not to scattered
+literals. The `RuntimeAdapter` contract gains `runtime_dir` (property, default
+`.<name>`), `root_guide` (`str | None`), and `supports_mode` (`bool`); the registry
+exposes `runtime_dirs()` and `mode_runtime()`. `detect.py`, `assetkinds.py`, and
+`promotion.py` now ask the adapter instead of rebuilding `f".{runtime}"`; init emits a
+root guide for any runtime that declares one (no `if "claude"`); lead promotion targets
+`mode_runtime()` (no `_MODE_RUNTIME = "opencode"`). We named the capability
+**`supports_mode`**, not `promotable`, to avoid colliding with `modes.yaml`'s unrelated
+`promotable` knob (whether a *mode's* output can graduate to production). The dead third
+source of runtimes — `constants.RUNTIMES` / `settings.runtimes`, which no engine code
+read — is removed; the real sources stay **profiles** (which runtimes a project targets)
+and **`available_runtimes()`** (auto-discovery of registered adapters). Net: adding or
+renaming a runtime is a one-file change, upholding D-008's cost-of-change discipline.

@@ -17,6 +17,8 @@ class ClaudeAdapter(RuntimeAdapter):
     """Renders catalog assets for the Claude Code runtime."""
 
     name = "claude"
+    # Claude reads a CLAUDE.md root guide in addition to the universal AGENTS.md.
+    root_guide = "CLAUDE.md"
     # Scope-guard wiring: a PreToolUse hook in Claude's settings.json.
     runtime_hooks = (("runtime-hooks/claude/settings.json", ".claude/settings.json"),)
     # Claude Code uses capitalised tool names.

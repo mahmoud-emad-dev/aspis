@@ -38,6 +38,14 @@ runtime accepts a kind is the adapter's `supports(kind)` **capability**, so expo
 never name-checks a runtime. Cost-of-change for a new kind, runtime, or profile is
 ~0 core files — the discipline the architecture constitution enforces.
 
+**Runtime identity is the adapter's, never a literal (D-015).** The adapter is the
+single source of a runtime's on-disk dir (`runtime_dir`, e.g. `.claude`), its root-guide
+file (`root_guide`, e.g. `CLAUDE.md`, or `None`), and whether it expresses an agent
+`mode` (`supports_mode`). `detect.py`, `assetkinds.py`, and `promotion.py` ask the
+adapter; init emits a root guide for any runtime that declares one; lead promotion
+targets `runtimes.mode_runtime()`. "Which runtimes exist" has one source — **profiles**
+(targets) + **`available_runtimes()`** (discovery); there is no `constants.RUNTIMES`.
+
 ## Agents
 
 - **Agent = thin instruction + skills.** The instruction holds identity, rules,

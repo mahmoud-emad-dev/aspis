@@ -47,3 +47,20 @@ def get_adapter(runtime: str) -> RuntimeAdapter:
 def available_runtimes() -> tuple[str, ...]:
     """Return the registered runtime names."""
     return tuple(_ADAPTERS)
+
+
+def runtime_dirs() -> tuple[str, ...]:
+    """Return every runtime's on-disk project dir (e.g. ``.claude``, ``.opencode``)."""
+    return tuple(adapter.runtime_dir for adapter in _ADAPTERS.values())
+
+
+def mode_runtime() -> str | None:
+    """Return the name of the runtime that expresses agent ``mode`` (or ``None``).
+
+    The one runtime whose leads can be promoted from subagent to primary; callers
+    resolve it here instead of hardcoding a runtime name.
+    """
+    for adapter in _ADAPTERS.values():
+        if adapter.supports_mode:
+            return adapter.name
+    return None

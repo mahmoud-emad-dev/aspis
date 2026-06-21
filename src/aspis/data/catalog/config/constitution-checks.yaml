@@ -1,6 +1,8 @@
-# Architecture-constitution checks — the machine-readable form of
-# rules/architecture-constitution.md. Each rule names the role(s) that enforce
-# it and the question that role asks. Agents load only the rules they own.
+# Architecture-constitution checks — a structured index of
+# rules/architecture-constitution.md for agents, not a code-executed checklist.
+# No engine code reads this file; the planning, build, and review agents load the
+# rules they own and ask the listed question against their work. It exists so each
+# role enforces a stable, shared rule set by reading rather than re-deriving it.
 #
 # enforced_by ∈ {planning, build, review}.
 

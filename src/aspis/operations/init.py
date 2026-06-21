@@ -16,6 +16,7 @@ from aspis.constants import BRAIN_DIR
 from aspis.export import plan_export, write_export
 from aspis.lifecycle import Context, Engine
 from aspis.profiles import Profile, load_profile, merge
+from aspis.runtimes import get_adapter
 from aspis.templating import render
 
 
@@ -129,13 +130,20 @@ def _seed_authored_files(ctx: Context, project_name: str, *, write: bool, force:
 def _write_root_files(
     ctx: Context, project_name: str, profile: Profile, *, write: bool, force: bool
 ) -> None:
-    """Write AGENTS.md, .gitignore, and (when claude is a target) a full CLAUDE.md."""
+    """Write AGENTS.md, .gitignore, and each target runtime's own root guide.
+
+    AGENTS.md is the universal guide every project gets; a runtime that declares a
+    ``root_guide`` (e.g. Claude's CLAUDE.md) adds its own — asked of the adapter, so
+    no runtime is named here.
+    """
     files = {
         "AGENTS.md": render(resources.scaffold("AGENTS.md"), project_name=project_name),
         ".gitignore": resources.scaffold("gitignore"),
     }
-    if "claude" in profile.runtimes:
-        files["CLAUDE.md"] = render(resources.scaffold("CLAUDE.md"), project_name=project_name)
+    for runtime in profile.runtimes:
+        guide = get_adapter(runtime).root_guide
+        if guide:
+            files[guide] = render(resources.scaffold(guide), project_name=project_name)
 
     for name, content in files.items():
         destination = ctx.root / name
