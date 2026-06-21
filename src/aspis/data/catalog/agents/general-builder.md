@@ -2,7 +2,7 @@
 name: general-builder
 description: A disposable execution worker that implements one task packet — refactoring, integration, configuration, enhancements, and cross-cutting changes — within its allowed files, tests the change, and reports back. Handles most implementation work; specialized builders are used only where their expertise clearly helps.
 mode: subagent
-model: standard
+model: cheap
 temperature: 0.1
 tools:
   - read

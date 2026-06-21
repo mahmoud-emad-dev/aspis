@@ -71,6 +71,7 @@ def test_postcommit_exits_zero_even_when_a_step_raises(tmp_path, monkeypatch) ->
 
 def test_doctor_exits_nonzero_when_a_check_fails(monkeypatch) -> None:
     monkeypatch.setattr(doctor, "run_checks", lambda root: [Check("python", "fail", "too old")])
+    monkeypatch.setattr(doctor, "build_inventory", lambda root: {})  # no live detection
     assert doctor._run(argparse.Namespace(path=".")) == 1
 
 
@@ -80,4 +81,45 @@ def test_doctor_exits_zero_when_only_warnings(monkeypatch) -> None:
         "run_checks",
         lambda root: [Check("git", "warn", "missing"), Check("python", "ok", "3.12")],
     )
+    monkeypatch.setattr(doctor, "build_inventory", lambda root: {})  # no live detection
     assert doctor._run(argparse.Namespace(path=".")) == 0  # warnings pass
+
+
+# --- doctor model-drift warning ----------------------------------------------
+
+
+def test_doctor_warns_when_connected_plans_changed(monkeypatch, capsys, tmp_path) -> None:
+    from aspis import inventory
+    from aspis.runtimes.base import RuntimeInventory
+
+    (tmp_path / ".aspis").mkdir()
+    # last sync saw only opencode-go; now minimax is also connected -> drift.
+    inventory.save_sync_snapshot(
+        tmp_path, {"opencode": RuntimeInventory("opencode", True, ("opencode-go",))}
+    )
+    monkeypatch.setattr(doctor, "run_checks", lambda root: [])
+    monkeypatch.setattr(
+        doctor,
+        "build_inventory",
+        lambda root: {"opencode": RuntimeInventory("opencode", True, ("opencode-go", "minimax"))},
+    )
+
+    doctor._run(argparse.Namespace(path=str(tmp_path)))
+    out = capsys.readouterr().out
+    assert "connected plans changed" in out
+    assert "+opencode/minimax" in out
+    assert "aspis models --sync" in out
+
+
+def test_doctor_prompts_sync_when_never_synced(monkeypatch, capsys, tmp_path) -> None:
+    from aspis.runtimes.base import RuntimeInventory
+
+    (tmp_path / ".aspis").mkdir()  # a project, but no last-sync snapshot
+    monkeypatch.setattr(doctor, "run_checks", lambda root: [])
+    monkeypatch.setattr(
+        doctor, "build_inventory", lambda root: {"opencode": RuntimeInventory("opencode", True, ())}
+    )
+
+    doctor._run(argparse.Namespace(path=str(tmp_path)))
+    out = capsys.readouterr().out
+    assert "run `aspis models --sync`" in out

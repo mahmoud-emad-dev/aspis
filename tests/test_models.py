@@ -48,8 +48,10 @@ def test_effective_model_resolution_order() -> None:
 
 
 def test_model_map_is_data_driven() -> None:
-    assert resources.model_map("claude")["deep"] == "claude-opus-4-8"
-    assert resources.model_map("opencode")["standard"] == "minimax-m3"
+    assert resources.model_map("claude")["deep"] == "claude-opus-4-8"  # claude map is stable
+    # The opencode map is user-tuned data; assert it is keyed by tier with catalog ids,
+    # not a specific model, so editing models.yaml never breaks this test.
+    assert set(resources.model_map("opencode")) == {"cheap", "standard", "deep"}
 
 
 def test_project_override_and_pin_apply_on_export(tmp_path) -> None:
@@ -57,7 +59,7 @@ def test_project_override_and_pin_apply_on_export(tmp_path) -> None:
     engine.run("init", tmp_path, write=True, no_git=True)  # base → opencode, defaults
 
     build_lead = tmp_path / ".opencode" / "agents" / "build-lead.md"
-    assert _model(build_lead.read_text(encoding="utf-8")) == "minimax-m2-pro"  # deep default
+    assert _model(build_lead.read_text(encoding="utf-8")) == resources.model_map("opencode")["deep"]
 
     (tmp_path / ".aspis" / "config" / "project.yaml").write_text(
         "mode: production\n"

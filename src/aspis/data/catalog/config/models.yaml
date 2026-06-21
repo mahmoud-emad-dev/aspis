@@ -1,19 +1,19 @@
-# Model routing — the global tier->model map per runtime.
+# Tier routing — runtime + tier -> CANONICAL model id (F-010).
 #
-# Agents declare a tier (cheap / standard / deep); this maps the tier to the
-# concrete model id each runtime uses. This is the global default. A project
-# overrides it without touching code, in .aspis/config/project.yaml:
-#   models: { opencode: { deep: <id> } }   # override a tier for a runtime
-#   agents: { reviewer: deep }             # pin one agent to a tier or a model id
-#
-# Editing a value here (or in a project override) never changes logic.
+# Agents declare a tier (cheap / standard / deep); this maps the tier to a canonical
+# model id defined in `model_catalog.yaml`. The runtime adapter then translates that
+# canonical id into the exact string the runtime/provider wants (see model_string()):
+#   claude    canonical claude-opus-4-8 -> alias `opus`
+#   opencode  canonical minimax-m3      -> e.g. `opencode-go/minimax-m3`
+# This is the global default; a project overrides a tier or pins an agent in
+# `.aspis/config/project.yaml` without touching code. Values MUST be catalog ids.
 
 opencode:
   cheap: deepseek-v4-flash
   standard: minimax-m3
-  deep: minimax-m2-pro
+  deep: deepseek-v4-pro
 
 claude:
-  cheap: claude-haiku-4-5-20251001
+  cheap: claude-haiku-4-5
   standard: claude-sonnet-4-6
   deep: claude-opus-4-8

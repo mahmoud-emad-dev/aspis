@@ -15,6 +15,7 @@ from pathlib import Path
 
 from aspis import assetkinds, project, transform
 from aspis.catalog import split_frontmatter
+from aspis.inventory import load_inventory
 from aspis.profiles import Profile
 from aspis.runtimes import get_adapter
 
@@ -86,8 +87,12 @@ def write_export(
     plan: ExportPlan, target_root: Path, *, force: bool = False, write: bool = False
 ) -> list[str]:
     """Perform (or, with ``write=False``, just describe) the planned actions."""
-    # The target's own settings override model routing (tier maps, per-agent pins).
-    project_config = project.load_project_config(target_root)
+    # The target's own settings override model routing — project.yaml plus the
+    # authoritative per-agent assignments in agent-models.yaml (aspis models --sync).
+    project_config = project.load_effective_config(target_root)
+    # Detected runtime inventory (None when detection has not run here) — lets render
+    # emit the model strings the machine can actually run. Loaded once for all actions.
+    inventory = load_inventory(target_root)
     performed: list[str] = []
     for action in plan.actions:
         destination = target_root / action.target
@@ -98,7 +103,7 @@ def write_export(
         performed.append(f"{action.op}: {action.target}")
         if write:
             destination.parent.mkdir(parents=True, exist_ok=True)
-            _apply(action, destination, project_config)
+            _apply(action, destination, project_config, inventory)
 
     # Each runtime emits its own scope-guard wiring (adapter-owned placement).
     if plan.catalog_root is not None:
@@ -111,13 +116,14 @@ def write_export(
     return performed
 
 
-def _apply(action: ExportAction, destination: Path, project_config: dict) -> None:
+def _apply(action: ExportAction, destination: Path, project_config: dict, inventory=None) -> None:
     """Execute a single export action against *destination*."""
     if action.op == "render-agent":
         text = transform.render_agent(
             action.source.read_text(encoding="utf-8"),
             action.runtime,
             project_config=project_config,
+            inventory=inventory,
         )
         destination.write_text(text, encoding="utf-8", newline="\n")
     elif action.op == "render-command":

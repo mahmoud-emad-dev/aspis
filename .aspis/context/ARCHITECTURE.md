@@ -46,6 +46,34 @@ adapter; init emits a root guide for any runtime that declares one; lead promoti
 targets `runtimes.mode_runtime()`. "Which runtimes exist" has one source — **profiles**
 (targets) + **`available_runtimes()`** (discovery); there is no `constants.RUNTIMES`.
 
+## Model intelligence
+
+**Models are canonical; runtime strings are derived (D-016).** A model is defined once in
+`catalog/config/model_catalog.yaml` by a provider-neutral canonical id with its facts
+(provider, context, capability scores, cost tier, hard limits, confidence).
+`capabilities.yaml` (capability→tier) + `providers.yaml` (provider naming/preference) carry
+the taxonomy; `models.yaml` maps tier→canonical id only — a cross-check test forbids drift.
+
+**Detection is per-runtime and records presence, not plan/quota (D-018).** Each adapter's
+`detect()` returns a `RuntimeInventory` of connected providers + available model strings, or
+`None` when the runtime is absent — OpenCode reads `auth.json` keys (never secret values) and
+`opencode models`; Claude reads `settings.json` presence and the durable alias set. The
+registry's `detect_all()` orchestrator (via `inventory.build_inventory`) writes generated
+`.aspis/state/runtime_inventory.json` (gitignored). All probes are cross-platform and never
+raise (Constitution #12); a Windows `.CMD` shim is run through the shell.
+
+**One resolver routes; tier stays the agent dial (D-017).** `models.resolve()` applies the
+precedence **per-(runtime,agent) pin > per-agent pin > per-(runtime,capability) > per-capability
+> project/global tier override > tier map** to a canonical id, then calls the adapter's
+`model_string()` against the inventory to emit the exact runtime string. With no inventory it
+returns the canonical id — byte-identical to today's render, so the committed dogfood stays
+reproducible and any user works without detection. `aspis models` surfaces the resolution and
+the available-model menu; `aspis models --sync` generates the editable per-agent assignment
+file; `aspis doctor` refreshes the inventory and flags when connected plans change. Capability
+scores carry a `confidence` — the seam the Phase-4 tracing spine fills. No core change is needed
+to add a model/provider (data) or a runtime (a new adapter). **Hard limits + task sizing are a
+run-time/dispatch concern, not render — deferred to the tracing/headless phase (D-017).**
+
 ## Agents
 
 - **Agent = thin instruction + skills.** The instruction holds identity, rules,

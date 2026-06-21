@@ -1,0 +1,25 @@
+# Capability taxonomy — the stable vocabulary agents route by (F-010, D-017).
+#
+# Agents declare a TIER today (R-007). This file is the seam that lets routing be
+# capability-aware: each capability maps to a preferred tier, so a later, additive
+# change can let agents declare a capability instead of a tier without re-architecting
+# the resolver. The vocabulary is deliberately small and stable — model names change
+# monthly, capabilities rarely.
+#
+# preferred_tier ∈ {cheap, standard, deep} — the default cost budget for the capability.
+# scored_by ∈ {planning, implementation, review, reasoning} — the model_catalog.yaml
+# score dimension that ranks how good a model is at this capability. Together they let
+# the resolver auto-pick the best AVAILABLE model for each agent's job (capability-based
+# routing), not a one-size-per-tier model. Seeded now; refined later from tracing.
+
+capabilities:
+  planning:       {preferred_tier: deep,     scored_by: planning}        # architecture reasoning, spec quality
+  architecture:   {preferred_tier: deep,     scored_by: planning}        # system design, trade-offs
+  review:         {preferred_tier: deep,     scored_by: review}          # bug + architecture finding in a diff
+  orchestration:  {preferred_tier: deep,     scored_by: reasoning}       # coordinating multi-step work
+  research:       {preferred_tier: standard, scored_by: reasoning}       # gathering + validating external knowledge
+  implementation: {preferred_tier: standard, scored_by: implementation}  # writing correct code to a spec
+  testing:        {preferred_tier: standard, scored_by: implementation}  # designing + running tests
+  debugging:      {preferred_tier: standard, scored_by: reasoning}       # root-cause + corrective fix
+  documentation:  {preferred_tier: cheap,    scored_by: implementation}  # writing docs from existing material
+  exploration:    {preferred_tier: cheap,    scored_by: reasoning}       # read-only repo navigation/summary

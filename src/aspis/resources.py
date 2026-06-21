@@ -53,7 +53,16 @@ def brain_dirs() -> list[str]:
     return list(data.get("dirs", []))
 
 
+def config(name: str) -> dict:
+    """Load a catalog ``config/<name>`` YAML file as a dict (``{}`` if empty).
+
+    One resolver for every bundled config file (``models.yaml``, ``providers.yaml``,
+    ``model_catalog.yaml``, ``capabilities.yaml``), so callers never rebuild the path.
+    """
+    data = yaml.safe_load((catalog_dir() / "config" / name).read_text(encoding="utf-8"))
+    return data or {}
+
+
 def model_map(runtime: str) -> dict[str, str]:
     """Return the global tier->model map for *runtime* from ``config/models.yaml``."""
-    data = yaml.safe_load((catalog_dir() / "config" / "models.yaml").read_text(encoding="utf-8"))
-    return dict((data or {}).get(runtime, {}))
+    return dict(config("models.yaml").get(runtime, {}))

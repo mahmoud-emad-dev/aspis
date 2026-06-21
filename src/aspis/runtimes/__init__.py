@@ -11,7 +11,7 @@ from __future__ import annotations
 import importlib
 import pkgutil
 
-from aspis.runtimes.base import RuntimeAdapter
+from aspis.runtimes.base import RuntimeAdapter, RuntimeInventory
 
 
 def _discover() -> dict[str, RuntimeAdapter]:
@@ -52,6 +52,20 @@ def available_runtimes() -> tuple[str, ...]:
 def runtime_dirs() -> tuple[str, ...]:
     """Return every runtime's on-disk project dir (e.g. ``.claude``, ``.opencode``)."""
     return tuple(adapter.runtime_dir for adapter in _ADAPTERS.values())
+
+
+def detect_all() -> dict[str, RuntimeInventory]:
+    """Ask every registered adapter to detect itself; keep only installed runtimes.
+
+    Plugin-based discovery (no ``if runtime == ...``): a new runtime is detected the
+    moment its adapter ships. A failing or absent runtime simply yields no entry.
+    """
+    found: dict[str, RuntimeInventory] = {}
+    for name, adapter in _ADAPTERS.items():
+        inventory = adapter.detect()
+        if inventory is not None and inventory.installed:
+            found[name] = inventory
+    return found
 
 
 def mode_runtime() -> str | None:

@@ -35,7 +35,10 @@ First, on every planning request, before gathering deep context or writing anyth
 4. **Apply the mode's knobs.** The file gives, per mode: `spec`, `architecture`,
    `task_size`, `plan_review`, `build_review`, `test_depth`, `docs`, `promotable`.
    These decide which artifacts P2–P5 produce and how deep each goes (e.g.
-   `architecture: skip` drops P3; `plan_review: skip` drops P5).
+   `architecture: skip` drops P3; `plan_review: skip` drops P5). `task_size` is the
+   *base* granularity; **shade it by the builder's model** — a weaker/cheaper model
+   earns finer task packets (smaller, more checked), a stronger one can take coarser
+   ones. Check the builder's model with `aspis models` when it matters.
 5. **State the plan-of-plan** in one or two lines before proceeding: track, mode, and
    the artifacts to produce.
 

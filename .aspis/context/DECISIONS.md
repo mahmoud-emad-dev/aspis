@@ -152,3 +152,53 @@ source of runtimes — `constants.RUNTIMES` / `settings.runtimes`, which no engi
 read — is removed; the real sources stay **profiles** (which runtimes a project targets)
 and **`available_runtimes()`** (auto-discovery of registered adapters). Net: adding or
 renaming a runtime is a one-file change, upholding D-008's cost-of-change discipline.
+
+## D-016 — A canonical model catalog is the source of truth; runtime strings are derived (2026-06-21)
+A model is defined **once** in `catalog/config/model_catalog.yaml` by a canonical,
+provider-neutral id (`minimax-m3`, `claude-opus-4-8`) carrying its facts (provider,
+context, capability scores, cost tier, pricing, hard limits, confidence). The *string a
+runtime uses* is derived from that id per runtime/provider — the same model is spelled
+`opencode-go/minimax-m3`, `minimax/MiniMax-M3`, `openrouter/anthropic/claude-opus-4.8`, or
+the Claude alias `opus`. So the `RuntimeAdapter` contract gains `detect()` (what the runtime
+offers on this machine — a `RuntimeInventory` of connected providers + available model
+strings, or `None` when absent) and `model_string(canonical_id, inventory)` (canonical →
+the runtime's exact string, matched against the detected strings; identity by default). The
+registry adds `detect_all()`. No core code name-checks a runtime (Constitution #9); a new
+runtime is a new adapter, a new model/provider is a data row (#2/#3/#4). The tier map
+(`models.yaml`) now holds canonical ids only — a cross-check test forbids drift from the
+catalog. `scores`/`confidence` are seeded low and are the field the tracing spine (Phase 4)
+later fills — the seam is open, no schema change required.
+
+## D-017 — One resolver routes tier→canonical→runtime string; tier stays the agent dial (2026-06-21)
+`models.resolve()` is the single routing engine the adapters call at render. It applies the
+full precedence **per-(runtime,agent) pin > per-agent pin > per-(runtime,capability) >
+per-capability > project/global tier override > tier map**, then translates the canonical id
+into the runtime's exact string via the adapter's `model_string()` against the detected
+inventory. With no translate/inventory it returns the canonical id — byte-identical to today's
+output — so detection is optional and the system works for any user (FR-006/FR-009). Agents
+keep declaring a **tier** (cheap/standard/deep), preserving R-007; capability-aware selection
+(`by_capability`) is an additive override layer over the same resolver, not a re-architecture.
+The original `effective_model()` is kept intact (its callers/tests unchanged).
+
+**Scope correction (2026-06-21):** hard-`limits` enforcement (FR-007) and `task_size` shaping
+(FR-008) are **NOT** applied at render — render does not know the task, so they are a
+run-time/dispatch concern. They are **deferred to task dispatch** (the headless-commander /
+tracing phase), where a concrete task and its complexity exist. The earlier render-time
+implementations were removed as dead code; the catalog still carries `limits` for that future
+consumer.
+
+## D-018 — Detection records provider *presence*, never plan/quota or secrets (2026-06-21)
+`detect()` answers "what can this machine actually run," not "what plan is the user on" —
+because no runtime exposes plan/quota/rate-limit natively (verified). For **OpenCode** it
+reads the connected providers from `auth.json` — the **keys only** (`anthropic`,
+`opencode-go`, …), never the secret values — resolving the path the XDG way
+(`$XDG_DATA_HOME` or `~/.local/share/opencode`; on Windows that is
+`%USERPROFILE%\.local\share`, NOT `%APPDATA%` — a verified landmine), and lists available
+`provider/model` strings from `opencode models` (only when the binary is present). For
+**Claude** it reads the presence of `~/.claude/settings.json` (no secrets) and reports the
+durable alias set (`opus`/`sonnet`/`haiku`/`fable`) — aliases, not dated ids, because they
+survive model bumps. Both are **cross-platform, env-overridable for testing, and never
+raise** — any failure returns `None`/`()` so the resolver degrades to today's tier map
+(FR-004/FR-006, Constitution #12). `model_string()` then matches a canonical id against the
+detected strings, preferring the lowest-`prefer`-rank *connected* provider (`providers.yaml`),
+so routing only ever emits a string the machine can run; with no inventory it is the identity.

@@ -2,7 +2,7 @@
 name: research-lead
 description: The knowledge layer — acquires, validates, and packages external knowledge so the rest of the system never researches the same thing twice. Closes the model's knowledge gap (new versions, current docs, APIs), and turns findings into reusable reference assets. It researches; it does not build, plan, or review.
 mode: subagent
-model: standard
+model: deep
 temperature: 0.1
 tools:
   - read

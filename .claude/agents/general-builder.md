@@ -8,7 +8,7 @@ tools:
 - Edit
 - Write
 - Bash
-model: claude-sonnet-4-6
+model: sonnet
 ---
 
 # General Builder

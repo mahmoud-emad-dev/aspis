@@ -10,11 +10,28 @@ from __future__ import annotations
 
 import shutil
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import yaml
 
 from aspis.catalog import CatalogAgent, CatalogCommand
+
+
+@dataclass(frozen=True)
+class RuntimeInventory:
+    """What a runtime offers on the current machine — provider *presence*, not plan/quota.
+
+    Produced by :meth:`RuntimeAdapter.detect` and persisted (per machine) as generated
+    state. ``providers`` are the connected provider ids; ``models`` are the concrete
+    runtime model strings actually available (e.g. ``"opencode-go/minimax-m3"``), which
+    :meth:`RuntimeAdapter.model_string` matches a canonical id against.
+    """
+
+    runtime: str
+    installed: bool = False
+    providers: tuple[str, ...] = ()
+    models: tuple[str, ...] = field(default_factory=tuple)
 
 
 class RuntimeAdapter(ABC):
@@ -92,26 +109,68 @@ class RuntimeAdapter(ABC):
         """Resolve a model tier to a concrete id, falling back to ``standard``."""
         return self.models.get(tier, self.models.get("standard", tier))
 
+    def detect(self) -> RuntimeInventory | None:
+        """Detect what this runtime offers on the current machine.
+
+        Returns ``None`` when the runtime is not installed/usable here, so detection
+        is a per-runtime plugin and the orchestrator never name-checks a runtime. The
+        base default is "not installed"; each adapter overrides with its own probe.
+        Implementations MUST be cross-platform and MUST never raise — any failure
+        means "not detected" (return ``None``), never a crash (FR-004/FR-006).
+        """
+        return None
+
+    def model_string(self, canonical_id: str, inventory: RuntimeInventory | None = None) -> str:
+        """Translate a canonical model id into the exact string this runtime expects.
+
+        The canonical id (e.g. ``"minimax-m3"``) is provider-neutral; a runtime spells
+        it differently per connected provider. When an *inventory* is given, adapters
+        match the canonical id against the real available strings; with no inventory the
+        base default is the identity (the canonical id is already a usable string), which
+        preserves today's behaviour and keeps the resolver working for any user.
+        """
+        return canonical_id
+
     def tools_for(self, tokens: tuple[str, ...]) -> list[str]:
         """Map canonical tool tokens to this runtime's tool names (order preserved)."""
         return [self.tools.get(token, token) for token in tokens]
 
     @abstractmethod
-    def render_agent(self, agent: CatalogAgent, *, project_config: dict | None = None) -> str:
+    def render_agent(
+        self,
+        agent: CatalogAgent,
+        *,
+        project_config: dict | None = None,
+        inventory: RuntimeInventory | None = None,
+    ) -> str:
         """Return the runtime's on-disk agent file (frontmatter + body)."""
 
-    def _resolve_model(self, agent: CatalogAgent, project_config: dict | None) -> str:
-        """Resolve an agent's concrete model id, honouring project overrides/pins."""
-        if not project_config:
-            return self.model_for(agent.model)
-        from aspis import models
+    def _resolve_model(
+        self,
+        agent: CatalogAgent,
+        project_config: dict | None,
+        inventory: RuntimeInventory | None = None,
+    ) -> str:
+        """Resolve an agent's model and translate it to this runtime's string.
 
-        return models.effective_model(
+        Runs the full resolver: tier/pin/override precedence to a canonical id, then
+        ``model_string()`` against the detected *inventory*. With no inventory the
+        translation is the identity, so rendered output is unchanged for any user who
+        has not run detection (and the committed dogfood stays canonical).
+        """
+        from aspis import models, project, resources
+
+        agent_caps = resources.config("agent-capabilities.yaml").get("agents", {})
+        return models.resolve(
             self.name,
             agent.name,
             agent.model,
             global_map=self.models,
-            project_config=project_config,
+            project_config=project_config or {},
+            global_config=project.load_global_config(),
+            translate=self.model_string,
+            inventory=inventory,
+            agent_capability=agent_caps.get(agent.name),
         )
 
     @abstractmethod
