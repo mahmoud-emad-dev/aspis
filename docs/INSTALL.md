@@ -1,85 +1,104 @@
 # Install ASPIS
 
-ASPIS is a single pure-Python CLI (`aspis`) with no runtime dependencies. It is
-developed Windows-first; Linux and macOS use the same commands.
+ASPIS is a single pure-Python CLI (`aspis`) with no runtime dependencies, run
+through [`uv`](https://docs.astral.sh/uv/). It is tested on **Windows and Linux**
+with the same commands.
 
-## Prerequisites
+## Method 1 — one command (recommended)
 
-- **Python 3.11+** — [python.org/downloads](https://python.org/downloads)
-- **Git** — [git-scm.com/downloads](https://git-scm.com/downloads)
-- **uv** — [docs.astral.sh/uv](https://docs.astral.sh/uv/)
-
-Install `uv` if you don't have it:
-
-```powershell
-# Windows (PowerShell)
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-```
+The installer checks prerequisites, installs `uv` if missing, installs the global
+`aspis`, and runs `aspis doctor --verbose` to confirm and show where everything
+lives.
 
 ```bash
 # Linux / macOS
-curl -LsSf https://astral.sh/uv/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/mahmoud-emad-dev/aspis/main/install.sh | bash
 ```
 
-## Install the `aspis` command (global)
+```powershell
+# Windows (PowerShell)
+irm https://raw.githubusercontent.com/mahmoud-emad-dev/aspis/main/install.ps1 | iex
+```
 
-`uv tool install` puts an isolated `aspis` on your PATH that works from any
-directory.
+No clone, no `chmod`, no `uv` knowledge required.
+
+## Method 2 — from a clone
 
 ```bash
-# Once published to GitHub:
-uv tool install git+<repo-url>
-
-# Or from a local clone (works today), run from the repo root:
-uv tool install .
-
-# Verify
-aspis --version
-aspis doctor
+git clone https://github.com/mahmoud-emad-dev/aspis.git
+cd aspis
+./install.sh          # Linux / macOS
+```
+```powershell
+.\install.ps1         # Windows
 ```
 
-To refresh after pulling new changes:
+The script detects the local working tree and installs from it.
+
+## Method 3 — developer / contributor
 
 ```bash
-uv tool install --reinstall .
+uv tool install git+https://github.com/mahmoud-emad-dev/aspis.git   # global, from GitHub
+uv tool install .            # global, from a clone
+uv tool install --reinstall .   # refresh after pulling
+
+# Or work from the repo without a global install:
+uv sync && uv run aspis --version   # uses the repo .venv
+uv run pytest && uv run ruff check .
 ```
 
-## Verify your environment
-
-`aspis doctor` checks Python, Git, and whether the current directory is an
-ASPIS project:
+## Verify
 
 ```console
 $ aspis doctor
   [ok  ] python   Python 3.12
-  [ok  ] aspis    aspis 0.0.1
+  [ok  ] aspis    aspis 0.1.0b1
   [ok  ] git      /usr/bin/git
   [warn] project  not an ASPIS project (run `aspis init`)
 
 All checks passed.
 ```
 
-## Develop on ASPIS itself
+`aspis doctor --verbose` additionally shows the CLI path, where config/data/cache
+live, and which agent runtimes (Claude Code, OpenCode, Cursor, Gemini, Codex) are
+on your PATH.
 
-From a clone, use the project's own environment instead of a global install:
+## Where ASPIS stores things
+
+ASPIS uses your OS's standard per-user directories (an existing `~/.aspis` from an
+older version is still honoured; `ASPIS_HOME` overrides everything):
+
+| What | Linux / macOS | Windows |
+|---|---|---|
+| `aspis` CLI shim | `~/.local/bin/aspis` | `%USERPROFILE%\.local\bin\aspis.exe` |
+| Global config | `~/.config/aspis/` | `%APPDATA%\ASPIS\` |
+| Global data (runtime inventory) | `~/.local/share/aspis/` | `%LOCALAPPDATA%\ASPIS\` |
+| Cache | `~/.cache/aspis/` | `%LOCALAPPDATA%\ASPIS\cache\` |
+| **Per-project brain** (tracked) | `<project>/.aspis/` | `<project>\.aspis\` |
+
+## Uninstall
 
 ```bash
-uv sync                 # create .venv/ with dev tools (ruff, pytest)
-uv run aspis --version  # run the CLI from the repo venv
-uv run pytest           # run the tests
-uv run ruff check .     # lint
+aspis uninstall              # dry-run: show what would be removed
+aspis uninstall --write      # remove machine-wide state (keeps project brains)
+aspis uninstall --write --keep-config   # keep the global config
+uv tool uninstall aspis      # remove the CLI binary itself
 ```
-
-`uv run aspis …` always resolves to the repo's `.venv`, so it reflects your
-working tree exactly.
 
 ## Troubleshooting
 
 **`aspis: command not found` after install.** `uv` puts the shim in
-`~/.local/bin` (Linux/macOS) or `%USERPROFILE%\.local\bin` (Windows). Make sure
-that directory is on your PATH and restart your terminal. Confirm with:
+`~/.local/bin` (Linux/macOS) or `%USERPROFILE%\.local\bin` (Windows). Ensure that
+directory is on your PATH and restart your terminal:
 
 ```bash
-command -v aspis            # Linux / macOS
-(Get-Command aspis).Source  # PowerShell
+command -v aspis             # Linux / macOS
+(Get-Command aspis).Source   # PowerShell
 ```
+
+**`./install.sh: Permission denied`.** The repo ships the script with the
+executable bit set, but if your filesystem dropped it: `bash install.sh` works, or
+`chmod +x install.sh`.
+
+**Python too old.** ASPIS needs Python 3.11+. Install from
+[python.org/downloads](https://python.org/downloads) and re-run the installer.

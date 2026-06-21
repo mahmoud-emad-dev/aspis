@@ -2,11 +2,11 @@
 # ASPIS one-command installer — Linux / macOS.
 #
 # Verifies prerequisites, installs `uv` if missing, installs the global `aspis`
-# CLI, and runs `aspis doctor` to confirm. Run from a clone (installs from source)
-# or anywhere (installs from GitHub once the repo is public):
+# CLI, and runs `aspis doctor --verbose` to confirm and show where things live.
+# Works two ways:
 #
-#   ./install.sh            # from a clone
-#   curl -LsSf <raw-url>/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/mahmoud-emad-dev/aspis/main/install.sh | bash
+#   ./install.sh            # from a clone (installs from the working tree)
 set -euo pipefail
 
 REPO_URL="https://github.com/mahmoud-emad-dev/aspis.git"
@@ -45,10 +45,17 @@ fi
 # 5. Ensure the shim is on PATH for this shell
 case ":$PATH:" in *":$HOME/.local/bin:"*) ;; *) export PATH="$HOME/.local/bin:$PATH"; say "added ~/.local/bin to PATH for this session";; esac
 
-# 6. Verify
+# 6. Verify + show where everything lives (doctor warns, never fails, outside a project)
 say "verifying ..."
 aspis --version || fail "aspis not on PATH — add ~/.local/bin to PATH and re-open your shell"
-aspis doctor || true   # doctor warns (does not fail) outside a project
+aspis doctor --verbose || true
 
-say "installed. global config: ~/.aspis/config/   per-project state: <project>/.aspis/"
-say "next: cd <your-project> && aspis init"
+cat <<'DONE'
+
+[aspis] installed. Next, in your project:
+  cd <your-project>
+  aspis init --write          # scaffold the ASPIS brain + runtime
+  aspis bootstrap --write     # make it live
+  aspis models --sync         # assign a model to each agent
+Run `aspis doctor --verbose` anytime to see install paths + detected runtimes.
+DONE

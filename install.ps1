@@ -1,11 +1,11 @@
 # ASPIS one-command installer — Windows (PowerShell 5+).
 #
 # Verifies prerequisites, installs `uv` if missing, installs the global `aspis`
-# CLI, and runs `aspis doctor` to confirm. Run from a clone (installs from source)
-# or anywhere (installs from GitHub once the repo is public):
+# CLI, and runs `aspis doctor --verbose` to confirm and show where things live.
+# Works two ways:
 #
-#   .\install.ps1
-#   irm <raw-url>/install.ps1 | iex
+#   irm https://raw.githubusercontent.com/mahmoud-emad-dev/aspis/main/install.ps1 | iex
+#   .\install.ps1           # from a clone (installs from the working tree)
 $ErrorActionPreference = 'Stop'
 
 function Say($m)  { Write-Host "[aspis] $m" -ForegroundColor Cyan }
@@ -42,11 +42,16 @@ if ((Test-Path pyproject.toml) -and (Select-String -Path pyproject.toml -Pattern
 # 5. Ensure the shim is on PATH for this session
 if (-not (Get-Command aspis -ErrorAction SilentlyContinue)) { $env:Path = "$env:USERPROFILE\.local\bin;$env:Path" }
 
-# 6. Verify
+# 6. Verify + show where everything lives (doctor warns, never fails, outside a project)
 Say "verifying ..."
 if (-not (Get-Command aspis -ErrorAction SilentlyContinue)) { Fail "aspis not on PATH - add %USERPROFILE%\.local\bin to PATH and re-open PowerShell" }
 aspis --version
-try { aspis doctor } catch { }   # doctor warns (does not fail) outside a project
+try { aspis doctor --verbose } catch { }
 
-Say "installed. global config: %USERPROFILE%\.aspis\config\   per-project state: <project>\.aspis\"
-Say "next: cd <your-project>; aspis init"
+Write-Host ""
+Say "installed. Next, in your project:"
+Write-Host "  cd <your-project>"
+Write-Host "  aspis init --write          # scaffold the ASPIS brain + runtime"
+Write-Host "  aspis bootstrap --write     # make it live"
+Write-Host "  aspis models --sync         # assign a model to each agent"
+Write-Host "Run ``aspis doctor --verbose`` anytime to see install paths + detected runtimes."
