@@ -158,7 +158,7 @@ class RuntimeAdapter(ABC):
         translation is the identity, so rendered output is unchanged for any user who
         has not run detection (and the committed dogfood stays canonical).
         """
-        from aspis import models
+        from aspis import models, project
 
         return models.resolve(
             self.name,
@@ -166,6 +166,7 @@ class RuntimeAdapter(ABC):
             agent.model,
             global_map=self.models,
             project_config=project_config or {},
+            global_config=project.load_global_config(),
             translate=self.model_string,
             inventory=inventory,
         )

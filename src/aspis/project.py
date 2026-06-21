@@ -9,6 +9,7 @@ on what "a project" means and where its settings are.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import yaml
@@ -35,6 +36,25 @@ def config_path(root: Path) -> Path:
 def load_project_config(root: Path) -> dict:
     """Return the parsed project settings, or ``{}`` when none exist."""
     path = config_path(root)
+    if not path.is_file():
+        return {}
+    return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
+
+def global_config_path() -> Path:
+    """Path to the machine-wide ASPIS settings (``~/.aspis/config/project.yaml``).
+
+    ``ASPIS_HOME`` overrides the ``~/.aspis`` base — used by tests and for relocating
+    the per-user config. This layer sits below project config in model resolution.
+    """
+    base = os.environ.get("ASPIS_HOME")
+    root = Path(base) if base else Path.home() / BRAIN_DIR
+    return root / "config" / "project.yaml"
+
+
+def load_global_config() -> dict:
+    """Return the machine-wide ASPIS settings, or ``{}`` when none exist."""
+    path = global_config_path()
     if not path.is_file():
         return {}
     return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
