@@ -285,4 +285,4 @@ free_to_test:
   cheap: opencode/north-mini-code-free
   standard: openrouter/qwen/qwen3-coder:free
   deep: openrouter/openai/gpt-oss-120b:free
-  overall_default: openrouter/qwen/qwen3-coder:free
+  overall_default: opencode/deepseek-v4-flash-free
