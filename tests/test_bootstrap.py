@@ -70,3 +70,47 @@ def test_bootstrap_requires_init(tmp_path) -> None:
 
     with pytest.raises(RuntimeError, match="aspis init"):
         _engine().run("bootstrap", tmp_path, write=True, yes=True)
+
+
+def test_init_exports_the_bootstrap_package(tmp_path) -> None:
+    """Init ships the transient onboarding package; bootstrap removes it."""
+    from aspis.operations.bootstrap import bootstrap_package
+
+    _engine().run("init", tmp_path, write=True, no_git=True)
+    assert (tmp_path / ".opencode" / "agents" / "bootstrap.md").is_file()
+    assert (tmp_path / ".opencode" / "skills" / "project-onboarding").is_dir()
+    assert (tmp_path / ".aspis" / "workflows" / "bootstrap.md").is_file()
+    assert len(bootstrap_package(tmp_path)) == 3
+
+
+def test_bootstrap_self_cleans_the_package_and_stamps_version(tmp_path) -> None:
+    """A green bootstrap removes the onboarding package and records the engine version."""
+    from aspis import __version__
+    from aspis.operations.bootstrap import bootstrap_package
+
+    engine = _engine()
+    engine.run("init", tmp_path, write=True)
+    engine.run("bootstrap", tmp_path, write=True, yes=True, goal="t", stack="python")
+
+    assert bootstrap_package(tmp_path) == []  # package gone
+    assert not (tmp_path / ".opencode" / "agents" / "bootstrap.md").exists()
+    assert not (tmp_path / ".opencode" / "skills" / "project-onboarding").exists()
+    assert not (tmp_path / ".aspis" / "workflows" / "bootstrap.md").exists()
+
+    data = json.loads((tmp_path / ".aspis" / "manifest.json").read_text(encoding="utf-8"))
+    assert data["bootstrap_engine_version"] == __version__
+
+
+def test_bootstrap_keeps_package_when_doctor_fails(tmp_path, monkeypatch) -> None:
+    """If the health gate fails, the onboarding package is kept for a re-run."""
+    from types import SimpleNamespace
+
+    from aspis.operations import bootstrap as bootstrap_op
+    from aspis.operations.bootstrap import bootstrap_package
+
+    monkeypatch.setattr(bootstrap_op, "run_checks", lambda root: [SimpleNamespace(status="fail")])
+    engine = _engine()
+    engine.run("init", tmp_path, write=True, no_git=True)
+    engine.run("bootstrap", tmp_path, write=True, yes=True)
+
+    assert len(bootstrap_package(tmp_path)) == 3  # nothing was cleaned

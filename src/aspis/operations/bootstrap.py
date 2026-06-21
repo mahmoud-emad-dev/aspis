@@ -15,10 +15,18 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
-from aspis import detect, manifest, project, promotion
+from aspis import __version__, detect, manifest, project, promotion
 from aspis.constants import BRAIN_DIR
 from aspis.health import run_checks
 from aspis.lifecycle import Context, Engine
+from aspis.runtimes import runtime_dirs
+
+# The transient onboarding package: shipped by init, removed once the project is
+# live so no agent ever re-checks bootstrap. Per-runtime agent + skill, plus the
+# shared workflow doc.
+_PKG_AGENT = "bootstrap.md"
+_PKG_SKILL = "project-onboarding"
+_PKG_WORKFLOW = Path("workflows") / "bootstrap.md"
 
 # Slots that init leaves in AGENTS.md / CLAUDE.md for bootstrap to fill.
 _DEFN_SLOT = "<!-- one-line project definition — filled at bootstrap -->"
@@ -223,19 +231,41 @@ def _autocommit_init(ctx: Context) -> None:
 
 
 def _doctor_gate(ctx: Context) -> None:
-    """Run the health checks after bootstrap (post, best-effort)."""
+    """Run the health checks after bootstrap; record the result for self-clean (post)."""
     failed = [check for check in run_checks(ctx.root) if check.status == "fail"]
+    ctx.results["doctor_failed"] = len(failed)
     ctx.log(f"doctor: {len(failed)} failed" if failed else "doctor: ok")
 
 
+def bootstrap_package(root: Path) -> list[Path]:
+    """Return the transient onboarding package files that exist under *root*.
+
+    The bootstrap agent + ``project-onboarding`` skill in each present runtime dir,
+    plus the shared ``.aspis/workflows/bootstrap.md``. Used to self-clean the package
+    once the project is live (and listed as the answer to "what is transient").
+    """
+    paths = [root / BRAIN_DIR / _PKG_WORKFLOW]
+    for rdir in runtime_dirs():
+        base = root / rdir
+        paths.append(base / "agents" / _PKG_AGENT)
+        paths.append(base / "skills" / _PKG_SKILL)
+    return [p for p in paths if p.exists()]
+
+
 def _self_clean(ctx: Context) -> None:
-    """Remove the transient bootstrap assets listed in the manifest (post)."""
+    """Remove the transient onboarding package once the project is live (post).
+
+    Only fires on a green write run: if doctor failed, the package stays so the user
+    can re-run bootstrap. Idempotent — on a RESUME the package is already gone, so
+    this is a no-op. Also honours any extra ``transient_assets`` listed in the manifest.
+    """
     write = bool(ctx.options.get("write"))
-    for rel in manifest.load(ctx.root).get("transient_assets", []):
-        path = ctx.root / rel
-        if not path.exists():
-            continue
-        ctx.log(f"self-clean {rel}")
+    if ctx.results.get("doctor_failed"):
+        ctx.log("self-clean skipped (doctor failed — keeping bootstrap package)")
+        return
+    extra = [ctx.root / rel for rel in manifest.load(ctx.root).get("transient_assets", [])]
+    for path in bootstrap_package(ctx.root) + [p for p in extra if p.exists()]:
+        ctx.log(f"self-clean {path.relative_to(ctx.root).as_posix()}")
         if write:
             if path.is_dir():
                 shutil.rmtree(path)
@@ -244,11 +274,16 @@ def _self_clean(ctx: Context) -> None:
 
 
 def _record_done(ctx: Context) -> None:
-    """Stamp the manifest with the bootstrap-done time (post)."""
+    """Stamp the manifest with the bootstrap-done time + engine version (post).
+
+    The version stamp lets ``doctor`` warn when the project was bootstrapped by an
+    older engine than the installed one (the "stale snapshot" hazard).
+    """
     ctx.log("record bootstrap.done")
     if bool(ctx.options.get("write")):
         data = manifest.load(ctx.root)
         data["bootstrapped_at"] = datetime.now(UTC).isoformat(timespec="seconds")
+        data["bootstrap_engine_version"] = __version__
         manifest.save(ctx.root, data)
 
 
