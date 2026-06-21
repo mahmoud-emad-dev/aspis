@@ -6,18 +6,20 @@ model ids (F-010). A project can override that map or pin an agent in
 ``.aspis/config/project.yaml``; a machine-wide ``~/.aspis/config`` sits one rung below
 the project. Full resolution order (high -> low):
 
-  per-(runtime, agent) pin  >  per-agent pin  >  project/global tier override  >  tier map
+  per-(runtime, agent) pin  >  per-agent pin  >  per-(runtime, capability)  >
+  per-capability  >  project/global tier override  >  tier map
 
 The per-(runtime, agent) pin (``runtimes.<runtime>.agents.<name>``) is what makes the
 system fully flexible: the *same* agent can use a different model on each runtime — e.g.
-``build-lead`` on ``sonnet`` under Claude but ``deepseek-v4-pro`` under OpenCode — and any
-agent can be pinned to any model (a tier or a concrete id) without touching code.
+``build-lead`` on ``sonnet`` under Claude but ``deepseek-v4-pro`` under OpenCode. The
+``by_capability`` rung is the scalable layer: set a model once per kind of work (review,
+implementation, …) and every agent of that capability inherits it.
 
 ``effective_model`` keeps the original two-layer behaviour (its callers and tests are
-unchanged). ``resolve`` adds the F-010 layers on top: the global config rung, hard-limit
-enforcement (FR-007), and translation of the canonical id into the runtime's exact string
-via the adapter + detected inventory — falling back to the canonical id (today's output)
-when nothing is detected, so it works for any user.
+unchanged). ``resolve`` adds the F-010 layers on top and translates the canonical id into
+the runtime's exact string via the adapter + detected inventory — falling back to the
+canonical id (today's output) when nothing is detected, so it works for any user. Hard
+limits + task sizing are a run-time/dispatch concern, not render (deferred — see D-017).
 """
 
 from __future__ import annotations
@@ -27,18 +29,6 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # annotation only — avoids a runtimes->models->runtimes import cycle
     from aspis.runtimes.base import RuntimeInventory
-
-# Ordered task-complexity ceilings; a model may take any task at or below its ceiling.
-_COMPLEXITY = {"low": 0, "medium": 1, "high": 2}
-# Tiers from cheapest to deepest — the order limit-escalation walks to find the
-# cheapest model that still clears a task's required ceiling.
-_TIERS = ("cheap", "standard", "deep")
-
-# Task-packet granularity, smallest (finest, most rigor) to largest (coarsest).
-_TASK_SIZES = ("small", "medium", "large")
-# How a model's cost tier shifts the mode's base task size: a weaker (cheaper) model
-# gets finer tasks to compensate; a frontier model can take coarser ones (FR-008).
-_CAPABILITY_SHIFT = {"cheap": -1, "standard": 0, "deep": 1, "frontier": 1}
 
 
 def effective_model(
@@ -124,26 +114,6 @@ def _canonical_id(
     return table[tier] if tier in table else tier
 
 
-def within_limits(canonical_id: str, required: str, catalog: dict) -> bool:
-    """Whether *canonical_id* may take a task of *required* complexity (unknown -> allowed)."""
-    model = catalog.get(canonical_id)
-    if not model:
-        return True  # not in the catalog -> don't block routing (graceful)
-    ceiling = (model.get("limits") or {}).get("max_task_complexity") or "high"
-    return _COMPLEXITY.get(ceiling, 2) >= _COMPLEXITY.get(required, 0)
-
-
-def _enforce_limits(canonical_id: str, required: str, table: dict[str, str], catalog: dict) -> str:
-    """Bump to the cheapest tier whose model clears *required*; keep current if none do."""
-    if within_limits(canonical_id, required, catalog):
-        return canonical_id
-    for tier in _TIERS:
-        candidate = table.get(tier)
-        if candidate and within_limits(candidate, required, catalog):
-            return candidate
-    return canonical_id  # nothing clears the bar -> best effort, caller may warn
-
-
 def resolve(
     runtime: str,
     agent_name: str,
@@ -154,17 +124,16 @@ def resolve(
     global_config: dict | None = None,
     translate: Callable[[str, RuntimeInventory | None], str] | None = None,
     inventory: RuntimeInventory | None = None,
-    catalog: dict | None = None,
-    required_complexity: str | None = None,
     agent_capability: str | None = None,
 ) -> str:
     """Resolve an agent's model to the runtime string it should render with.
 
-    Precedence (high->low): per-(runtime,agent) pin, per-agent pin, per-capability override,
-    tier map. The resulting canonical id is bounded by hard limits when a *catalog* and a
-    *required_complexity* are supplied (FR-007), then translated into the runtime's exact
-    string via *translate* against the detected *inventory*. With no translate/inventory it
-    returns the canonical id — exactly today's output — so detection is optional (FR-006/FR-009).
+    Precedence (high->low): per-(runtime,agent) pin, per-agent pin, per-(runtime,capability)
+    override, per-capability override, tier map. The resolved canonical id is translated into
+    the runtime's exact string via *translate* against the detected *inventory*. With no
+    translate/inventory it returns the canonical id — exactly today's output — so detection is
+    optional (FR-006/FR-009). Hard limits and task sizing are NOT applied here: render does not
+    know the task, so those are a run-time/dispatch concern (deferred — see D-017).
     """
     configs = tuple(c for c in (project_config, global_config) if c)
     canonical = _canonical_id(
@@ -175,9 +144,6 @@ def resolve(
         configs=configs,
         capability=agent_capability,
     )
-    if catalog and required_complexity:
-        table = _resolved_table(runtime, global_map, *configs)
-        canonical = _enforce_limits(canonical, required_complexity, table, catalog)
     if translate is None:
         return canonical
     return translate(canonical, inventory)
@@ -236,32 +202,3 @@ def best_available_model(
     best = max(_score(m) for _, m in pool)
     near_best = [(mid, m) for mid, m in pool if _score(m) >= best - tolerance]
     return min(near_best, key=lambda pair: _price(pair[1]))[0]
-
-
-def effective_task_size(
-    mode: str,
-    canonical_id: str,
-    *,
-    catalog: dict | None = None,
-    modes: dict | None = None,
-) -> str:
-    """Combine a mode's base ``task_size`` with the model's capability (FR-008).
-
-    The mode sets the baseline granularity (``modes.yaml``); the model's cost tier
-    shifts it — a weaker model gets finer tasks to compensate, a frontier model can
-    take coarser ones. Returns one of ``small``/``medium``/``large``. Unknown mode or
-    model falls back to the mode's base size (or ``medium``), never raising.
-    """
-    from aspis import resources
-
-    modes = modes if modes is not None else resources.config("modes.yaml").get("modes", {})
-    catalog = (
-        catalog if catalog is not None else resources.config("model_catalog.yaml").get("models", {})
-    )
-
-    base = (modes.get(mode) or {}).get("task_size", "medium")
-    base_index = _TASK_SIZES.index(base) if base in _TASK_SIZES else 1
-    cost_tier = (catalog.get(canonical_id) or {}).get("cost_tier")
-    shifted = base_index + _CAPABILITY_SHIFT.get(cost_tier, 0)
-    shifted = max(0, min(len(_TASK_SIZES) - 1, shifted))
-    return _TASK_SIZES[shifted]

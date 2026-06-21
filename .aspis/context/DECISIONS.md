@@ -171,16 +171,21 @@ later fills — the seam is open, no schema change required.
 
 ## D-017 — One resolver routes tier→canonical→runtime string; tier stays the agent dial (2026-06-21)
 `models.resolve()` is the single routing engine the adapters call at render. It applies the
-full precedence **per-agent pin > project override > global `~/.aspis` override > tier map**,
-bounds the choice by the catalog's hard `limits` (escalating to the cheapest model that
-clears a task's required complexity — FR-007), then translates the canonical id into the
-runtime's exact string via the adapter's `model_string()` against the detected inventory.
-With no translate/inventory it returns the canonical id — byte-identical to today's output —
-so detection is optional and the system works for any user (FR-006/FR-009). Agents keep
-declaring a **tier** (cheap/standard/deep), preserving R-007; capability-aware selection is a
-later additive layer over the same resolver, not a re-architecture. The original
-`effective_model()` is kept intact (its callers/tests unchanged); `resolve()` adds the new
-rungs on top. Records the seam for the R-008 `model:`→`tier:` rename and capability routing.
+full precedence **per-(runtime,agent) pin > per-agent pin > per-(runtime,capability) >
+per-capability > project/global tier override > tier map**, then translates the canonical id
+into the runtime's exact string via the adapter's `model_string()` against the detected
+inventory. With no translate/inventory it returns the canonical id — byte-identical to today's
+output — so detection is optional and the system works for any user (FR-006/FR-009). Agents
+keep declaring a **tier** (cheap/standard/deep), preserving R-007; capability-aware selection
+(`by_capability`) is an additive override layer over the same resolver, not a re-architecture.
+The original `effective_model()` is kept intact (its callers/tests unchanged).
+
+**Scope correction (2026-06-21):** hard-`limits` enforcement (FR-007) and `task_size` shaping
+(FR-008) are **NOT** applied at render — render does not know the task, so they are a
+run-time/dispatch concern. They are **deferred to task dispatch** (the headless-commander /
+tracing phase), where a concrete task and its complexity exist. The earlier render-time
+implementations were removed as dead code; the catalog still carries `limits` for that future
+consumer.
 
 ## D-018 — Detection records provider *presence*, never plan/quota or secrets (2026-06-21)
 `detect()` answers "what can this machine actually run," not "what plan is the user on" —

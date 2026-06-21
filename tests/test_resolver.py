@@ -11,11 +11,6 @@ from __future__ import annotations
 from aspis import models
 
 _GLOBAL = {"cheap": "cheapM", "standard": "stdM", "deep": "deepM"}
-_CATALOG = {
-    "cheapM": {"limits": {"max_task_complexity": "low"}},
-    "stdM": {"limits": {"max_task_complexity": "medium"}},
-    "deepM": {"limits": {"max_task_complexity": "high"}},
-}
 
 
 def test_resolve_with_no_translate_is_canonical() -> None:
@@ -165,52 +160,7 @@ def test_translate_is_applied_with_inventory() -> None:
     assert captured == {"canonical": "deepM", "inventory": sentinel}
 
 
-def test_within_limits() -> None:
-    assert models.within_limits("cheapM", "low", _CATALOG) is True
-    assert models.within_limits("cheapM", "high", _CATALOG) is False
-    assert models.within_limits("deepM", "high", _CATALOG) is True
-    # unknown model -> not blocked (graceful)
-    assert models.within_limits("mystery", "high", _CATALOG) is True
-
-
-def test_limits_escalate_to_cheapest_model_that_fits() -> None:
-    # A cheap agent on a high-complexity task bumps up to the cheapest model that clears it.
-    got = models.resolve(
-        "opencode", "x", "cheap", global_map=_GLOBAL, catalog=_CATALOG, required_complexity="high"
-    )
-    assert got == "deepM"  # cheapM(low)->stdM(medium)->deepM(high) is the first that fits
-
-
-def test_limits_leave_a_fitting_model_untouched() -> None:
-    got = models.resolve(
-        "opencode",
-        "x",
-        "standard",
-        global_map=_GLOBAL,
-        catalog=_CATALOG,
-        required_complexity="medium",
-    )
-    assert got == "stdM"  # already clears medium -> no bump
-
-
-# --- task sizing (FR-008 / SC-005) -------------------------------------------
-
-_MODES = {
-    "vibe": {"task_size": "large"},
-    "mvp": {"task_size": "medium"},
-    "production": {"task_size": "small"},
-}
-_SIZE_CATALOG = {"weak": {"cost_tier": "cheap"}, "strong": {"cost_tier": "frontier"}}
-_ORDER = ("small", "medium", "large")
-
-
-def test_cheap_model_gets_strictly_smaller_tasks_than_frontier() -> None:
-    # SC-005: under the SAME mode, a cheap-capability model is sized smaller than a frontier one.
-    for mode in ("vibe", "mvp", "production"):
-        cheap = models.effective_task_size(mode, "weak", catalog=_SIZE_CATALOG, modes=_MODES)
-        frontier = models.effective_task_size(mode, "strong", catalog=_SIZE_CATALOG, modes=_MODES)
-        assert _ORDER.index(cheap) < _ORDER.index(frontier), mode
-
+# --- capability-aware, cost-conscious model picking --------------------------
 
 _CAP_CATALOG = {
     "flashM": {
@@ -263,12 +213,3 @@ def test_best_available_model_falls_back_and_handles_empty() -> None:
         == "opusM"
     )
     assert models.best_available_model("review", "deep", catalog={}, available_ids=["x"]) is None
-
-
-def test_effective_task_size_falls_back_safely() -> None:
-    # Unknown mode -> medium baseline; unknown model -> no shift; never raises.
-    assert models.effective_task_size("???", "weak", catalog=_SIZE_CATALOG, modes=_MODES) == "small"
-    assert (
-        models.effective_task_size("mvp", "mystery", catalog=_SIZE_CATALOG, modes=_MODES)
-        == "medium"
-    )
