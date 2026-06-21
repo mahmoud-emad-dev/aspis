@@ -8,6 +8,7 @@ runtimes:
   - opencode
 agents:
   - agents/project-lead.md
+  - agents/bootstrap.md
   - agents/planning-lead.md
   - agents/build-lead.md
   - agents/reviewer.md
@@ -20,6 +21,7 @@ agents:
   - agents/project-explorer.md
 skills:
   - skills/project-awareness
+  - skills/project-onboarding
   - skills/request-classification
   - skills/lead-routing
   - skills/context-packaging
@@ -78,6 +80,7 @@ config:
   - config/commit-convention.yaml
   - config/hooks.yaml
 workflows:
+  - workflows/bootstrap.md
   - workflows/plan.md
   - workflows/build.md
   - workflows/review.md
