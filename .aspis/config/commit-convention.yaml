@@ -65,3 +65,15 @@ attribution_models:
   - "copilot"
   - "gemini"
   - "llama"
+
+# Auto-fix policy (F-012) — non-blocking repairs the commit-msg hook applies BEFORE
+# validating, so an unambiguous violation is fixed and the commit still proceeds
+# (never blocks the developer). Each true key enables that repair; set false to fall
+# back to a warning only. Data, not code — adding a repair is editing this block.
+autofix:
+  attribution: true   # strip forbidden-attribution lines, keeping history human-authored
+
+# Escape hatch (F-012) — a commit whose message carries this trailer *on its own line*
+# bypasses the convention checks for that one commit (rare; the hook removes the trailer
+# and logs it). A mere mention of the text in the body does not trigger it.
+skip_marker: "Commit-Style: skip"

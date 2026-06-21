@@ -41,6 +41,10 @@ def _run(args: argparse.Namespace) -> int:
             _report_model_drift(root)
         except Exception:
             pass
+        try:
+            _report_commit_health(root)
+        except Exception:
+            pass
 
     failed = [c for c in checks if c.status == "fail"]
     if failed:
@@ -66,6 +70,19 @@ def _report_model_drift(root: Path) -> None:
         print(f"  [warn] models   connected plans changed ({change}) — run `aspis models --sync`")
         return
     print(f"  [info] models   detected: {names} (in sync)")
+
+
+def _report_commit_health(root: Path) -> None:
+    """Read-only: flag when any commit message violates the convention (never fails)."""
+    from aspis import commitaudit
+
+    findings = commitaudit.audit_history(root, commitaudit.load_convention(root))
+    if not findings:
+        print("  [ok  ] commits  all messages conform to the convention")
+        return
+    fixable = sum(1 for f in findings if f.autofixable)
+    hint = " — run `aspis commits --fix`" if fixable else " — run `aspis commits` for detail"
+    print(f"  [warn] commits  {len(findings)} message(s) break the convention{hint}")
 
 
 def _flatten(signature: dict[str, list[str]]) -> set[str]:
