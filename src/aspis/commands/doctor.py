@@ -7,7 +7,7 @@ from pathlib import Path
 
 from aspis.constants import BRAIN_DIR
 from aspis.health import run_checks
-from aspis.inventory import build_inventory
+from aspis.inventory import build_inventory, load_sync_snapshot, provider_signature
 
 #: Label shown per status. ASCII-safe so it renders on any console.
 _LABELS = {"ok": "ok  ", "warn": "warn", "fail": "FAIL"}
@@ -34,13 +34,11 @@ def _run(args: argparse.Namespace) -> int:
         label = _LABELS.get(check.status, check.status)
         print(f"  [{label}] {check.name:<8} {check.detail}")
 
-    # Refresh the per-machine runtime inventory so model routing reflects what is
-    # actually installed. Best-effort — detection never fails a health check.
+    # Refresh detection and flag when the connected plans changed since the last
+    # `aspis models --sync` — the moment to re-sync. Best-effort; never fails a check.
     if (root / BRAIN_DIR).is_dir():
         try:
-            detected = build_inventory(root)
-            names = ", ".join(sorted(detected)) or "none"
-            print(f"  [info] models   detected runtimes: {names}")
+            _report_model_drift(root)
         except Exception:
             pass
 
@@ -50,3 +48,30 @@ def _run(args: argparse.Namespace) -> int:
         return 1
     print("\nAll checks passed.")
     return 0
+
+
+def _report_model_drift(root: Path) -> None:
+    """Detect runtimes and compare the connected providers to the last sync snapshot."""
+    current = provider_signature(build_inventory(root))
+    names = ", ".join(sorted(current)) or "none"
+    snapshot = load_sync_snapshot(root)
+
+    if snapshot is None:
+        print(f"  [info] models   detected: {names} — run `aspis models --sync` to assign models")
+        return
+    if current != snapshot:
+        added = _flatten(current) - _flatten(snapshot)
+        removed = _flatten(snapshot) - _flatten(current)
+        change = ", ".join([*(f"+{p}" for p in sorted(added)), *(f"-{p}" for p in sorted(removed))])
+        print(f"  [warn] models   connected plans changed ({change}) — run `aspis models --sync`")
+        return
+    print(f"  [info] models   detected: {names} (in sync)")
+
+
+def _flatten(signature: dict[str, list[str]]) -> set[str]:
+    """The set of ``runtime/provider`` pairs in a provider signature, for diffing."""
+    return {
+        f"{runtime}/{provider}"
+        for runtime, providers in signature.items()
+        for provider in providers
+    }

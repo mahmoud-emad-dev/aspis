@@ -20,7 +20,7 @@ import yaml
 from aspis import models as routing
 from aspis import project, resources
 from aspis.constants import BRAIN_DIR
-from aspis.inventory import build_inventory
+from aspis.inventory import build_inventory, save_sync_snapshot
 from aspis.runtimes import available_runtimes, get_adapter
 
 _TIERS = ("cheap", "standard", "deep")
@@ -174,6 +174,8 @@ def _sync(root: Path, inventory: dict) -> int:
     path = root / project.AGENT_MODELS_REL
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(out) + "\n", encoding="utf-8", newline="\n")
+    # Record what we synced against so `aspis doctor` can flag when the connected plans change.
+    save_sync_snapshot(root, inventory)
     print(f"wrote {path.relative_to(root)} — open it to assign a model to each agent.")
     return 0
 

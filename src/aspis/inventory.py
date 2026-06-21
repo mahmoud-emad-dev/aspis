@@ -23,10 +23,35 @@ from aspis.runtimes.base import RuntimeInventory
 
 #: Generated inventory path, relative to a project root.
 INVENTORY_REL = f"{BRAIN_DIR}/state/runtime_inventory.json"
+#: Snapshot of the connected providers captured at the last ``aspis models --sync``.
+SYNC_SNAPSHOT_REL = f"{BRAIN_DIR}/state/last-sync.json"
 
 
 def _inventory_path(root: Path) -> Path:
     return Path(root) / INVENTORY_REL
+
+
+def provider_signature(inventory: dict[str, RuntimeInventory]) -> dict[str, list[str]]:
+    """The connected providers per runtime — the 'which plans are connected' fingerprint."""
+    return {runtime: sorted(inv.providers) for runtime, inv in inventory.items()}
+
+
+def save_sync_snapshot(root: Path, inventory: dict[str, RuntimeInventory]) -> None:
+    """Record the provider fingerprint that an ``aspis models --sync`` was built against."""
+    path = Path(root) / SYNC_SNAPSHOT_REL
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(provider_signature(inventory), indent=2) + "\n", encoding="utf-8")
+
+
+def load_sync_snapshot(root: Path) -> dict[str, list[str]] | None:
+    """Read the last-sync provider fingerprint, or ``None`` if no sync has run here."""
+    path = Path(root) / SYNC_SNAPSHOT_REL
+    if not path.is_file():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8", errors="replace"))
+    except (json.JSONDecodeError, OSError, ValueError):
+        return None
 
 
 def build_inventory(root: Path, *, write: bool = True) -> dict[str, RuntimeInventory]:
