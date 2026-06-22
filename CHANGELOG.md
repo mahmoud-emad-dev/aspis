@@ -5,6 +5,37 @@ All notable changes to ASPIS are recorded here. The format follows
 follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (pre-1.0: minor
 versions may include breaking changes).
 
+## [0.1.0b2] — 2026-06-22
+
+Second beta — install, first-run onboarding, and runtime/model correctness.
+
+### Added
+- **Self-cleaning bootstrap onboarding** — a transient `bootstrap` agent + skill +
+  workflow ship into a project, take it from exported to live in one turn, then
+  **remove themselves** once it is bootstrapped. A first-run gate routes any
+  un-bootstrapped project through it.
+- **Bootstrap proves the git subsystem** — a throwaway probe commit exercises the
+  hooks (junk clean, stale `.gitkeep` reap, attribution strip) and rolls back.
+- **Bootstrap gates** — doctor + readiness (brain files filled) + validation (config
+  & agents parse) + structure (no stray folders); it self-cleans only when green.
+- **Runtimes discovered from data** — `data/runtimes/*.yaml` declare detection,
+  capabilities (mode, subagent depth, exportable) and run command; `doctor` lists
+  them with capabilities. No hardcoded runtime list.
+
+### Changed
+- **Canonical `.aspis/` structure** — folders are either filled at bootstrap or
+  created on demand; no empty `.gitkeep`-only or stray `state/` folders.
+- **Model defaults are free, valid, runtime-agnostic** — OpenCode defaults to free
+  Zen models (valid `provider/model`); agents use tiers, so a claude-only user's
+  onboarding runs on haiku. Full model config now exports, project-overridable.
+- **Nature-based gitignores** — root baseline (OS/secrets) + brain hygiene by file
+  nature (generated/state ignored, source/durable tracked); offline-first gitignore.
+- `bootstrap`/`init` commits are scoped to ASPIS paths (never sweep user code).
+
+### Fixed
+- `install.ps1` Python-version detection on Windows (PowerShell quote-stripping).
+- `purposes.json` is now self-documenting (layers + worked examples).
+
 ## [0.1.0b1] — 2026-06-21
 
 First public **beta**. ASPIS is a file-first, deterministic agentic software factory:
