@@ -15,7 +15,7 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
-from aspis import __version__, detect, manifest, project, promotion, runtime_inventory
+from aspis import __version__, detect, gitcheck, manifest, project, promotion, runtime_inventory
 from aspis.constants import BRAIN_DIR
 from aspis.health import run_checks
 from aspis.lifecycle import Context, Engine
@@ -390,11 +390,29 @@ def _commit_bootstrap(ctx: Context) -> None:
         ctx.log("bootstrap commit: nothing to commit")
 
 
+def _verify_subsystem(ctx: Context) -> None:
+    """Prove the git subsystem works end-to-end via a throwaway probe commit (post).
+
+    Bootstrap does not assume the hooks are wired — it exercises them (junk cleanup,
+    stale-.gitkeep reap, attribution strip) on a probe and rolls it back, so the
+    project leaves bootstrap with a *verified* git subsystem, not a hoped-for one.
+    """
+    if not bool(ctx.options.get("write")) or not _has_git(ctx):
+        return
+    results = gitcheck.verify(ctx.root)
+    ctx.results["subsystem"] = results
+    failed = [c.name for c in results if not c.ok]
+    if failed:
+        ctx.log(f"git self-test: {len(failed)} issue(s): {', '.join(failed)}")
+    else:
+        ctx.log(f"git self-test: ok ({len(results)} checks passed)")
+
+
 def register(engine: Engine) -> None:
     """Register the bootstrap operation with its pre/post staging."""
     engine.register(
         "bootstrap",
         bootstrap_core,
         pre=(_require_initialized, _note_if_bootstrapped, _autocommit_init),
-        post=(_doctor_gate, _self_clean, _record_done, _commit_bootstrap),
+        post=(_doctor_gate, _self_clean, _record_done, _commit_bootstrap, _verify_subsystem),
     )
