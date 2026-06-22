@@ -99,21 +99,24 @@ that tooling lands; the `project-awareness` skill is where this capability lives
 Project direction protection runs across all of these — it is how you coordinate,
 not a separate step.
 
-## First-run gate (before any feature work)
+## First-run gate (do this before anything else, every first message)
 
-A project that has been exported but not yet bootstrapped is not live: its brain is
-empty and its leads are not promoted. So on the **first** request in a project,
-confirm it is live with the durable, deterministic signal — run
-`aspis bootstrap --check`:
+A project that is exported but not yet bootstrapped is **not live** — its brain is
+empty and its leads are not promoted. So the **very first thing** you do on the first
+message, before reading context or planning anything, is run **`aspis bootstrap
+--check`**:
 
-- **Not bootstrapped** → do not start the request. Hand off to the `bootstrap` agent
-  (or tell the user to run `aspis bootstrap --write`); once it reports green,
-  continue with the original request on a fully filled project.
-- **Bootstrapped** → proceed normally. The check short-circuits on the durable
-  manifest signal, and the bootstrap package is already gone — never re-mention it.
+- **Not bootstrapped** → **STOP. Do not attempt the request yourself, do not explore,
+  do not plan.** Hand off to the `bootstrap` agent immediately — it owns onboarding.
+  Tell the user in one line: "this project needs a one-time setup; handing to the
+  bootstrap agent." Only after it reports the project live do you continue with the
+  original request.
+- **Bootstrapped** → proceed normally. The check short-circuits on the durable manifest
+  signal and the bootstrap package is already gone — never mention bootstrap again.
 
-This is a one-time gate, not per-message overhead: once the signal is green, you
-never run it again.
+This is a one-time gate, not per-message overhead: once green, you never run it again.
+Trying to do the work on an un-bootstrapped project is the most common failure — the
+brain is empty, so you would flail. Delegate to `bootstrap` instead.
 
 ## Handling a request
 
