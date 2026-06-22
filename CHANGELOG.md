@@ -27,6 +27,13 @@ Second beta — install, first-run onboarding, and runtime/model correctness.
   refreshes then applies; the generated file now points users to this step.
 
 ### Changed
+- **Tiered `.aspis/config/`** — a clear three-tier layout so it's obvious what to edit:
+  the few you change stay flat (`project.yaml`, `models.yaml`, `agent-models.yaml`),
+  seldom-touched policy moves to `config/policy/` (modes, capabilities, hooks,
+  commit-convention, constitution-checks), machine data to `config/reference/`
+  (model_catalog, providers). A new `config/README.md` explains each file and the
+  commands. The config resolver finds a file by bare name across tiers, so a legacy
+  flat layout still works.
 - **Canonical `.aspis/` structure** — folders are either filled at bootstrap or
   created on demand; no empty `.gitkeep`-only or stray `state/` folders.
 - **Model defaults are free, valid, runtime-agnostic** — OpenCode defaults to free

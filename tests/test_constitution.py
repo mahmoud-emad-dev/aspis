@@ -11,7 +11,7 @@ _ROLES = {"planning", "build", "review"}
 
 
 def test_checklist_is_well_formed() -> None:
-    path = resources.catalog_dir() / "config" / "constitution-checks.yaml"
+    path = resources.catalog_dir() / "config" / "policy" / "constitution-checks.yaml"
     checks = yaml.safe_load(path.read_text(encoding="utf-8"))["checks"]
     assert checks
     seen: set[str] = set()
@@ -27,18 +27,18 @@ def test_checklist_is_well_formed() -> None:
 def test_base_profile_ships_the_constitution() -> None:
     base = load_profile(resources.data_dir() / "profiles" / "base.yaml")
     assert "rules/architecture-constitution.md" in base.rules
-    assert "config/constitution-checks.yaml" in base.config
+    assert "config/policy/constitution-checks.yaml" in base.config
 
     catalog = resources.catalog_dir()
     assert (catalog / "rules" / "architecture-constitution.md").exists()
-    assert (catalog / "config" / "constitution-checks.yaml").exists()
+    assert (catalog / "config" / "policy" / "constitution-checks.yaml").exists()
 
 
 def test_commit_convention_ships_and_is_well_formed() -> None:
     base = load_profile(resources.data_dir() / "profiles" / "base.yaml")
-    assert "config/commit-convention.yaml" in base.config
+    assert "config/policy/commit-convention.yaml" in base.config
 
-    path = resources.catalog_dir() / "config" / "commit-convention.yaml"
+    path = resources.catalog_dir() / "config" / "policy" / "commit-convention.yaml"
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
     assert {"feat", "fix"} <= set(data["types"])
     assert data["scope"]["task_span"] == "T-NN..T-MM"

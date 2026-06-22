@@ -74,15 +74,16 @@ rules:
   - rules/system-rules.md
   - rules/architecture-constitution.md
 config:
-  - config/modes.yaml
+  - config/README.md
   - config/models.yaml
-  - config/model_catalog.yaml
-  - config/providers.yaml
-  - config/capabilities.yaml
-  - config/agent-capabilities.yaml
-  - config/constitution-checks.yaml
-  - config/commit-convention.yaml
-  - config/hooks.yaml
+  - config/policy/modes.yaml
+  - config/policy/capabilities.yaml
+  - config/policy/agent-capabilities.yaml
+  - config/policy/constitution-checks.yaml
+  - config/policy/commit-convention.yaml
+  - config/policy/hooks.yaml
+  - config/reference/model_catalog.yaml
+  - config/reference/providers.yaml
 workflows:
   - workflows/bootstrap.md
   - workflows/plan.md

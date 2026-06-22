@@ -21,7 +21,7 @@ import commitmsg  # noqa: E402  (sibling catalog script)
 
 
 def _convention() -> dict:
-    path = _CATALOG / "config" / "commit-convention.yaml"
+    path = _CATALOG / "config" / "policy" / "commit-convention.yaml"
     return yaml.safe_load(path.read_text(encoding="utf-8"))
 
 

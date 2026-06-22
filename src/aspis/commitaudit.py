@@ -21,8 +21,6 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any
 
-import yaml
-
 from aspis import resources
 
 
@@ -39,11 +37,12 @@ def _commitmsg() -> ModuleType:
 
 
 def load_convention(root: Path) -> dict[str, Any]:
-    """The project's commit convention, falling back to the bundled catalog copy."""
-    path = root / ".aspis" / "config" / "commit-convention.yaml"
-    if not path.is_file():
-        path = resources.catalog_dir() / "config" / "commit-convention.yaml"
-    return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    """The project's commit convention, falling back to the bundled catalog copy.
+
+    Tier-agnostic: ``resources.config`` finds the file whether it sits flat or under
+    ``config/policy`` (project copy first, else the bundled catalog data).
+    """
+    return resources.config("commit-convention.yaml", root)
 
 
 def clean_message(message: str, convention: dict[str, Any]) -> str:

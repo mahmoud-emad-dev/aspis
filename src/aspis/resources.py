@@ -77,21 +77,41 @@ def canonical_brain_subdirs() -> set[str]:
     return {d.split("/", 1)[1] for d in (*brain_dirs(), *on_demand_dirs()) if "/" in d}
 
 
+#: Config is organised into tiers: tier-1 files sit flat in ``config/`` (the few a
+#: user edits), the rest live in ``config/policy/`` (rarely edited) and
+#: ``config/reference/`` (machine data). The resolver searches flat first, then these
+#: subfolders by *bare* name — so callers never spell the tier, and a legacy flat
+#: layout (or this repo's own dogfood, until re-exported) keeps resolving.
+_CONFIG_SUBDIRS = ("", "policy", "reference")
+
+
+def _find_config(base: Path, name: str) -> Path | None:
+    """Locate ``<name>`` directly under *base* or one tier subfolder; ``None`` if absent."""
+    for sub in _CONFIG_SUBDIRS:
+        candidate = base / sub / name if sub else base / name
+        if candidate.is_file():
+            return candidate
+    return None
+
+
 def config(name: str, root: Path | None = None) -> dict:
-    """Load a ``config/<name>`` YAML file as a dict (``{}`` if empty), project-first.
+    """Load a config YAML file as a dict (``{}`` if empty), project-first, tier-agnostic.
 
     One resolver for every config file (``models.yaml``, ``providers.yaml``,
-    ``model_catalog.yaml``, ``capabilities.yaml``). When *root* is an ASPIS project and
-    it carries its own ``.aspis/config/<name>``, that copy wins — so a project can edit
-    its exported model config and have it honoured; otherwise the bundled package copy
-    (the global install's reference data) is used.
+    ``model_catalog.yaml``, ``capabilities.yaml``). Callers pass the *bare* file name; the
+    resolver finds it whether it sits flat in ``config/`` or under ``config/policy`` /
+    ``config/reference`` (see ``_CONFIG_SUBDIRS``). When *root* is an ASPIS project and it
+    carries its own copy, that wins — so a project can edit its exported config and have it
+    honoured; otherwise the bundled package copy (the global install's data) is used.
     """
     if root is not None:
-        local = root / ".aspis" / "config" / name
-        if local.is_file():
+        local = _find_config(root / ".aspis" / "config", name)
+        if local is not None:
             return yaml.safe_load(local.read_text(encoding="utf-8")) or {}
-    data = yaml.safe_load((catalog_dir() / "config" / name).read_text(encoding="utf-8"))
-    return data or {}
+    bundled = _find_config(catalog_dir() / "config", name)
+    if bundled is None:
+        return {}
+    return yaml.safe_load(bundled.read_text(encoding="utf-8")) or {}
 
 
 def model_map(runtime: str, root: Path | None = None) -> dict[str, str]:

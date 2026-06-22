@@ -7,8 +7,6 @@ valid, and every capability's preferred tier and every provider entry is well-fo
 
 from __future__ import annotations
 
-import yaml
-
 from aspis import resources
 
 _TIERS = {"cheap", "standard", "deep"}
@@ -18,7 +16,8 @@ _CONFIDENCE = {"low", "medium", "high"}
 
 
 def _config(name: str) -> dict:
-    return yaml.safe_load((resources.catalog_dir() / "config" / name).read_text(encoding="utf-8"))
+    # Tier-aware: resolves whether the file is flat or under config/policy|reference.
+    return resources.config(name)
 
 
 def test_model_catalog_schema() -> None:

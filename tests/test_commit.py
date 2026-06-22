@@ -26,7 +26,7 @@ import compose  # noqa: E402  (sibling catalog script)
 
 
 def _convention() -> dict:
-    path = _CATALOG / "config" / "commit-convention.yaml"
+    path = _CATALOG / "config" / "policy" / "commit-convention.yaml"
     return yaml.safe_load(path.read_text(encoding="utf-8"))
 
 
@@ -34,7 +34,9 @@ def _mini_project(root: Path, feature_id: str = "F-007") -> Path:
     """A minimal project carrying just the convention + active-feature pointer."""
     (root / ".aspis" / "config").mkdir(parents=True, exist_ok=True)
     (root / ".aspis" / "current").mkdir(parents=True, exist_ok=True)
-    convention = (_CATALOG / "config" / "commit-convention.yaml").read_text(encoding="utf-8")
+    convention = (_CATALOG / "config" / "policy" / "commit-convention.yaml").read_text(
+        encoding="utf-8"
+    )
     (root / ".aspis" / "config" / "commit-convention.yaml").write_text(convention, encoding="utf-8")
     (root / ".aspis" / "current" / "active_feature.json").write_text(
         f'{{"id": "{feature_id}"}}', encoding="utf-8"

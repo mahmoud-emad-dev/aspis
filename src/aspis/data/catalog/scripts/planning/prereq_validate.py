@@ -49,6 +49,20 @@ class ValidationResult:
         return not self.missing
 
 
+def _config_file(root: Path, name: str) -> Path:
+    """Locate a config file by bare name: flat ``config/`` first, then ``config/policy``.
+
+    Config is tiered (flat tier-1, ``policy/`` for the rest); returns the flat path as a
+    harmless default when absent (the caller treats a missing file as "no knob set").
+    """
+    base = root / ".aspis" / "config"
+    for sub in ("", "policy"):
+        candidate = base / sub / name if sub else base / name
+        if candidate.is_file():
+            return candidate
+    return base / name
+
+
 def _read_mode_knob(modes_file: Path, mode: str, knob: str) -> str | None:
     """Read one scalar knob for *mode* from our flat 2-space modes.yaml.
 
@@ -103,7 +117,7 @@ def validate(
 
     required = list(_PHASE_REQUIRES[phase])
     # Mode relaxation: a mode that skips architecture does not require a PLAN.md.
-    if _read_mode_knob(root / ".aspis" / "config" / "modes.yaml", mode, "architecture") == "skip":
+    if _read_mode_knob(_config_file(root, "modes.yaml"), mode, "architecture") == "skip":
         required = [r for r in required if r != "PLAN.md"]
 
     result = ValidationResult(feature_id=feature_id, phase=phase, mode=mode, required=required)

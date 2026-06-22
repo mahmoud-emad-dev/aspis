@@ -42,9 +42,25 @@ def load_yaml(path: Path) -> dict[str, Any]:
     return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
 
 
+#: Config is tiered: a few files sit flat in ``config/``; policy files live in
+#: ``config/policy/``. Search flat first (legacy/tier-1), then the tier subfolders —
+#: so a hook finds its rule file by bare name regardless of layout.
+_CONFIG_SUBDIRS = ("", "policy", "reference")
+
+
+def config_yaml(root: Path, name: str) -> dict[str, Any]:
+    """Load ``.aspis/config/<name>`` (or its tier subfolder), ``{}`` if absent."""
+    base = root / ".aspis" / "config"
+    for sub in _CONFIG_SUBDIRS:
+        candidate = base / sub / name if sub else base / name
+        if candidate.is_file():
+            return load_yaml(candidate)
+    return {}
+
+
 def hooks_config(root: Path) -> dict[str, Any]:
     """The hook rule data (secrets, junk, protected paths)."""
-    return load_yaml(root / ".aspis" / "config" / "hooks.yaml")
+    return config_yaml(root, "hooks.yaml")
 
 
 def enforcement(root: Path) -> str:
@@ -59,7 +75,7 @@ def blocks(root: Path) -> bool:
 
 def commit_convention(root: Path) -> dict[str, Any]:
     """The commit-message convention (the single source for commit style)."""
-    return load_yaml(root / ".aspis" / "config" / "commit-convention.yaml")
+    return config_yaml(root, "commit-convention.yaml")
 
 
 def active_feature(root: Path) -> dict[str, Any]:

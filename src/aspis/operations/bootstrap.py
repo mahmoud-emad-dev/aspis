@@ -302,7 +302,7 @@ def _validate_exports(root: Path) -> list[str]:
     problems: list[str] = []
     cfg = root / BRAIN_DIR / "config"
     if cfg.is_dir():
-        for f in sorted(cfg.glob("*.yaml")):
+        for f in sorted(cfg.rglob("*.yaml")):  # includes policy/ + reference/ tiers
             try:
                 yaml.safe_load(f.read_text(encoding="utf-8"))
             except yaml.YAMLError:

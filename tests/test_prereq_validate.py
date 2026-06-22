@@ -9,7 +9,7 @@ import sys
 from aspis import resources
 
 SCRIPT = resources.catalog_dir() / "scripts" / "planning" / "prereq_validate.py"
-MODES = resources.catalog_dir() / "config" / "modes.yaml"
+MODES = resources.catalog_dir() / "config" / "policy" / "modes.yaml"
 
 
 def _seed(root, *, mode, artifacts):

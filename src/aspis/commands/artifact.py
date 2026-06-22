@@ -18,9 +18,7 @@ import json
 from datetime import date as _date
 from pathlib import Path
 
-import yaml
-
-from aspis import project
+from aspis import project, resources
 
 #: kind -> (template path under .aspis/templates, target sub-path, (mode knob, skip-values)).
 #: ``{task}`` in the target is replaced by the task id (or ``feature`` when none).
@@ -62,12 +60,12 @@ def _active_feature(root: Path) -> dict:
 
 
 def _mode_knob(root: Path, mode: str, knob: str) -> str:
-    """Return ``modes.yaml[mode][knob]`` for the project (empty string when absent)."""
-    path = root / ".aspis" / "config" / "modes.yaml"
-    try:
-        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-    except (OSError, ValueError):
-        return ""
+    """Return ``modes.yaml[mode][knob]`` for the project (empty string when absent).
+
+    Tier-agnostic: ``resources.config`` finds ``modes.yaml`` whether it sits flat or
+    under ``config/policy``.
+    """
+    data = resources.config("modes.yaml", root)
     return str(((data.get("modes") or {}).get(mode) or {}).get(knob, ""))
 
 
