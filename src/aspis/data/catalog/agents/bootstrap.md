@@ -84,6 +84,10 @@ If it reports a FAIL, stop and report it — do not work around it. Run this com
 - **`.aspis/context/ARCHITECTURE.md`** — if it is still the skeleton, draft it from the
   **real** layout: the main modules/areas and what each is responsible for. Structure
   and facts only — never invented design.
+- **File purposes** — for an existing project, list files with no purpose:
+  `python .aspis/scripts/context/build_registry.py --check`. For each, read it and add a
+  one-line purpose under `files` in `.aspis/config/purposes.json` (the registry uses it,
+  so navigation stays accurate). Skip if there are none.
 - Make sure the context reads true to the project.
 Write **only** under `.aspis/`, `AGENTS.md`, `CLAUDE.md`. Never the user's code, rules,
 permissions, or model routing. Every line traces to a real file or a user answer.
@@ -91,8 +95,8 @@ permissions, or model routing. Every line traces to a real file or a user answer
 **6. Commit your enrichment (one clean commit).** The script already committed the
 bootstrap; your enrichment is a separate, clear change — pass the files you edited:
 ```
-aspis commit AGENTS.md .aspis/context/ARCHITECTURE.md --type docs --no-scope \
-  --title "enrich onboarding (project definition + architecture)"
+aspis commit AGENTS.md .aspis/context/ARCHITECTURE.md .aspis/config/purposes.json \
+  --type docs --no-scope --title "enrich onboarding (project definition + architecture)"
 ```
 
 **7. Verify and finish.** Confirm `aspis bootstrap --check` is green and `aspis doctor`

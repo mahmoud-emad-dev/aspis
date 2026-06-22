@@ -33,8 +33,11 @@ run feature work before this; never run it twice.
    self-tests git. Read the output; on FAIL, stop and report. Never run it twice.
 5. **Enrich (judgment only).** Replace the AGENTS.md one-line definition with a real
    goal + short description; draft `.aspis/context/ARCHITECTURE.md` from the real layout
-   (modules + responsibilities, facts only). Write only under `.aspis/`, `AGENTS.md`,
-   `CLAUDE.md` — never user code, never invented facts.
+   (modules + responsibilities, facts only); and for an existing project, fill any
+   missing file purposes — `python .aspis/scripts/context/build_registry.py --check`
+   lists them, read each and add a one-line purpose under `files` in
+   `.aspis/config/purposes.json`. Write only under `.aspis/`, `AGENTS.md`, `CLAUDE.md` —
+   never user code, never invented facts.
 6. **Commit the enrichment** as one clean commit, passing the files you edited:
    `aspis commit AGENTS.md .aspis/context/ARCHITECTURE.md --type docs --no-scope --title "enrich onboarding (project definition + architecture)"`.
 7. **Verify & hand off.** `aspis bootstrap --check` green, `aspis doctor` no FAIL,

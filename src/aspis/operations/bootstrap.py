@@ -8,6 +8,7 @@ first brain fill by running the project's own context scripts. Pre/post staging
 
 from __future__ import annotations
 
+import re
 import shutil
 import subprocess
 import sys
@@ -398,6 +399,42 @@ def _self_clean(ctx: Context) -> None:
                 shutil.rmtree(path)
             else:
                 path.unlink()
+    _strip_bootstrap_prose(ctx, write=write)
+
+
+_GATE_START = "<!-- ASPIS:BOOTSTRAP-GATE:START -->"
+_GATE_END = "<!-- ASPIS:BOOTSTRAP-GATE:END -->"
+_GATE_BLOCK = re.compile(re.escape(_GATE_START) + r".*?" + re.escape(_GATE_END) + r"\n?", re.DOTALL)
+#: Frontmatter lines that reference bootstrap (delegate item, the aspis bootstrap
+#: permission, a bootstrap task permission) — removed so no trace of bootstrap remains.
+_BOOTSTRAP_FRONTMATTER = re.compile(
+    r"^[ \t]*(?:-[ \t]*bootstrap"
+    r'|["\']?aspis bootstrap[^\n]*'
+    r"|[\"']?bootstrap[\"']?:[ \t]*\w+)[ \t]*\n",
+    re.MULTILINE,
+)
+
+
+def _strip_bootstrap_prose(ctx: Context, *, write: bool) -> None:
+    """Remove every standing reference to bootstrap once the project is live (post).
+
+    The self-deleting package is more than files: the first-run gate prose (wrapped in
+    BOOTSTRAP-GATE markers) and the ``bootstrap`` delegate are stripped from AGENTS.md,
+    CLAUDE.md, and each runtime's rendered ``project-lead`` — so a live project reads as
+    if bootstrap never existed, and no agent checks for or mentions it again.
+    """
+    targets = [ctx.root / "AGENTS.md", ctx.root / "CLAUDE.md"]
+    for rdir in runtime_dirs():
+        targets.append(ctx.root / rdir / "agents" / "project-lead.md")
+    for path in targets:
+        if not path.is_file():
+            continue
+        text = path.read_text(encoding="utf-8")
+        updated = _BOOTSTRAP_FRONTMATTER.sub("", _GATE_BLOCK.sub("", text))
+        if updated != text:
+            ctx.log(f"strip bootstrap prose from {path.relative_to(ctx.root).as_posix()}")
+            if write:
+                path.write_text(updated, encoding="utf-8")
 
 
 def _record_done(ctx: Context) -> None:

@@ -99,6 +99,7 @@ that tooling lands; the `project-awareness` skill is where this capability lives
 Project direction protection runs across all of these — it is how you coordinate,
 not a separate step.
 
+<!-- ASPIS:BOOTSTRAP-GATE:START -->
 ## First-run gate (do this before anything else, every first message)
 
 A project that is exported but not yet bootstrapped is **not live** — its brain is
@@ -111,12 +112,12 @@ message, before reading context or planning anything, is run **`aspis bootstrap
   Tell the user in one line: "this project needs a one-time setup; handing to the
   bootstrap agent." Only after it reports the project live do you continue with the
   original request.
-- **Bootstrapped** → proceed normally. The check short-circuits on the durable manifest
-  signal and the bootstrap package is already gone — never mention bootstrap again.
+- **Bootstrapped** → proceed normally.
 
-This is a one-time gate, not per-message overhead: once green, you never run it again.
-Trying to do the work on an un-bootstrapped project is the most common failure — the
-brain is empty, so you would flail. Delegate to `bootstrap` instead.
+This gate and the `bootstrap` delegate are removed from this file automatically once the
+project is live, so after onboarding you never check for or mention bootstrap again.
+<!-- ASPIS:BOOTSTRAP-GATE:END -->
+
 
 ## Handling a request
 

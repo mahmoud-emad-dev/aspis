@@ -2,6 +2,13 @@
 
 <!-- one-line project definition — filled at bootstrap -->
 
+<!-- ASPIS:BOOTSTRAP-GATE:START -->
+> **First run — one-time setup.** This project is exported but not yet *live*. Before
+> anything else, run `aspis bootstrap --check`; if it is not bootstrapped, hand to the
+> **`bootstrap`** agent (or run `aspis bootstrap --write`) — do **not** start a task
+> first. This notice and the bootstrap agent are removed automatically once live.
+<!-- ASPIS:BOOTSTRAP-GATE:END -->
+
 This project is built with **ASPIS**, a file-first software-production system.
 All durable project state lives in plain files under `.aspis/` (the project
 "brain") so any AI runtime reads and writes the same source of truth.

@@ -2,6 +2,15 @@
 
 <!-- one-line project definition — filled at bootstrap -->
 
+<!-- ASPIS:BOOTSTRAP-GATE:START -->
+> **First run — one-time setup.** This project is exported but not yet *live* (its
+> brain is empty, its leads are not active). Before doing anything else, run
+> `aspis bootstrap --check`; if it is not bootstrapped, hand to the **`bootstrap`**
+> agent (or run `aspis bootstrap --write`) to set it up — do **not** start any task
+> first. This notice and the bootstrap agent are removed automatically once the
+> project is live.
+<!-- ASPIS:BOOTSTRAP-GATE:END -->
+
 This project is managed with **ASPIS**. Durable project state lives in plain
 files under `.aspis/` (the project "brain"), so any AI runtime reads and writes
 the same source of truth.

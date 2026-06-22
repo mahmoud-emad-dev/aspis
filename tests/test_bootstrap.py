@@ -131,6 +131,27 @@ def test_bootstrap_keeps_package_when_brain_not_ready(tmp_path, monkeypatch) -> 
     assert len(bootstrap_package(tmp_path)) == 3  # not ready → package kept
 
 
+def test_bootstrap_strips_all_bootstrap_references(tmp_path) -> None:
+    """After a green bootstrap, no trace of bootstrap remains in the standing files."""
+    import subprocess
+
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "config", "user.email", "t@t"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "config", "user.name", "t"], cwd=tmp_path, check=True)
+    engine = _engine()
+    engine.run("init", tmp_path, write=True)
+    # The gate prose is present before bootstrap.
+    assert "BOOTSTRAP-GATE" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+
+    engine.run("bootstrap", tmp_path, write=True, yes=True, goal="x", stack="python")
+
+    agents = (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    lead = (tmp_path / ".opencode" / "agents" / "project-lead.md").read_text(encoding="utf-8")
+    assert "bootstrap" not in agents.lower()  # gate notice stripped
+    assert "bootstrap" not in lead.lower()  # gate prose + permission + delegate stripped
+    assert not (tmp_path / ".opencode" / "agents" / "bootstrap.md").exists()  # agent gone
+
+
 def test_bootstrap_keeps_package_when_config_invalid(tmp_path, monkeypatch) -> None:
     """Validation gate: malformed exported config keeps the package (project not ready)."""
     from aspis.operations import bootstrap as bootstrap_op
