@@ -1,0 +1,48 @@
+# Stack definitions — the SINGLE source for stack detection, input normalization, and
+# .gitignore mapping. Add a language / framework / tool here and the code picks it up
+# (it does the fuzzy/typo matching from this data — no hardcoded list). If this file is
+# missing or corrupt the code falls back to a small built-in set, so detection still works.
+#
+# Per entry (all keys optional):
+#   markers:   files whose presence detects this stack in a repo
+#   aliases:   alternate spellings / abbreviations a user might type
+#   gitignore: the base ignore template this maps to (a framework folds into its language;
+#              omit when there is no standard .gitignore, e.g. databases)
+stacks:
+  python: { markers: [pyproject.toml, requirements.txt, setup.py, Pipfile], aliases: [py, python3], gitignore: python }
+  node: { markers: [package.json], aliases: [nodejs, "node.js"], gitignore: node }
+  typescript: { markers: [tsconfig.json], aliases: [ts], gitignore: node }
+  javascript: { aliases: [js], gitignore: node }
+  rust: { markers: [Cargo.toml], aliases: [rs], gitignore: rust }
+  go: { markers: [go.mod], aliases: [golang], gitignore: go }
+  java: { markers: [pom.xml, build.gradle], gitignore: java }
+  ruby: { markers: [Gemfile], aliases: [rb], gitignore: ruby }
+  php: { markers: [composer.json], gitignore: php }
+  c: { gitignore: c }
+  cpp: { aliases: ["c++", cplusplus], gitignore: cpp }
+  dotnet: { aliases: ["c#", csharp, ".net"], gitignore: dotnet }
+
+  # Frameworks — recognised in the project description; fold into a base for ignores.
+  fastapi: { gitignore: python }
+  django: { gitignore: python }
+  flask: { gitignore: python }
+  pandas: { gitignore: python }
+  react: { aliases: [reactjs], gitignore: node }
+  next: { aliases: [nextjs], gitignore: node }
+  vue: { gitignore: node }
+  svelte: { gitignore: node }
+  express: { gitignore: node }
+  nestjs: { gitignore: node }
+  tailwind: { gitignore: node }
+  rails: { gitignore: ruby }
+  laravel: { gitignore: php }
+
+  # Databases / infra — recognised (kept in the description) but no standard .gitignore.
+  postgresql: { aliases: [postgres, psql] }
+  mysql: {}
+  sqlite: {}
+  redis: {}
+  mongodb: { aliases: [mongo] }
+  docker: {}
+  kubernetes: { aliases: [k8s] }
+  graphql: {}

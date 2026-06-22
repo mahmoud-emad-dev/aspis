@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import difflib
 import re
+from functools import lru_cache
 from pathlib import Path
 
 from aspis.constants import BRAIN_DIR
@@ -18,105 +19,53 @@ from aspis.runtimes import runtime_dirs
 # adapters, never hardcoded).
 _IGNORED = {".git", BRAIN_DIR, *runtime_dirs()}
 
-# Marker files that identify a project's stack (first match wins).
-_STACK_MARKERS = [
-    ("pyproject.toml", "python"),
-    ("requirements.txt", "python"),
-    ("setup.py", "python"),
-    ("package.json", "node"),
-    ("tsconfig.json", "node"),
-    ("Cargo.toml", "rust"),
-    ("go.mod", "go"),
-    ("pom.xml", "java"),
-    ("build.gradle", "java"),
-    ("Gemfile", "ruby"),
-    ("composer.json", "php"),
-]
+# Minimal built-in stack set — used ONLY if data/stacks.yaml is missing or corrupt, so
+# detection never dies on a bad file. The real source of truth is data/stacks.yaml.
+_FALLBACK_STACKS: dict[str, dict] = {
+    "python": {
+        "markers": ["pyproject.toml", "requirements.txt"],
+        "aliases": ["py"],
+        "gitignore": "python",
+    },
+    "node": {"markers": ["package.json"], "aliases": ["js", "ts", "node.js"], "gitignore": "node"},
+    "rust": {"markers": ["Cargo.toml"], "gitignore": "rust"},
+    "go": {"markers": ["go.mod"], "gitignore": "go"},
+}
 
-# Spelling fixes / abbreviations for the *display* form (kept in the manifest as the
-# user means it — frameworks and databases stay, only the spelling is canonicalised).
-_DISPLAY_ALIASES = {
-    "py": "python",
-    "python3": "python",
-    "ts": "typescript",
-    "js": "javascript",
-    "nodejs": "node",
-    "node.js": "node",
-    "rs": "rust",
-    "golang": "go",
-    "c++": "cpp",
-    "c#": "dotnet",
-    "csharp": "dotnet",
-    "postgres": "postgresql",
-    "psql": "postgresql",
-    "mongo": "mongodb",
-    "k8s": "kubernetes",
-    "nextjs": "next",
-    "reactjs": "react",
-}
-# The vocabulary used to forgive small typos (fuzzy match) on free-typed input.
-_VOCAB = [
-    "python",
-    "node",
-    "typescript",
-    "javascript",
-    "rust",
-    "go",
-    "java",
-    "c",
-    "cpp",
-    "ruby",
-    "php",
-    "dotnet",
-    "fastapi",
-    "django",
-    "flask",
-    "react",
-    "next",
-    "vue",
-    "svelte",
-    "express",
-    "nestjs",
-    "rails",
-    "laravel",
-    "postgresql",
-    "mysql",
-    "sqlite",
-    "redis",
-    "mongodb",
-    "docker",
-    "kubernetes",
-    "graphql",
-    "tailwind",
-]
-# Framework / database -> the base stack whose .gitignore actually applies ("" = none).
-_GITIGNORE_BASE = {
-    "fastapi": "python",
-    "django": "python",
-    "flask": "python",
-    "pandas": "python",
-    "typescript": "node",
-    "javascript": "node",
-    "react": "node",
-    "next": "node",
-    "vue": "node",
-    "svelte": "node",
-    "express": "node",
-    "nestjs": "node",
-    "tailwind": "node",
-    "rails": "ruby",
-    "laravel": "php",
-    "postgresql": "",
-    "mysql": "",
-    "sqlite": "",
-    "redis": "",
-    "mongodb": "",
-    "docker": "",
-    "kubernetes": "",
-    "graphql": "",
-}
-# Stacks we have a real .gitignore for (offline cache or the Toptal API keyword).
-_GITIGNORE_KNOWN = {"python", "node", "rust", "go", "java", "c", "cpp", "ruby", "php"}
+
+@lru_cache(maxsize=1)
+def _stacks() -> dict[str, dict]:
+    """Load the stack definitions from data/stacks.yaml; fall back when missing/corrupt."""
+    try:
+        import yaml
+
+        from aspis import resources
+
+        data = yaml.safe_load((resources.data_dir() / "stacks.yaml").read_text(encoding="utf-8"))
+        stacks = data.get("stacks") if isinstance(data, dict) else None
+        if isinstance(stacks, dict) and stacks:
+            return {name: (spec or {}) for name, spec in stacks.items()}
+    except Exception:  # pragma: no cover - degraded mode (missing/corrupt data file)
+        pass
+    return _FALLBACK_STACKS
+
+
+@lru_cache(maxsize=1)
+def _maps() -> tuple[list[tuple[str, str]], dict[str, str], list[str], dict[str, str]]:
+    """Derive (markers, aliases, vocab, gitignore_of) from the stack definitions."""
+    markers: list[tuple[str, str]] = []
+    aliases: dict[str, str] = {}
+    vocab: list[str] = []
+    gitignore_of: dict[str, str] = {}
+    for name, spec in _stacks().items():
+        for marker in spec.get("markers", []):
+            markers.append((marker, name))
+        for alias in spec.get("aliases", []):
+            aliases[alias] = name
+        vocab.append(name)
+        vocab.extend(spec.get("aliases", []))
+        gitignore_of[name] = spec.get("gitignore", "")
+    return markers, aliases, vocab, gitignore_of
 
 
 def _stack_tokens(raw: str) -> list[str]:
@@ -131,13 +80,15 @@ def normalize_stack(raw: str) -> str:
     (``"pyton"`` -> ``"python"``). Frameworks/databases are kept (they describe the
     project); only spelling is canonicalised. Returns ``""`` for empty/unknown input.
     """
+    _, aliases, vocab, _ = _maps()
     out: list[str] = []
     seen: set[str] = set()
     for token in _stack_tokens(raw):
-        word = _DISPLAY_ALIASES.get(token, token)
-        if word not in _VOCAB:
-            match = difflib.get_close_matches(word, _VOCAB, n=1, cutoff=0.8)
+        word = aliases.get(token, token)  # alias -> canonical name
+        if word not in vocab:
+            match = difflib.get_close_matches(word, vocab, n=1, cutoff=0.8)
             word = match[0] if match else word
+        word = aliases.get(word, word)  # a fuzzy hit on an alias resolves to its name
         if word and word not in seen:
             seen.add(word)
             out.append(word)
@@ -147,15 +98,16 @@ def normalize_stack(raw: str) -> str:
 def gitignore_stacks(raw: str) -> list[str]:
     """The base stacks a ``.gitignore`` actually applies to, from free-typed input.
 
-    ``"python fastapi postgres"`` -> ``["python"]`` (fastapi folds into python,
-    postgres has no standard ignore). Used by the gitignore hook to write one ignore
-    block per real stack.
+    ``"python fastapi postgres"`` -> ``["python"]`` (fastapi folds into python via its
+    ``gitignore:`` key, postgres has none). Reads the fold from data/stacks.yaml; used
+    by the gitignore hook to write one ignore block per real stack.
     """
+    _, _, _, gitignore_of = _maps()
     out: list[str] = []
     seen: set[str] = set()
     for word in normalize_stack(raw).split(", "):
-        base = _GITIGNORE_BASE.get(word, word)
-        if base in _GITIGNORE_KNOWN and base not in seen:
+        base = gitignore_of.get(word, "")
+        if base and base not in seen:
             seen.add(base)
             out.append(base)
     return out
@@ -172,8 +124,9 @@ def project_mode(root: Path) -> str:
 
 
 def detect_stack(root: Path) -> str:
-    """Return the project's stack from marker files, or 'unknown'."""
-    for marker, stack in _STACK_MARKERS:
+    """Return the project's stack from the marker files in data/stacks.yaml, or 'unknown'."""
+    markers, _, _, _ = _maps()
+    for marker, stack in markers:
         if (root / marker).exists():
             return stack
     return "unknown"
