@@ -1,7 +1,7 @@
 """Tests for the F-010 detection orchestrator (T-07).
 
 ``build_inventory`` asks every installed runtime (``detect_all``) and writes a single
-generated ``.aspis/state/runtime_inventory.json``; ``load_inventory`` reads it back and
+generated ``.aspis/config/.runtime-inventory.json``; ``load_inventory`` reads it back and
 returns ``None`` when it is absent — the graceful-degradation path (FR-006). Detection
 itself is stubbed so these tests are deterministic and never touch a live runtime.
 """

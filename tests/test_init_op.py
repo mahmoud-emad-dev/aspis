@@ -12,6 +12,18 @@ def _engine():
     return engine
 
 
+def test_init_does_not_scaffold_on_demand_dirs(tmp_path) -> None:
+    """On-demand dirs (features/current/research) are not created empty at init."""
+    _engine().run("init", tmp_path, write=True, no_git=True, name="demo")
+    for name in ("features", "current", "research"):
+        assert not (tmp_path / ".aspis" / name).exists(), (
+            f"{name} should be on-demand, not scaffolded"
+        )
+    # The filled scaffold dirs are present.
+    for name in ("config", "context", "index", "rules", "scripts", "templates", "workflows"):
+        assert (tmp_path / ".aspis" / name).is_dir()
+
+
 def test_init_scaffolds_brain_and_root_files(tmp_path) -> None:
     _engine().run("init", tmp_path, write=True, no_git=True, name="demo")
 
@@ -25,14 +37,13 @@ def test_reinit_does_not_replant_gitkeep_in_populated_dir(tmp_path) -> None:
     # A re-init over a brain whose directory already holds content must not drop a
     # stale .gitkeep next to that content.
     _engine().run("init", tmp_path, write=True, no_git=True, name="demo")
-    features = tmp_path / ".aspis" / "features"
-    (features / ".gitkeep").unlink()  # simulate the reaped state
-    (features / "F-001-demo").mkdir()
-    (features / "F-001-demo" / "SPEC.md").write_text("x", encoding="utf-8")
+    context = tmp_path / ".aspis" / "context"  # a scaffold dir (features is on-demand now)
+    (context / ".gitkeep").unlink()  # simulate the reaped state
+    (context / "NOTE.md").write_text("x", encoding="utf-8")
 
     _engine().run("init", tmp_path, write=True, force=True, no_git=True, name="demo")
 
-    assert not (features / ".gitkeep").exists()
+    assert not (context / ".gitkeep").exists()
 
 
 def test_init_seeds_brain_gitignore(tmp_path) -> None:

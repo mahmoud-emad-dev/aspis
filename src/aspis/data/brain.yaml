@@ -1,14 +1,19 @@
-# Brain skeleton directories scaffolded by `aspis init`.
+# Canonical .aspis/ structure — the SINGLE source of truth for every brain folder.
+# Agents and scripts use ONLY these folders; none is invented elsewhere, and the
+# bootstrap structure check rejects any .aspis/ folder not listed here.
 #
-# Edit this list to change the skeleton — no code change needed. Dirs are added
-# back as their features land (e.g. traces with tracing).
-dirs:
-  - .aspis/context
-  - .aspis/current
-  - .aspis/index
-  - .aspis/features
-  - .aspis/templates
-  - .aspis/scripts
-  - .aspis/rules
-  - .aspis/config
-  - .aspis/workflows
+# scaffold:  created AND filled at init/bootstrap — never left empty.
+# on_demand: created by its own writer when the first file lands, so the brain
+#            never carries an empty, .gitkeep-only folder. Each names its writer.
+scaffold:
+  - .aspis/config # exported + generated config (models, hooks, project)
+  - .aspis/context # generated project state (CURRENT_STATE, ARCHITECTURE)
+  - .aspis/index # generated FILE_REGISTRY, CODE_MAP
+  - .aspis/rules # the constitution + system rules
+  - .aspis/scripts # the shipped deterministic scripts/hooks
+  - .aspis/templates # output-shape templates
+  - .aspis/workflows # the track workflows
+on_demand:
+  - .aspis/features # one dir per feature — created by feature_scaffold on start-feature
+  - .aspis/current # active-feature pointer — created with the first feature
+  - .aspis/research # research-lead notes; general here, per-feature under features/<id>/research

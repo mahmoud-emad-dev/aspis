@@ -14,6 +14,7 @@ def _project(tmp_path: Path, *, mode: str = "production") -> Path:
     feature_dir = tmp_path / ".aspis" / "features" / "F-001-demo"
     feature_dir.mkdir(parents=True)
     pointer = tmp_path / ".aspis" / "current" / "active_feature.json"
+    pointer.parent.mkdir(parents=True, exist_ok=True)  # current/ is on-demand now
     pointer.write_text(
         json.dumps(
             {

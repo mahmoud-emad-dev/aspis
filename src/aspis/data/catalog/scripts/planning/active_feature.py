@@ -97,7 +97,9 @@ def set_phase(root: Path, phase: str, *, write: bool = True) -> dict:
         raise ValueError("no active feature to update")
     data["phase"] = phase
     if write:
-        pointer_path(root).write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+        path = pointer_path(root)
+        path.parent.mkdir(parents=True, exist_ok=True)  # .aspis/current is on-demand
+        path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
     return data
 
 

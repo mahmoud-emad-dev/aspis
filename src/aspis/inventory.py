@@ -2,7 +2,7 @@
 
 Detection is per-runtime (each adapter's ``detect()``); this module is the
 orchestrator that asks every installed runtime and persists the combined answer to
-a single generated file, ``.aspis/state/runtime_inventory.json``. The file is a
+a single generated file, ``.aspis/config/.runtime-inventory.json``. The file is a
 derived artifact (Constitution #8): gitignored, never hand-edited, rebuilt on demand
 by ``aspis doctor``. The resolver reads it to emit only model strings the machine
 can run, and degrades gracefully (to today's tier map) when it is absent.
@@ -21,10 +21,11 @@ from aspis.constants import BRAIN_DIR
 from aspis.runtimes import detect_all
 from aspis.runtimes.base import RuntimeInventory
 
-#: Generated inventory path, relative to a project root.
-INVENTORY_REL = f"{BRAIN_DIR}/state/runtime_inventory.json"
+#: Generated inventory path, relative to a project root (gitignored machine state,
+#: kept with the model config it belongs to — no standalone ``state/`` folder).
+INVENTORY_REL = f"{BRAIN_DIR}/config/.runtime-inventory.json"
 #: Snapshot of the connected providers captured at the last ``aspis models --sync``.
-SYNC_SNAPSHOT_REL = f"{BRAIN_DIR}/state/last-sync.json"
+SYNC_SNAPSHOT_REL = f"{BRAIN_DIR}/config/.last-sync.json"
 
 
 def _inventory_path(root: Path) -> Path:

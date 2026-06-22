@@ -370,21 +370,44 @@ def _validate_exports(root: Path) -> list[str]:
     return problems
 
 
+def _structure_strays(root: Path) -> list[str]:
+    """``.aspis/`` subfolders not in the canonical structure (invented or stray).
+
+    Enforces one consistent brain layout — an agent or script may not invent a new
+    top-level brain folder. ``traces/`` is allowed ahead of the tracing feature.
+    """
+    from aspis import resources
+
+    brain = root / BRAIN_DIR
+    if not brain.is_dir():
+        return []
+    allowed = resources.canonical_brain_subdirs() | {"traces"}
+    return sorted(p.name for p in brain.iterdir() if p.is_dir() and p.name not in allowed)
+
+
 def _doctor_gate(ctx: Context) -> None:
-    """Health + readiness + validation gate after bootstrap; record for self-clean (post)."""
+    """Health + readiness + validation + structure gate after bootstrap (post)."""
     failed = [check for check in run_checks(ctx.root) if check.status == "fail"]
     missing = _readiness(ctx.root)
     invalid = _validate_exports(ctx.root)
+    strays = _structure_strays(ctx.root)
     ctx.results["doctor_failed"] = len(failed)
     ctx.results["readiness_missing"] = missing
     ctx.results["validation_errors"] = invalid
+    ctx.results["structure_strays"] = strays
     ctx.log(f"doctor: {len(failed)} failed" if failed else "doctor: ok")
     if missing:
         ctx.log(f"readiness: {len(missing)} brain file(s) missing/empty: {', '.join(missing)}")
-    if invalid:
-        ctx.log(f"validation: {len(invalid)} file(s) failed to parse: {', '.join(invalid)}")
-    else:
-        ctx.log("validation: all config + agent files parse")
+    ctx.log(
+        f"validation: {len(invalid)} file(s) failed to parse: {', '.join(invalid)}"
+        if invalid
+        else "validation: all config + agent files parse"
+    )
+    ctx.log(
+        f"structure: {len(strays)} non-canonical folder(s): {', '.join(strays)}"
+        if strays
+        else "structure: canonical (no stray folders)"
+    )
 
 
 def bootstrap_package(root: Path) -> list[Path]:

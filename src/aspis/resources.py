@@ -47,10 +47,34 @@ def scaffold(name: str) -> str:
     return (catalog_dir() / "scaffold" / name).read_text(encoding="utf-8")
 
 
+def _brain_spec() -> dict:
+    """Parsed ``data/brain.yaml`` — the canonical .aspis/ structure."""
+    return yaml.safe_load((data_dir() / "brain.yaml").read_text(encoding="utf-8")) or {}
+
+
 def brain_dirs() -> list[str]:
-    """Return the brain skeleton directories from ``data/brain.yaml``."""
-    data = yaml.safe_load((data_dir() / "brain.yaml").read_text(encoding="utf-8")) or {}
-    return list(data.get("dirs", []))
+    """Brain dirs scaffolded AND filled at init — the ``scaffold`` set in brain.yaml.
+
+    Excludes the on-demand dirs (features/current/research): those are created by
+    their own writer when the first file lands, so the brain never carries an empty
+    ``.gitkeep``-only folder. (``dirs`` is honoured for backward compatibility.)
+    """
+    spec = _brain_spec()
+    return list(spec.get("scaffold") or spec.get("dirs", []))
+
+
+def on_demand_dirs() -> list[str]:
+    """Brain dirs created lazily by their writer (features, current, research)."""
+    return list(_brain_spec().get("on_demand", []))
+
+
+def canonical_brain_subdirs() -> set[str]:
+    """Every legitimate ``.aspis/`` subfolder name (scaffold + on-demand).
+
+    The allow-list the bootstrap structure check uses to reject any invented or
+    stray folder, so the brain layout stays consistent across every project.
+    """
+    return {d.split("/", 1)[1] for d in (*brain_dirs(), *on_demand_dirs()) if "/" in d}
 
 
 def config(name: str, root: Path | None = None) -> dict:
