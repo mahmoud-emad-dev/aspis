@@ -1,5 +1,37 @@
 {
-  "_note": "File purposes for the registry (.aspis/index/FILE_REGISTRY.yaml). 'files': exact relpath -> purpose (highest priority; register files that can't carry a docstring here). 'names': basename -> purpose. 'patterns': glob -> purpose. These extend/override the built-in defaults. Find gaps with: python .aspis/scripts/context/build_registry.py --check",
+  "_README": [
+    "WHAT THIS IS — file purposes for the project registry (.aspis/index/FILE_REGISTRY.yaml).",
+    "It tells the system what a file *is*, for files whose purpose can't be read from their",
+    "own first line or docstring (data files, configs, assets). The registry script runs with",
+    "bare Python (no pyyaml), so this file stays JSON. Keys starting with '_' are help and",
+    "examples only — the system ignores them; edit the 'files' / 'names' / 'patterns' maps below."
+  ],
+  "_layers": {
+    "files": "EXACT path -> purpose. Highest priority. Use for one specific file in this repo.",
+    "names": "FILENAME (basename) -> purpose. Applies to every file with that name, anywhere.",
+    "patterns": "GLOB -> purpose. Matched against the basename, then the path; first match wins."
+  },
+  "_how_to_use": [
+    "1. List files that have no purpose yet:  python .aspis/scripts/context/build_registry.py --check",
+    "2. Add an entry in the most specific map that fits (files > names > patterns).",
+    "3. Re-run the registry (any 'aspis' context update does this) to apply.",
+    "Priority when more than one matches: files, then names, then patterns."
+  ],
+  "_examples": {
+    "files": {
+      "src/app/main.py": "FastAPI entrypoint — wires routers and startup",
+      "infra/terraform/main.tf": "Cloud infrastructure definition"
+    },
+    "names": {
+      "settings.py": "Application configuration and environment loading",
+      "conftest.py": "Shared pytest fixtures"
+    },
+    "patterns": {
+      "tests/test_*.py": "Unit tests",
+      "migrations/*.sql": "Database schema migration",
+      "*.proto": "gRPC / protobuf service definition"
+    }
+  },
   "files": {},
   "names": {},
   "patterns": {}
