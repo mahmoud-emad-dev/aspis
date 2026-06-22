@@ -53,16 +53,23 @@ def brain_dirs() -> list[str]:
     return list(data.get("dirs", []))
 
 
-def config(name: str) -> dict:
-    """Load a catalog ``config/<name>`` YAML file as a dict (``{}`` if empty).
+def config(name: str, root: Path | None = None) -> dict:
+    """Load a ``config/<name>`` YAML file as a dict (``{}`` if empty), project-first.
 
-    One resolver for every bundled config file (``models.yaml``, ``providers.yaml``,
-    ``model_catalog.yaml``, ``capabilities.yaml``), so callers never rebuild the path.
+    One resolver for every config file (``models.yaml``, ``providers.yaml``,
+    ``model_catalog.yaml``, ``capabilities.yaml``). When *root* is an ASPIS project and
+    it carries its own ``.aspis/config/<name>``, that copy wins — so a project can edit
+    its exported model config and have it honoured; otherwise the bundled package copy
+    (the global install's reference data) is used.
     """
+    if root is not None:
+        local = root / ".aspis" / "config" / name
+        if local.is_file():
+            return yaml.safe_load(local.read_text(encoding="utf-8")) or {}
     data = yaml.safe_load((catalog_dir() / "config" / name).read_text(encoding="utf-8"))
     return data or {}
 
 
-def model_map(runtime: str) -> dict[str, str]:
-    """Return the global tier->model map for *runtime* from ``config/models.yaml``."""
-    return dict(config("models.yaml").get(runtime, {}))
+def model_map(runtime: str, root: Path | None = None) -> dict[str, str]:
+    """Return the tier->model map for *runtime* (project ``models.yaml`` first, else bundled)."""
+    return dict(config("models.yaml", root).get(runtime, {}))

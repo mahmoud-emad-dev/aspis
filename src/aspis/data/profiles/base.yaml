@@ -76,6 +76,10 @@ rules:
 config:
   - config/modes.yaml
   - config/models.yaml
+  - config/model_catalog.yaml
+  - config/providers.yaml
+  - config/capabilities.yaml
+  - config/agent-capabilities.yaml
   - config/constitution-checks.yaml
   - config/commit-convention.yaml
   - config/hooks.yaml

@@ -69,7 +69,7 @@ def _show(root: Path, inventory: dict, *, available: bool) -> int:
     for runtime in available_runtimes():
         adapter = get_adapter(runtime)
         inv = inventory.get(runtime)
-        tier_map = resources.model_map(runtime)
+        tier_map = resources.model_map(runtime, root)
         detail = f"detected: {', '.join(inv.providers)}" if inv else "not detected"
         print(f"{runtime}  ({detail})")
 
@@ -99,9 +99,9 @@ def _show(root: Path, inventory: dict, *, available: bool) -> int:
 
 def _sync(root: Path, inventory: dict) -> int:
     """Generate the editable agent-models.yaml: per-capability menu + best-fit assignments."""
-    catalog = resources.config("model_catalog.yaml").get("models", {})
-    capabilities = resources.config("capabilities.yaml").get("capabilities", {})
-    agent_caps = resources.config("agent-capabilities.yaml").get("agents", {})
+    catalog = resources.config("model_catalog.yaml", root).get("models", {})
+    capabilities = resources.config("capabilities.yaml", root).get("capabilities", {})
+    agent_caps = resources.config("agent-capabilities.yaml", root).get("agents", {})
     agent_tiers = _catalog_agent_tiers()
     existing = project.load_agent_models(root).get("runtimes") or {}
 
