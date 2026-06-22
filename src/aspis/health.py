@@ -8,6 +8,8 @@ logic to maintain (checks-as-data, not an if-chain).
 
 from __future__ import annotations
 
+import json
+import re
 import shutil
 import sys
 from dataclasses import dataclass
@@ -68,12 +70,51 @@ def check_project(root: Path) -> Check:
     return Check("project", "warn", "not an ASPIS project (run `aspis init`)")
 
 
+def _baked_interpreter(root: Path) -> tuple[str, str] | None:
+    """Pull (hook-file, interpreter) baked into a project's runtime hook, if one exists."""
+    ts = root / ".opencode" / "plugins" / "scope-guard.ts"
+    if ts.is_file():
+        match = re.search(r'const py = "([^"]+)"', ts.read_text(encoding="utf-8"))
+        if match:
+            return (".opencode/plugins/scope-guard.ts", match.group(1))
+    settings = root / ".claude" / "settings.json"
+    if settings.is_file():
+        try:
+            command = json.loads(settings.read_text(encoding="utf-8"))["hooks"]["PreToolUse"][0][
+                "hooks"
+            ][0]["command"]
+            interpreter = command.split('"')[1] if command.startswith('"') else command.split()[0]
+            return (".claude/settings.json", interpreter)
+        except (ValueError, KeyError, IndexError):
+            return None
+    return None
+
+
+def check_runtime_hooks(root: Path) -> Check:
+    """Verify the interpreter baked into the runtime hooks still resolves (F-014 T-02).
+
+    The scope-guard runs via an interpreter path baked at install. Moving the same checkout
+    between environments (e.g. Windows <-> WSL) can leave that path stale, which would silently
+    no-op the guard — so surface it as a warning to re-arm with ``aspis init``.
+    """
+    found = _baked_interpreter(root)
+    if found is None:
+        return Check("hooks", "ok", "no runtime hooks present")
+    hook_file, interpreter = found
+    if "__ASPIS_PY__" in interpreter:
+        return Check("hooks", "warn", f"{hook_file}: interpreter not baked — re-run `aspis init`")
+    if Path(interpreter).exists() or shutil.which(interpreter):
+        return Check("hooks", "ok", f"runtime-hook interpreter present ({interpreter})")
+    detail = f"{hook_file}: baked interpreter missing ({interpreter}) — re-run `aspis init`"
+    return Check("hooks", "warn", detail)
+
+
 # ---------------------------------------------------------------------------
 # Runner
 # ---------------------------------------------------------------------------
 
 #: Every check doctor runs, in display order.
-CHECKS = (check_python, check_aspis, check_git, check_project)
+CHECKS = (check_python, check_aspis, check_git, check_project, check_runtime_hooks)
 
 
 def run_checks(root: Path) -> list[Check]:

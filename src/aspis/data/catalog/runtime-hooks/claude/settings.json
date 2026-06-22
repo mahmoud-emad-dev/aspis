@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/.aspis/scripts/hooks/runtime_guard.py\""
+            "command": "\"__ASPIS_PY__\" \"$CLAUDE_PROJECT_DIR/.aspis/scripts/hooks/runtime_guard.py\""
           }
         ]
       }

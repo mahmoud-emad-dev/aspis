@@ -9,6 +9,7 @@ registering it — no change to the transformer.
 from __future__ import annotations
 
 import shutil
+import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -16,6 +17,22 @@ from pathlib import Path
 import yaml
 
 from aspis.catalog import CatalogAgent, CatalogCommand
+
+# Placeholder in runtime-hook source files, replaced at emit with the resolved interpreter
+# (``sys.executable``, posix-form so one spelling works on Windows + Linux). This bakes the
+# interpreter at install — the same approach the git-hook installer uses — so a hook never
+# guesses ``python3`` (absent on Windows) and silently no-ops.
+_PY_PLACEHOLDER = "__ASPIS_PY__"
+
+
+def _emit_hook_file(source: Path, destination: Path) -> None:
+    """Place a runtime-hook file, baking the interpreter path if it carries the placeholder."""
+    text = source.read_text(encoding="utf-8")
+    if _PY_PLACEHOLDER not in text:
+        shutil.copy2(source, destination)
+        return
+    interpreter = Path(sys.executable).as_posix()
+    destination.write_text(text.replace(_PY_PLACEHOLDER, interpreter), encoding="utf-8")
 
 
 @dataclass(frozen=True)
@@ -96,7 +113,7 @@ class RuntimeAdapter(ABC):
             performed.append(f"copy: {dst_rel}")
             if write:
                 destination.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(source, destination)
+                _emit_hook_file(source, destination)
         return performed
 
     def __init__(self) -> None:

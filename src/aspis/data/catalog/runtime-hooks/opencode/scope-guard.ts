@@ -18,7 +18,10 @@ export const ScopeGuard: Plugin = async ({ $, directory }) => {
       if (!path) return
 
       const guard = `${directory}/.aspis/scripts/hooks/runtime_guard.py`
-      const result = await $`python3 ${guard} ${path}`.quiet().nothrow()
+      // Interpreter baked at export (sys.executable) — never an unresolved interpreter name,
+      // which may be absent on Windows and would make this guard silently no-op. `${py}` is quoted.
+      const py = "__ASPIS_PY__"
+      const result = await $`${py} ${guard} ${path}`.quiet().nothrow()
       if (result.exitCode !== 0) {
         const reason = result.stderr.toString().trim()
         throw new Error(reason || `out of scope: ${path}`)
