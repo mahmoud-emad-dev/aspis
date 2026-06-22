@@ -21,6 +21,10 @@ Second beta — install, first-run onboarding, and runtime/model correctness.
 - **Runtimes discovered from data** — `data/runtimes/*.yaml` declare detection,
   capabilities (mode, subagent depth, exportable) and run command; `doctor` lists
   them with capabilities. No hardcoded runtime list.
+- **`aspis models --apply`** — re-renders the live runtime agents from
+  `agent-models.yaml` + `project.yaml`, so a model edit becomes active without a
+  re-init (the model is baked into each agent file at export). `--sync --apply`
+  refreshes then applies; the generated file now points users to this step.
 
 ### Changed
 - **Canonical `.aspis/` structure** — folders are either filled at bootstrap or
@@ -35,6 +39,9 @@ Second beta — install, first-run onboarding, and runtime/model correctness.
 ### Fixed
 - `install.ps1` Python-version detection on Windows (PowerShell quote-stripping).
 - `purposes.json` is now self-documenting (layers + worked examples).
+- Agent re-render passed the whole `{runtime: inventory}` map (not this runtime's
+  entry) into model translation, raising `AttributeError` whenever a detected
+  inventory existed (e.g. after `aspis models --sync`). Now selects the runtime entry.
 
 ## [0.1.0b1] — 2026-06-21
 

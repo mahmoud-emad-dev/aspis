@@ -36,15 +36,16 @@ def test_opencode_without_inventory_renders_canonical_tier() -> None:
 
 
 def test_opencode_with_inventory_renders_connected_provider_string() -> None:
-    deep = resources.model_map("opencode")["deep"]
+    # A bare canonical id resolves to the connected provider's runnable string (SC-001).
+    agent = _DEEP_AGENT.replace("model: deep", "model: deepseek-v4-pro")
     inv = RuntimeInventory(
         runtime="opencode",
         installed=True,
         providers=("opencode-go",),
-        models=(f"opencode-go/{deep}",),
+        models=("opencode-go/deepseek-v4-pro",),
     )
-    out = _model(render_agent(_DEEP_AGENT, "opencode", inventory=inv))
-    assert out == f"opencode-go/{deep}"  # SC-001: a real, runnable string
+    out = _model(render_agent(agent, "opencode", inventory=inv))
+    assert out == "opencode-go/deepseek-v4-pro"  # translated to a real, runnable string
 
 
 def test_claude_without_inventory_renders_canonical_id() -> None:

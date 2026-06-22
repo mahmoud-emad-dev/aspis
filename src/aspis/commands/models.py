@@ -49,6 +49,12 @@ def register(subparsers: argparse._SubParsersAction) -> None:
         action="store_true",
         help="(Re)generate .aspis/config/agent-models.yaml — the editable per-agent model file.",
     )
+    parser.add_argument(
+        "--apply",
+        action="store_true",
+        help="Re-render the live runtime agents from agent-models.yaml + project.yaml "
+        "(makes your edits active). Combine with --sync to refresh then apply.",
+    )
     parser.set_defaults(func=_run)
 
 
@@ -56,7 +62,11 @@ def _run(args: argparse.Namespace) -> int:
     root = Path(args.path).resolve()
     inventory = build_inventory(root, write=(root / BRAIN_DIR).is_dir())
     if args.sync:
-        return _sync(root, inventory)
+        rc = _sync(root, inventory)
+        if rc or not args.apply:
+            return rc
+    if args.apply:
+        return _apply(root)
     return _show(root, inventory, available=args.available)
 
 
@@ -112,6 +122,9 @@ def _sync(root: Path, inventory: dict) -> int:
         "# best AVAILABLE model for its capability within its cost budget — change any to another",
         "# model from the ranked menu below, or to a tier (cheap/standard/deep). Scores are seeds,",
         "# refined later by tracing.",
+        "#",
+        "# AFTER EDITING, run `aspis models --apply` to re-render the live agents with your",
+        "# choices (the model is baked into each agent file, so edits here are inert until then).",
         "#",
         "# ---- AVAILABLE MODELS, ranked per capability (score 1-10, best first) ----",
     ]
@@ -177,6 +190,46 @@ def _sync(root: Path, inventory: dict) -> int:
     # Record what we synced against so `aspis doctor` can flag when the connected plans change.
     save_sync_snapshot(root, inventory)
     print(f"wrote {path.relative_to(root)} — open it to assign a model to each agent.")
+    return 0
+
+
+# --- aspis models --apply ----------------------------------------------------
+
+
+def _apply(root: Path) -> int:
+    """Re-render the live runtime agents so edits to agent-models.yaml/project.yaml take effect.
+
+    The model is baked into each runtime agent file at export time; ``--sync`` only refreshes
+    the editable ``agent-models.yaml``. This re-runs the same render path with ``force`` over
+    the agents that are *already live* — so a model change becomes active without a re-init.
+    Only existing agent files are touched: self-cleaned transient agents are not resurrected,
+    and skills/scripts/root files (e.g. a bootstrap-stripped AGENTS.md) are left untouched.
+    """
+    from aspis.export import ExportPlan, plan_export, write_export
+    from aspis.profiles import load_profile
+
+    if not (root / BRAIN_DIR).is_dir():
+        print("not an ASPIS project (no .aspis/) — run `aspis init` first.")
+        return 1
+
+    profile = load_profile(resources.data_dir() / "profiles" / "base.yaml")
+    present = [r for r in profile.runtimes if (root / get_adapter(r).runtime_dir).is_dir()]
+    if present:
+        profile = profile.model_copy(update={"runtimes": present})
+
+    plan = plan_export(resources.catalog_dir(), profile)
+    live = [
+        action
+        for action in plan.actions
+        if action.op == "render-agent" and (root / action.target).exists()
+    ]
+    if not live:
+        print("no live runtime agents to apply to — run `aspis init` first.")
+        return 1
+
+    write_export(ExportPlan(actions=live, catalog_root=None), root, force=True, write=True)
+    runtimes = ", ".join(sorted({a.runtime for a in live}))
+    print(f"applied: re-rendered {len(live)} agent file(s) ({runtimes}) — model choices are live.")
     return 0
 
 

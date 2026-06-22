@@ -55,13 +55,15 @@ def test_providers_schema() -> None:
 
 
 def test_tier_map_references_catalog() -> None:
-    # Single source of truth: every runtime/tier value in models.yaml MUST be a
-    # canonical id defined in the catalog (so the map never drifts from the catalog).
-    catalog = set(_config("model_catalog.yaml")["models"])
+    # Single source of truth: every runtime/tier value in models.yaml MUST be defined in
+    # the catalog (so the map never drifts) — either a scored canonical id under `models:`
+    # or one of the intentional provider-qualified `free_to_test:` defaults.
+    catalog_doc = _config("model_catalog.yaml")
+    allowed = set(catalog_doc["models"]) | set((catalog_doc.get("free_to_test") or {}).values())
     tier_map = _config("models.yaml")
     for runtime, tiers in tier_map.items():
         for tier, model_id in tiers.items():
-            assert model_id in catalog, f"{runtime}.{tier} -> {model_id} not in catalog"
+            assert model_id in allowed, f"{runtime}.{tier} -> {model_id} not in catalog"
 
 
 def test_free_to_test_default_exists() -> None:

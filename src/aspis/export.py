@@ -119,11 +119,14 @@ def write_export(
 def _apply(action: ExportAction, destination: Path, project_config: dict, inventory=None) -> None:
     """Execute a single export action against *destination*."""
     if action.op == "render-agent":
+        # load_inventory returns a {runtime: RuntimeInventory} map; render wants this
+        # runtime's single entry (None when detection has not run here).
+        inv = inventory.get(action.runtime) if isinstance(inventory, dict) else inventory
         text = transform.render_agent(
             action.source.read_text(encoding="utf-8"),
             action.runtime,
             project_config=project_config,
-            inventory=inventory,
+            inventory=inv,
         )
         destination.write_text(text, encoding="utf-8", newline="\n")
     elif action.op == "render-command":

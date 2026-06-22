@@ -71,4 +71,5 @@ def test_project_override_and_pin_apply_on_export(tmp_path) -> None:
 
     assert _model(build_lead.read_text(encoding="utf-8")) == "custom-deep"  # tier override
     reviewer = tmp_path / ".opencode" / "agents" / "reviewer.md"
-    assert _model(reviewer.read_text(encoding="utf-8")) == "deepseek-v4-flash"  # pinned to cheap
+    # reviewer pinned to the cheap tier → the cheap default (free Zen model), runnable as-is.
+    assert _model(reviewer.read_text(encoding="utf-8")) == resources.model_map("opencode")["cheap"]

@@ -145,10 +145,15 @@ def test_bootstrap_strips_all_bootstrap_references(tmp_path) -> None:
 
     engine.run("bootstrap", tmp_path, write=True, yes=True, goal="x", stack="python")
 
-    agents = (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
-    lead = (tmp_path / ".opencode" / "agents" / "project-lead.md").read_text(encoding="utf-8")
-    assert "bootstrap" not in agents.lower()  # gate notice stripped
-    assert "bootstrap" not in lead.lower()  # gate prose + permission + delegate stripped
+    agents = (tmp_path / "AGENTS.md").read_text(encoding="utf-8").lower()
+    lead_path = tmp_path / ".opencode" / "agents" / "project-lead.md"
+    lead = lead_path.read_text(encoding="utf-8").lower()
+    # AGENTS.md: the gate notice is gone. The bare word "bootstrap" can legitimately appear
+    # in the project name (pytest's tmp dir), so assert the gate markers/command are gone.
+    assert "bootstrap-gate" not in agents
+    assert "aspis bootstrap" not in agents
+    # project-lead: gate prose + the bootstrap permission + the delegate are all stripped.
+    assert "bootstrap" not in lead
     assert not (tmp_path / ".opencode" / "agents" / "bootstrap.md").exists()  # agent gone
 
 

@@ -16,6 +16,7 @@ from aspis.runtimes.base import RuntimeInventory
 def _ns(tmp_path, **kw):
     kw.setdefault("available", False)
     kw.setdefault("sync", False)
+    kw.setdefault("apply", False)
     return argparse.Namespace(path=str(tmp_path), **kw)
 
 
@@ -25,13 +26,13 @@ def _isolate(monkeypatch, tmp_path):
 
 def test_models_lists_tiers_and_resolved_strings(monkeypatch, capsys, tmp_path) -> None:
     _isolate(monkeypatch, tmp_path)
-    deep = resources.model_map("opencode")["deep"]
+    deep = resources.model_map("opencode")["deep"]  # provider-prefixed canonical id
     fake = {
         "opencode": RuntimeInventory(
             runtime="opencode",
             installed=True,
             providers=("opencode-go",),
-            models=(f"opencode-go/{deep}",),
+            models=(deep,),
         )
     }
     monkeypatch.setattr(models_cmd, "build_inventory", lambda root, write=False: fake)
@@ -41,7 +42,8 @@ def test_models_lists_tiers_and_resolved_strings(monkeypatch, capsys, tmp_path) 
 
     assert rc == 0
     assert "opencode  (detected: opencode-go)" in out
-    assert f"opencode-go/{deep}" in out  # deep tier translated to a connected string
+    # A provider-prefixed tier id is already a runnable `provider/model`: shown as-is.
+    assert deep in out
     assert "claude  (not detected)" in out
     assert resources.model_map("claude")["deep"] in out  # claude undetected -> canonical id
 
@@ -103,6 +105,46 @@ def test_sync_generates_an_editable_agent_models_file(monkeypatch, tmp_path) -> 
     # per-agent overrides ship commented out (by_capability drives by default).
     assert (data["runtimes"]["opencode"].get("agents") or {}) == {}
     assert "# Override a single agent" in text
+
+
+def test_apply_rerenders_live_agents_from_config(monkeypatch, tmp_path) -> None:
+    """`models --apply` re-renders the live agents so a config edit becomes active.
+
+    The model is baked into each agent file at export; --apply force-renders the live
+    agents against the current project.yaml / agent-models.yaml. A per-agent pin to a
+    concrete id must land in the on-disk agent frontmatter.
+    """
+    from aspis.engine import build_engine
+    from aspis.operations import register_all
+
+    _isolate(monkeypatch, tmp_path)
+    # No live detection: --apply reads the file-based inventory (absent here -> canonical).
+    monkeypatch.setattr(models_cmd, "build_inventory", lambda root, write=False: {})
+
+    engine = build_engine()
+    register_all(engine)
+    engine.run("init", tmp_path, write=True, no_git=True)
+
+    agent = tmp_path / ".opencode" / "agents" / "committer.md"
+    assert "opencode/zzz-test-pin" not in agent.read_text(encoding="utf-8")  # not pinned yet
+
+    cfg = tmp_path / ".aspis" / "config" / "project.yaml"
+    cfg.write_text(
+        "runtimes:\n  opencode:\n    agents:\n      committer: opencode/zzz-test-pin\n",
+        encoding="utf-8",
+    )
+    rc = models_cmd._run(_ns(tmp_path, apply=True))
+
+    assert rc == 0
+    assert "model: opencode/zzz-test-pin" in agent.read_text(encoding="utf-8")  # edit is live
+
+
+def test_apply_without_project_is_a_clean_error(monkeypatch, tmp_path) -> None:
+    """--apply on a non-project reports cleanly instead of rendering nothing."""
+    _isolate(monkeypatch, tmp_path)
+    monkeypatch.setattr(models_cmd, "build_inventory", lambda root, write=False: {})
+    rc = models_cmd._run(_ns(tmp_path, apply=True))
+    assert rc == 1
 
 
 def test_models_available_lists_the_menu_by_provider(monkeypatch, capsys, tmp_path) -> None:
