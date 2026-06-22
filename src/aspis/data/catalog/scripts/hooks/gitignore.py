@@ -64,15 +64,29 @@ def fetch(stack: str) -> str | None:
         return None
 
 
-def ensure(root: Path, stack: str | None = None) -> bool:
-    """Write/refresh the stack's ignore block. Returns True if `.gitignore` changed."""
-    stack = stack or detect_stack(root)
-    if stack == "unknown":
-        return False
+def resolve_stacks(raw: str, root: Path) -> list[str]:
+    """Base stacks to write ignore blocks for, from free-typed input (or detection).
+
+    Reuses the engine's normalizer (aliases + fuzzy match + multi-stack) when aspis is
+    importable — so ``"py fastapi postgres"`` resolves to ``["python"]`` and ``"noed"``
+    is forgiven to ``node``. Falls back to a small alias map for a bare interpreter.
+    """
+    raw = (raw or "").strip()
+    try:
+        from aspis.detect import gitignore_stacks  # DRY when aspis is importable
+
+        return gitignore_stacks(raw or detect_stack(root))
+    except Exception:  # pragma: no cover - degraded mode (bare interpreter)
+        token = (raw.split() or [detect_stack(root)])[0].lower()
+        token = {"py": "python", "ts": "node", "js": "node", "golang": "go"}.get(token, token)
+        return [token] if token and token != "unknown" else []
+
+
+def _ensure_one(root: Path, stack: str) -> bool:
+    """Write/refresh ONE stack's ignore block. Returns True if `.gitignore` changed."""
     body = fetch(stack)
     if not body:
         return False
-
     block = f"{_BEGIN.format(stack=stack)}\n{body.strip()}\n{_END}\n"
     path = root / ".gitignore"
     current = path.read_text(encoding="utf-8") if path.is_file() else ""
@@ -90,14 +104,28 @@ def ensure(root: Path, stack: str | None = None) -> bool:
     return True
 
 
+def ensure(root: Path, stack: str | None = None) -> bool:
+    """Write/refresh an ignore block per resolved stack. Returns True if anything changed."""
+    changed = False
+    for one in resolve_stacks(stack or "", root):
+        changed = _ensure_one(root, one) or changed
+    return changed
+
+
 def main(argv: list[str] | None = None) -> int:
-    """`aspis gitignore [stack]` core: ensure the block; exit 0 always."""
+    """`aspis gitignore [stack ...]` core: ensure a block per stack; exit 0 always.
+
+    Accepts free-typed input, joined across args: ``aspis gitignore python fastapi``
+    and ``aspis gitignore "py, fastapi"`` both resolve to the python block.
+    """
     args = argv if argv is not None else sys.argv[1:]
     root = _git.repo_root()
-    stack = args[0] if args else detect_stack(root)
-    changed = ensure(root, stack)
+    raw = " ".join(args) if args else detect_stack(root)
+    stacks = resolve_stacks(raw, root)
+    changed = ensure(root, raw)
+    label = ", ".join(stacks) or "no known stack"
     state = "updated" if changed else "already current"
-    print(f"[aspis] .gitignore {state} ({stack})")
+    print(f"[aspis] .gitignore {state} ({label})")
     return 0
 
 

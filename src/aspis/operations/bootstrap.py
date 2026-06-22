@@ -67,7 +67,10 @@ def _collect(ctx: Context) -> dict:
     return {
         "name": _value(ctx, "name", "Project name", ctx.root.name, interactive=interactive),
         "goal": _value(ctx, "goal", "One-line goal", "", interactive=interactive),
-        "stack": _value(ctx, "stack", "Main stack", detected_stack, interactive=interactive),
+        "stack": detect.normalize_stack(
+            _value(ctx, "stack", "Main stack", detected_stack, interactive=interactive)
+        )
+        or "unknown",
         "plan": _value(ctx, "plan", "Plan file (optional)", "", interactive=interactive),
         "mode": _value(
             ctx,
