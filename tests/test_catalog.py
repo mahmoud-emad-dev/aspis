@@ -242,7 +242,10 @@ def test_build_workers_are_scoped(tmp_path) -> None:
         (tmp_path / ".opencode" / "agents" / "committer.md").read_text(encoding="utf-8")
     )
     assert committer["model"] == _tier("opencode", "cheap")  # cheap tier — mechanical
-    assert committer["permission"]["bash"]["git commit*"] == "allow"  # the only committer
+    # F-014 P0: `aspis commit` is the primary, sanctioned commit path — it must be in the
+    # allowlist (its absence was the demo_win2 root cause). Raw git stays as a guarded fallback.
+    assert committer["permission"]["bash"]["aspis commit*"] == "allow"  # primary commit path
+    assert committer["permission"]["bash"]["git commit*"] == "allow"  # guarded raw-git fallback
     assert committer["permission"]["bash"]["git push*"] == "deny"  # never pushes
     assert "edit" not in committer["permission"]  # never edits files
 
