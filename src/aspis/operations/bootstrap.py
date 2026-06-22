@@ -195,8 +195,25 @@ def _detect_runtimes(ctx: Context, *, write: bool) -> None:
         runtime_inventory.save_inventory(detected)
 
 
+def _sync_models(ctx: Context, *, write: bool) -> None:
+    """Write ``.aspis/config/agent-models.yaml`` by running the existing ``models --sync``.
+
+    Bootstrap calls the real model tool (no reinvented logic, per Automation-before-
+    Intelligence) so the project leaves bootstrap with a per-agent model config
+    pre-filled from the connected runtimes — editable, not a manual follow-up step.
+    """
+    ctx.log("models --sync (write agent-models.yaml)")
+    if write:
+        subprocess.run(
+            [sys.executable, "-m", "aspis.cli", "models", "--sync", "--path", str(ctx.root)],
+            cwd=str(ctx.root),
+            capture_output=True,
+            check=False,
+        )
+
+
 def bootstrap_core(ctx: Context) -> None:
-    """Collect details, enrich, write config/manifest, detect runtimes, promote, fill brain."""
+    """Collect, enrich, write config/manifest, detect+sync models, promote, fill brain."""
     write = bool(ctx.options.get("write"))
     state = _collect(ctx)
     ctx.results["state"] = state
@@ -205,6 +222,7 @@ def bootstrap_core(ctx: Context) -> None:
     _write_project_config(ctx, state, write=write)
     _write_manifest(ctx, state, write=write)
     _detect_runtimes(ctx, write=write)
+    _sync_models(ctx, write=write)
     _promote_leads(ctx, write=write)
     _run_brain_fill(ctx, write=write)
 

@@ -146,6 +146,17 @@ def test_bootstrap_keeps_package_when_config_invalid(tmp_path, monkeypatch) -> N
     assert len(bootstrap_package(tmp_path)) == 3  # invalid config → package kept
 
 
+def test_bootstrap_syncs_agent_models(tmp_path) -> None:
+    """Bootstrap runs `models --sync` so the project has a per-agent model config."""
+    engine = _engine()
+    engine.run("init", tmp_path, write=True, no_git=True)
+    engine.run("bootstrap", tmp_path, write=True, yes=True, stack="python")
+
+    agent_models = tmp_path / ".aspis" / "config" / "agent-models.yaml"
+    assert agent_models.is_file()
+    assert "by_capability" in agent_models.read_text(encoding="utf-8")
+
+
 def test_bootstrap_enriches_gitignore_for_stack(tmp_path) -> None:
     """Bootstrap expands .gitignore from the detected stack (offline cache)."""
     engine = _engine()

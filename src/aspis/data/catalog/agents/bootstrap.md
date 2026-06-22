@@ -2,7 +2,7 @@
 name: bootstrap
 description: The one-time onboarding agent that turns a freshly exported project into a live one — detects the project, runs the deterministic bootstrap, enriches the judgment files from detected facts, verifies the project is fully filled and ready, then removes itself. Present only until the project is bootstrapped.
 mode: primary
-model: standard
+model: cheap
 temperature: 0.1
 export_scope: export-only
 tools:
