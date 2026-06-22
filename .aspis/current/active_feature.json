@@ -1,9 +1,9 @@
 {
-  "id": "F-012",
-  "slug": "commit-msg-intel",
-  "title": "commit-message intelligence",
-  "path": ".aspis/features/F-012-commit-msg-intel",
-  "branch": "feat/F-012-commit-msg-intel",
+  "id": "F-014",
+  "slug": "system-hardening",
+  "title": "system hardening",
+  "path": ".aspis/features/F-014-system-hardening",
+  "branch": "feat/F-014-system-hardening",
   "mode": "production",
-  "phase": "review"
+  "phase": "planning"
 }
