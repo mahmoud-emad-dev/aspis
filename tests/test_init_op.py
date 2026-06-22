@@ -46,6 +46,15 @@ def test_reinit_does_not_replant_gitkeep_in_populated_dir(tmp_path) -> None:
     assert not (context / ".gitkeep").exists()
 
 
+def test_init_root_gitignore_has_universal_baseline(tmp_path) -> None:
+    """The root .gitignore ships the always-correct baseline (OS noise + secrets)."""
+    _engine().run("init", tmp_path, write=True, no_git=True, name="demo")
+    text = (tmp_path / ".gitignore").read_text(encoding="utf-8")
+    assert ".env" in text  # secrets never committed
+    assert "!.env.example" in text  # but an example is kept
+    assert ".DS_Store" in text  # OS noise
+
+
 def test_init_seeds_brain_gitignore(tmp_path) -> None:
     _engine().run("init", tmp_path, write=True, no_git=True, name="demo")
 
