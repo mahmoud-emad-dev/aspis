@@ -114,3 +114,74 @@ def test_bootstrap_keeps_package_when_doctor_fails(tmp_path, monkeypatch) -> Non
     engine.run("bootstrap", tmp_path, write=True, yes=True)
 
     assert len(bootstrap_package(tmp_path)) == 3  # nothing was cleaned
+
+
+def test_bootstrap_keeps_package_when_brain_not_ready(tmp_path, monkeypatch) -> None:
+    """Readiness gate: if required brain files are missing/empty, keep the package."""
+    from aspis.operations import bootstrap as bootstrap_op
+    from aspis.operations.bootstrap import bootstrap_package
+
+    # Doctor passes, but the brain fill is skipped → required files absent → not ready.
+    monkeypatch.setattr(bootstrap_op, "run_checks", lambda root: [])
+    monkeypatch.setattr(bootstrap_op, "_run_brain_fill", lambda ctx, *, write: None)
+    engine = _engine()
+    engine.run("init", tmp_path, write=True, no_git=True)
+    engine.run("bootstrap", tmp_path, write=True, yes=True)
+
+    assert len(bootstrap_package(tmp_path)) == 3  # not ready → package kept
+
+
+def test_bootstrap_enriches_gitignore_for_stack(tmp_path) -> None:
+    """Bootstrap expands .gitignore from the detected stack (offline cache)."""
+    engine = _engine()
+    engine.run("init", tmp_path, write=True, no_git=True)
+    engine.run("bootstrap", tmp_path, write=True, yes=True, stack="python")
+
+    gitignore = (tmp_path / ".gitignore").read_text(encoding="utf-8")
+    assert "aspis gitignore (python)" in gitignore
+    assert "__pycache__" in gitignore
+
+
+def test_bootstrap_never_commits_user_code(tmp_path) -> None:
+    """On an existing repo, bootstrap commits only ASPIS paths — never user code."""
+    import subprocess
+
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "app.py").write_text("print(1)\n", encoding="utf-8")
+    (tmp_path / "pyproject.toml").write_text('[project]\nname = "demo"\n', encoding="utf-8")
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "config", "user.email", "t@t"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "config", "user.name", "t"], cwd=tmp_path, check=True)
+
+    engine = _engine()
+    engine.run("init", tmp_path, write=True)
+    engine.run("bootstrap", tmp_path, write=True, yes=True, goal="demo", stack="python")
+
+    tracked = subprocess.run(
+        ["git", "-C", str(tmp_path), "ls-files"], capture_output=True, text=True, check=True
+    ).stdout
+    assert "src/app.py" not in tracked  # user code never swept into the bootstrap commit
+    assert (tmp_path / "src" / "app.py").is_file()  # and still on disk, untouched
+
+
+def test_bootstrap_leaves_clean_tree_no_stale_gitkeep(tmp_path) -> None:
+    """After a greenfield bootstrap the ASPIS tree is clean — no dangling .gitkeep."""
+    import subprocess
+
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "config", "user.email", "t@t"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "config", "user.name", "t"], cwd=tmp_path, check=True)
+
+    engine = _engine()
+    engine.run("init", tmp_path, write=True)
+    engine.run("bootstrap", tmp_path, write=True, yes=True, goal="demo", stack="python")
+
+    status = subprocess.run(
+        ["git", "-C", str(tmp_path), "status", "--porcelain"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+    assert status.strip() == ""  # clean tree (no pending .gitkeep deletion)
+    # A populated brain dir carries no stale .gitkeep.
+    assert not (tmp_path / ".aspis" / "index" / ".gitkeep").exists()

@@ -15,7 +15,7 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
-from aspis import __version__, detect, manifest, project, promotion
+from aspis import __version__, detect, manifest, project, promotion, runtime_inventory
 from aspis.constants import BRAIN_DIR
 from aspis.health import run_checks
 from aspis.lifecycle import Context, Engine
@@ -158,14 +158,53 @@ def _promote_leads(ctx: Context, *, write: bool) -> None:
         ctx.log(f"leads already primary ({len(result.already)})")
 
 
+def _enrich_gitignore(ctx: Context, state: dict, *, write: bool) -> None:
+    """Expand ``.gitignore`` for the detected stack via the project's shipped hook.
+
+    Runs the project's own ``.aspis/scripts/hooks/gitignore.py`` (offline cache first,
+    network only as a fallback) so the ignore rules match the real stack from the
+    first commit. No-op when the script is not shipped or the stack is unknown.
+    """
+    script = ctx.root / BRAIN_DIR / "scripts" / "hooks" / "gitignore.py"
+    stack = (state.get("stack") or "").strip()
+    if not script.is_file() or not stack or stack == "unknown":
+        ctx.log("gitignore enrich skipped (no script or unknown stack)")
+        return
+    ctx.log(f"enrich .gitignore for stack: {stack}")
+    if write:
+        subprocess.run(
+            [sys.executable, str(script), stack],
+            cwd=str(ctx.root),
+            capture_output=True,
+            check=False,
+        )
+
+
+def _detect_runtimes(ctx: Context, *, write: bool) -> None:
+    """Detect installed runtimes and save the inventory so the project knows its options.
+
+    Records which runtimes are on PATH (claude/opencode/…) into the data dir. Agents
+    already render with a tier->model default, so the project is usable immediately;
+    this surfaces availability without a manual ``aspis models --sync``.
+    """
+    detected = runtime_inventory.detect_runtimes()
+    available = runtime_inventory.available(detected)
+    ctx.results["runtimes"] = available
+    ctx.log(f"detect runtimes: {', '.join(available) or 'none on PATH'}")
+    if write:
+        runtime_inventory.save_inventory(detected)
+
+
 def bootstrap_core(ctx: Context) -> None:
-    """Collect details, fill slots, write the manifest, promote leads, fill the brain."""
+    """Collect details, enrich, write config/manifest, detect runtimes, promote, fill brain."""
     write = bool(ctx.options.get("write"))
     state = _collect(ctx)
     ctx.results["state"] = state
     _fill_slots(ctx, state, write=write)
+    _enrich_gitignore(ctx, state, write=write)
     _write_project_config(ctx, state, write=write)
     _write_manifest(ctx, state, write=write)
+    _detect_runtimes(ctx, write=write)
     _promote_leads(ctx, write=write)
     _run_brain_fill(ctx, write=write)
 
@@ -192,20 +231,50 @@ def _has_git(ctx: Context) -> bool:
     return (ctx.root / ".git").is_dir()
 
 
-def _commit_all(ctx: Context, message: str) -> None:
-    """Stage everything and commit with *message* (best-effort).
+#: The paths init/bootstrap own — the only ones their commits may stage. Scoping the
+#: commit here means a bootstrap run on an existing repo never sweeps the user's own
+#: uncommitted code into the bootstrap commit (history starts clean and ours-only).
+_OWNED_PATHS = (".aspis", ".opencode", ".claude", "AGENTS.md", "CLAUDE.md", ".gitignore")
+
+
+def _reap_stale_gitkeeps(root: Path, owned: list[str]) -> None:
+    """Delete ``.gitkeep`` from any owned dir that now holds real content (pre-stage).
+
+    Mirrors the cleanup hook, but runs *before* staging so the deletion lands in our
+    commit and the tree stays clean — otherwise the hook reaps it post-stage and
+    leaves a dangling pending deletion. Scoped to ASPIS-owned paths.
+    """
+    for name in owned:
+        base = root / name
+        if not base.is_dir():
+            continue
+        for keep in base.rglob(".gitkeep"):
+            if any(p.name != ".gitkeep" for p in keep.parent.iterdir()):
+                keep.unlink()
+
+
+def _commit_all(ctx: Context, message: str) -> bool:
+    """Stage + commit only the ASPIS-owned paths; return True if a commit was made.
 
     init/bootstrap are authorized human setup: they ship the very R-009 protected
     paths (rules, constitution), so these commits carry the approval the pre-commit
     hook looks for. The guard still blocks later, unapproved edits to those paths.
+    The commit pathspec also guarantees unrelated user changes are never included.
     """
-    _git(ctx.root, "add", "-A")
-    subprocess.run(
-        ["git", "-C", str(ctx.root), "commit", "-q", "-m", message],
+    owned = [p for p in _OWNED_PATHS if (ctx.root / p).exists()]
+    if not owned:
+        return False
+    _reap_stale_gitkeeps(ctx.root, owned)
+    _git(ctx.root, "add", "--", *owned)
+    if not _git(ctx.root, "diff", "--cached", "--name-only", "--", *owned):
+        return False  # nothing of ours to commit — never make an empty/foreign commit
+    result = subprocess.run(
+        ["git", "-C", str(ctx.root), "commit", "-q", "-m", message, "--", *owned],
         capture_output=True,
         check=False,
         env={**os.environ, "ASPIS_ALLOW_PROTECTED": "1"},
     )
+    return result.returncode == 0
 
 
 def _require_initialized(ctx: Context) -> None:
@@ -221,20 +290,44 @@ def _note_if_bootstrapped(ctx: Context) -> None:
 
 
 def _autocommit_init(ctx: Context) -> None:
-    """Commit the init scaffolding first, so bootstrap is a separate 2nd commit (pre)."""
+    """Commit the init scaffolding first, so bootstrap is a separate 2nd commit (pre).
+
+    Honours the user's Q2 note: init itself never commits — this pre-bootstrap step
+    commits the init scaffold (ours-only) so history starts clean before bootstrap.
+    """
     if not bool(ctx.options.get("write")) or not _has_git(ctx):
         return
-    if not _git(ctx.root, "status", "--porcelain"):
-        return  # already clean
-    ctx.log("commit init scaffolding (1st commit)")
-    _commit_all(ctx, "chore: initialize ASPIS project")
+    if _commit_all(ctx, "chore: initialize ASPIS project"):
+        ctx.log("commit init scaffolding (1st commit)")
+
+
+#: Brain files that must exist AND be non-empty for the project to count as "ready".
+_REQUIRED_BRAIN = (
+    Path("index") / "FILE_REGISTRY.yaml",
+    Path("index") / "CODE_MAP.md",
+    Path("context") / "CURRENT_STATE.md",
+)
+
+
+def _readiness(root: Path) -> list[str]:
+    """Required brain files that are missing or empty after the bootstrap fill."""
+    missing = []
+    for rel in _REQUIRED_BRAIN:
+        path = root / BRAIN_DIR / rel
+        if not path.is_file() or not path.read_text(encoding="utf-8").strip():
+            missing.append(rel.as_posix())
+    return missing
 
 
 def _doctor_gate(ctx: Context) -> None:
-    """Run the health checks after bootstrap; record the result for self-clean (post)."""
+    """Health + readiness gate after bootstrap; record results for self-clean (post)."""
     failed = [check for check in run_checks(ctx.root) if check.status == "fail"]
+    missing = _readiness(ctx.root)
     ctx.results["doctor_failed"] = len(failed)
+    ctx.results["readiness_missing"] = missing
     ctx.log(f"doctor: {len(failed)} failed" if failed else "doctor: ok")
+    if missing:
+        ctx.log(f"readiness: {len(missing)} brain file(s) missing/empty: {', '.join(missing)}")
 
 
 def bootstrap_package(root: Path) -> list[Path]:
@@ -260,8 +353,8 @@ def _self_clean(ctx: Context) -> None:
     this is a no-op. Also honours any extra ``transient_assets`` listed in the manifest.
     """
     write = bool(ctx.options.get("write"))
-    if ctx.results.get("doctor_failed"):
-        ctx.log("self-clean skipped (doctor failed — keeping bootstrap package)")
+    if ctx.results.get("doctor_failed") or ctx.results.get("readiness_missing"):
+        ctx.log("self-clean skipped (project not fully ready — keeping bootstrap package)")
         return
     extra = [ctx.root / rel for rel in manifest.load(ctx.root).get("transient_assets", [])]
     for path in bootstrap_package(ctx.root) + [p for p in extra if p.exists()]:
@@ -288,14 +381,13 @@ def _record_done(ctx: Context) -> None:
 
 
 def _commit_bootstrap(ctx: Context) -> None:
-    """Commit the bootstrap fill as the 2nd commit (post)."""
+    """Commit the bootstrap fill (ours-only) as the 2nd commit (post)."""
     if not bool(ctx.options.get("write")) or not _has_git(ctx):
         return
-    if not _git(ctx.root, "status", "--porcelain"):
+    if _commit_all(ctx, "chore: bootstrap ASPIS project"):
+        ctx.log("bootstrap commit (2nd commit)")
+    else:
         ctx.log("bootstrap commit: nothing to commit")
-        return
-    ctx.log("bootstrap commit (2nd commit)")
-    _commit_all(ctx, "chore: bootstrap ASPIS project")
 
 
 def register(engine: Engine) -> None:

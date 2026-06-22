@@ -2,11 +2,12 @@
 """`.gitignore` maintainer — canonical patterns by stack (FR-006).
 
 Detects the project stack (reusing ``aspis.detect`` when importable, else local
-marker files), then fetches the canonical ignore body from the Toptal gitignore
-API. The API needs a valid stack keyword (``python``, ``node``, …). When the
-network is unavailable it falls back to a bundled offline cache under ``ignore/``;
-a successful fetch refreshes that cache. The body is written into a single marked
-block in ``.gitignore``, so re-running is a no-op once current.
+marker files), then resolves the canonical ignore body **offline-first**: the
+bundled cache under ``ignore/`` (the common stacks ship with the catalog, so the
+common case is instant and works with no network), and only when a stack is not
+cached does it fetch from the Toptal gitignore API (a valid stack keyword like
+``python``/``node``) and cache the result for next time. The body is written into a
+single marked block in ``.gitignore``, so re-running is a no-op once current.
 """
 
 from __future__ import annotations
@@ -44,16 +45,23 @@ def detect_stack(root: Path) -> str:
 
 
 def fetch(stack: str) -> str | None:
-    """Canonical ignore body for *stack*: Toptal API, else the offline cache."""
+    """Canonical ignore body for *stack*, offline-first: cache, then the Toptal API.
+
+    The bundled cache is authoritative for the stacks that ship with the catalog
+    (instant, no network). Only an uncached stack reaches out to the API, and a
+    successful fetch is cached so it is offline-fast thereafter.
+    """
+    cached = _CACHE / f"{stack}.gitignore"
+    if cached.is_file():
+        return cached.read_text(encoding="utf-8")
     try:
         with urllib.request.urlopen(_API.format(stack=stack), timeout=5) as response:
             body = response.read().decode("utf-8")
         _CACHE.mkdir(parents=True, exist_ok=True)
-        (_CACHE / f"{stack}.gitignore").write_text(body, encoding="utf-8")
+        cached.write_text(body, encoding="utf-8")
         return body
     except Exception:
-        cached = _CACHE / f"{stack}.gitignore"
-        return cached.read_text(encoding="utf-8") if cached.is_file() else None
+        return None
 
 
 def ensure(root: Path, stack: str | None = None) -> bool:

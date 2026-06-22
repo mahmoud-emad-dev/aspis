@@ -15,11 +15,14 @@ permissions:
     "git status*": allow
     "git diff*": allow
     "git log*": allow
+    "aspis bootstrap --check*": allow
+    "aspis status*": allow
     "python .aspis/scripts/context/*": allow
     "python3 .aspis/scripts/context/*": allow
   webfetch: deny
   websearch: deny
 delegates:
+  - bootstrap
   - planning-lead
   - build-lead
   - reviewer
@@ -95,6 +98,22 @@ that tooling lands; the `project-awareness` skill is where this capability lives
 
 Project direction protection runs across all of these — it is how you coordinate,
 not a separate step.
+
+## First-run gate (before any feature work)
+
+A project that has been exported but not yet bootstrapped is not live: its brain is
+empty and its leads are not promoted. So on the **first** request in a project,
+confirm it is live with the durable, deterministic signal — run
+`aspis bootstrap --check`:
+
+- **Not bootstrapped** → do not start the request. Hand off to the `bootstrap` agent
+  (or tell the user to run `aspis bootstrap --write`); once it reports green,
+  continue with the original request on a fully filled project.
+- **Bootstrapped** → proceed normally. The check short-circuits on the durable
+  manifest signal, and the bootstrap package is already gone — never re-mention it.
+
+This is a one-time gate, not per-message overhead: once the signal is green, you
+never run it again.
 
 ## Handling a request
 
