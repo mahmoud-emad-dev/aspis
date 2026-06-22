@@ -319,15 +319,54 @@ def _readiness(root: Path) -> list[str]:
     return missing
 
 
+def _validate_exports(root: Path) -> list[str]:
+    """Exported config YAMLs / agent frontmatter that fail to parse (syntax errors).
+
+    The "are all our files correct and connected" check: every ``.aspis/config/*.yaml``
+    must be valid YAML, and every rendered agent must carry a parseable frontmatter
+    block — so a malformed export is caught here, not by an agent at runtime.
+    """
+    import yaml
+
+    from aspis.catalog import split_frontmatter
+
+    problems: list[str] = []
+    cfg = root / BRAIN_DIR / "config"
+    if cfg.is_dir():
+        for f in sorted(cfg.glob("*.yaml")):
+            try:
+                yaml.safe_load(f.read_text(encoding="utf-8"))
+            except yaml.YAMLError:
+                problems.append(f.relative_to(root).as_posix())
+    for rdir in runtime_dirs():
+        agents_dir = root / rdir / "agents"
+        if not agents_dir.is_dir():
+            continue
+        for f in sorted(agents_dir.glob("*.md")):
+            try:
+                frontmatter, _ = split_frontmatter(f.read_text(encoding="utf-8"))
+                if not isinstance(frontmatter, dict) or not frontmatter:
+                    problems.append(f.relative_to(root).as_posix())
+            except Exception:
+                problems.append(f.relative_to(root).as_posix())
+    return problems
+
+
 def _doctor_gate(ctx: Context) -> None:
-    """Health + readiness gate after bootstrap; record results for self-clean (post)."""
+    """Health + readiness + validation gate after bootstrap; record for self-clean (post)."""
     failed = [check for check in run_checks(ctx.root) if check.status == "fail"]
     missing = _readiness(ctx.root)
+    invalid = _validate_exports(ctx.root)
     ctx.results["doctor_failed"] = len(failed)
     ctx.results["readiness_missing"] = missing
+    ctx.results["validation_errors"] = invalid
     ctx.log(f"doctor: {len(failed)} failed" if failed else "doctor: ok")
     if missing:
         ctx.log(f"readiness: {len(missing)} brain file(s) missing/empty: {', '.join(missing)}")
+    if invalid:
+        ctx.log(f"validation: {len(invalid)} file(s) failed to parse: {', '.join(invalid)}")
+    else:
+        ctx.log("validation: all config + agent files parse")
 
 
 def bootstrap_package(root: Path) -> list[Path]:
@@ -353,7 +392,11 @@ def _self_clean(ctx: Context) -> None:
     this is a no-op. Also honours any extra ``transient_assets`` listed in the manifest.
     """
     write = bool(ctx.options.get("write"))
-    if ctx.results.get("doctor_failed") or ctx.results.get("readiness_missing"):
+    if (
+        ctx.results.get("doctor_failed")
+        or ctx.results.get("readiness_missing")
+        or ctx.results.get("validation_errors")
+    ):
         ctx.log("self-clean skipped (project not fully ready — keeping bootstrap package)")
         return
     extra = [ctx.root / rel for rel in manifest.load(ctx.root).get("transient_assets", [])]

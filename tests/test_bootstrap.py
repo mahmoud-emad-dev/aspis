@@ -131,6 +131,21 @@ def test_bootstrap_keeps_package_when_brain_not_ready(tmp_path, monkeypatch) -> 
     assert len(bootstrap_package(tmp_path)) == 3  # not ready → package kept
 
 
+def test_bootstrap_keeps_package_when_config_invalid(tmp_path, monkeypatch) -> None:
+    """Validation gate: malformed exported config keeps the package (project not ready)."""
+    from aspis.operations import bootstrap as bootstrap_op
+    from aspis.operations.bootstrap import bootstrap_package
+
+    monkeypatch.setattr(bootstrap_op, "run_checks", lambda root: [])
+    engine = _engine()
+    engine.run("init", tmp_path, write=True, no_git=True)
+    # Corrupt an exported config YAML after init, before bootstrap's gate runs.
+    (tmp_path / ".aspis" / "config" / "modes.yaml").write_text("mode: : : bad\n", encoding="utf-8")
+    engine.run("bootstrap", tmp_path, write=True, yes=True)
+
+    assert len(bootstrap_package(tmp_path)) == 3  # invalid config → package kept
+
+
 def test_bootstrap_enriches_gitignore_for_stack(tmp_path) -> None:
     """Bootstrap expands .gitignore from the detected stack (offline cache)."""
     engine = _engine()
