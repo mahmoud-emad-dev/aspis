@@ -93,13 +93,20 @@ def _report_locations_and_runtimes() -> None:
     for name, path in paths.all_locations().items():
         print(f"  {name:<8} {path}")
 
-    detected = runtime_inventory.detect_runtimes()
+    detected = runtime_inventory.detect_runtimes()  # discovered from data/runtimes/*.yaml
     present = runtime_inventory.available(detected)
-    print("\nRuntimes (PATH presence only):")
+    print("\nRuntimes (discovered; PATH presence + declared capabilities):")
     if present:
         for name in present:
-            print(f"  [ok  ] {name:<10} {detected[name]}")
-    missing = [n for n in runtime_inventory.KNOWN_RUNTIMES if n not in present]
+            caps = runtime_inventory.capabilities(name)
+            tags = []
+            if caps.get("mode"):
+                tags.append("mode")
+            if caps.get("subagents"):
+                tags.append(f"subagents:L{caps.get('subagent_depth', '?')}")
+            tags.append("exportable" if caps.get("exportable") else "detect-only")
+            print(f"  [ok  ] {name:<10} {detected[name]}  ({', '.join(tags)})")
+    missing = [n for n in detected if n not in present]
     if missing:
         print(f"  not found: {', '.join(sorted(missing))}")
     try:

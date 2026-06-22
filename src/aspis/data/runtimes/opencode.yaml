@@ -1,0 +1,14 @@
+# Runtime definition — OpenCode. Drop a file like this to add a runtime; the system
+# discovers it (no hardcoded list). Declarative facts live here; transform logic (how
+# the catalog renders for this runtime) lives in the optional adapter src/aspis/runtimes/<name>.py.
+name: opencode
+detect:
+  exe: opencode # the executable looked up on PATH (shutil.which)
+run: opencode # command to launch the runtime (TUI / `opencode run --agent <name> "..."`)
+dir: .opencode # on-disk project dir when exported
+root_guide: # null → uses the universal AGENTS.md (no extra guide)
+capabilities:
+  mode: true # expresses agent `mode` (primary/subagent) → leads are promotable
+  subagents: true
+  subagent_depth: 2 # nesting that works in practice (L2); human is L1
+  exportable: true # has a transform adapter (the catalog can render for it)

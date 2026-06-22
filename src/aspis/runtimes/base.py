@@ -64,12 +64,12 @@ class RuntimeAdapter(ABC):
 
     @property
     def runtime_dir(self) -> str:
-        """This runtime's on-disk project dir (e.g. ``.claude``), derived from name.
+        """This runtime's on-disk project dir (e.g. ``.claude``), from its definition.
 
-        The single source of the ``.<runtime>`` convention: callers that need a
-        runtime's directory ask the adapter instead of rebuilding ``f".{name}"``.
+        Sourced from ``data/runtimes/<name>.yaml`` (``dir:``), defaulting to the
+        ``.<runtime>`` convention, so callers ask the adapter rather than rebuilding it.
         """
-        return f".{self.name}"
+        return self._runtime_dir
 
     def supports(self, kind: str) -> bool:
         """Whether this runtime accepts assets of *kind* (``None`` ⇒ all kinds)."""
@@ -104,6 +104,18 @@ class RuntimeAdapter(ABC):
 
         #: tier->concrete model id, loaded from the global models.yaml (data, not code).
         self.models: dict[str, str] = resources.model_map(self.name)
+
+        # Declarative facts come from the runtime definition (data SSoT); class-attr
+        # defaults are the fallback when no definition file exists for this runtime.
+        spec = resources.runtime_def(self.name)
+        caps = spec.get("capabilities") or {}
+        self.supports_mode = bool(caps.get("mode", type(self).supports_mode))
+        self.subagent_depth: int = int(caps.get("subagent_depth", 0))
+        self.exportable: bool = bool(caps.get("exportable", True))
+        self.run_command: str = spec.get("run") or self.name
+        self._runtime_dir: str = spec.get("dir") or f".{self.name}"
+        if "root_guide" in spec:
+            self.root_guide = spec.get("root_guide")
 
     def model_for(self, tier: str) -> str:
         """Resolve a model tier to a concrete id, falling back to ``standard``."""

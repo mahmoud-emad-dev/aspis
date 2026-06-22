@@ -28,11 +28,16 @@ def test_global_config_path_uses_config_home(monkeypatch, tmp_path: Path) -> Non
     assert project.global_config_path() == tmp_path / "config" / "project.yaml"
 
 
-def test_detect_runtimes_reports_known_names(monkeypatch) -> None:
+def test_detect_runtimes_reports_discovered_names(monkeypatch) -> None:
+    """The runtime set is discovered from data/runtimes/*.yaml — no hardcoded list."""
+    from aspis import resources
+
     monkeypatch.setattr(runtime_inventory.shutil, "which", lambda exe: "/bin/" + exe)
     detected = runtime_inventory.detect_runtimes()
-    assert set(detected) == set(runtime_inventory.KNOWN_RUNTIMES)
-    assert runtime_inventory.available(detected) == sorted(runtime_inventory.KNOWN_RUNTIMES)
+    discovered = set(resources.runtime_defs())
+    assert discovered  # at least the bundled runtimes exist
+    assert set(detected) == discovered
+    assert runtime_inventory.available(detected) == sorted(discovered)
 
 
 def test_available_filters_absent_runtimes() -> None:
@@ -46,7 +51,9 @@ def test_save_inventory_writes_to_data_home(monkeypatch, tmp_path: Path) -> None
     path = runtime_inventory.save_inventory(detected)
     assert path == tmp_path / "data" / "runtime-inventory.yaml"
     payload = yaml.safe_load(path.read_text(encoding="utf-8"))
-    assert payload["runtimes"]["claude"] == {"available": True, "path": "/bin/claude"}
+    assert payload["runtimes"]["claude"]["available"] is True
+    assert payload["runtimes"]["claude"]["path"] == "/bin/claude"
+    assert "capabilities" in payload["runtimes"]["claude"]  # declared caps travel with detection
     assert payload["runtimes"]["opencode"]["available"] is False
 
 

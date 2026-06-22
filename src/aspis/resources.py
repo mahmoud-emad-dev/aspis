@@ -97,3 +97,25 @@ def config(name: str, root: Path | None = None) -> dict:
 def model_map(runtime: str, root: Path | None = None) -> dict[str, str]:
     """Return the tier->model map for *runtime* (project ``models.yaml`` first, else bundled)."""
     return dict(config("models.yaml", root).get(runtime, {}))
+
+
+def runtime_defs() -> dict[str, dict]:
+    """Discover every runtime definition under ``data/runtimes/*.yaml``.
+
+    The single source of truth for *what runtimes exist* and their declarative facts
+    (detect exe, run command, dir, root_guide, capabilities). Adding a runtime is
+    dropping a YAML file here — no hardcoded list anywhere (Discovery over Registration).
+    """
+    directory = data_dir() / "runtimes"
+    defs: dict[str, dict] = {}
+    if directory.is_dir():
+        for path in sorted(directory.glob("*.yaml")):
+            data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+            name = data.get("name", path.stem)
+            defs[name] = data
+    return defs
+
+
+def runtime_def(name: str) -> dict:
+    """Return one runtime's definition (``{}`` if there is no file for it)."""
+    return runtime_defs().get(name, {})

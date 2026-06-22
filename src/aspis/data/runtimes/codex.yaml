@@ -1,0 +1,13 @@
+# Runtime definition — OpenAI Codex CLI. Detect-only for now (no transform adapter yet),
+# so it shows in `aspis doctor` but the catalog cannot render for it until exportable.
+name: codex
+detect:
+  exe: codex
+run: codex
+dir: .codex
+root_guide:
+capabilities:
+  mode: false
+  subagents: false # unverified — treat as none until confirmed
+  subagent_depth: 0
+  exportable: false

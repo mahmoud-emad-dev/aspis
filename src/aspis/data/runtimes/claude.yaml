@@ -1,0 +1,12 @@
+# Runtime definition — Claude Code. See opencode.yaml for the schema.
+name: claude
+detect:
+  exe: claude
+run: claude
+dir: .claude
+root_guide: CLAUDE.md # Claude ships its own root guide alongside AGENTS.md
+capabilities:
+  mode: false # Claude expresses access via tools, not a `mode` field → not promoted
+  subagents: true # implicit subagent access
+  subagent_depth: 2
+  exportable: true
