@@ -1,239 +1,220 @@
 # ASPIS manual test plan — install → init → bootstrap → git
 
 Four ordered tests. Run each on **WSL and Windows**, record **P/F** per case, and
-send any failure's output. Do not advance to the next test until the current one
-is fully green. (Test 1 — installation — is the runbook already delivered; its
-matrix is summarized at the bottom.)
+send any failure's output. Do not advance to the next test until the current one is
+fully green.
 
 Legend: ✅ pass · ⚠️ warn-but-ok · ❌ fix before moving on.
+
+> Reinstall from the working branch (the v0 work lives on `feat/F-013-install-ux`,
+> not `main` yet):
+>
+> ```bash
+> git clone -b feat/F-013-install-ux https://github.com/mahmoud-emad-dev/aspis.git
+> cd aspis && ./install.sh        # or  .\install.ps1  on Windows
+> ```
+>
+> `install.sh/.ps1` verify Python ≥ 3.11 + git + uv, install the `aspis` CLI, and
+> run `aspis doctor --verbose`. Expect `[aspis] Python X.Y` with no traceback.
+
+---
+
+# TEST 1 — installation
+
+```bash
+# clean slate
+uv tool uninstall aspis 2>/dev/null || true        # PowerShell: uv tool uninstall aspis 2>$null
+aspis uninstall --write                            # removes machine-wide state, keeps project brains
+
+# install from the branch clone
+./install.sh                                       # PowerShell: .\install.ps1
+aspis --version                                    # PASS: aspis 0.1.0bN
+aspis doctor --verbose                             # PASS: paths + runtimes, no FAIL
+```
+- ✅ `doctor --verbose` prints **Installation** (cli/config/data/cache) and **Runtimes** (claude/opencode/… on PATH).
+- ✅ Windows: no `SyntaxError` in the Python-version line (the PS quote-stripping fix).
 
 ---
 
 # TEST 2 — `aspis init` (scaffold + export)
 
-**What init does** (lifecycle: `pre-init hooks → init_core → post-init hooks`):
-1. export the profile — render agents, copy skills/templates/hooks/scripts;
-2. scaffold the brain dirs (`.gitkeep` only while empty);
-3. ship helper scripts (`context/`, `planning/`, `hooks/`, `git/`);
-4. write root files (`AGENTS.md`, `CLAUDE.md`, `.gitignore`);
-5. `git init`; 6. arm the git hooks (`.git/hooks`).
+**What init does:** export the profile (agents/skills/commands/templates/config/rules/
+workflows) → scaffold the **filled** brain dirs → ship helper scripts → write root files
+→ `git init` → arm git hooks. Init does **not** commit (bootstrap does).
 
-### 2.1 Dry-run shows, writes nothing
+### 2.1 Dry-run writes nothing
 ```bash
-mkdir -p /tmp/t2-empty && cd /tmp/t2-empty
-aspis init                 # dry-run
-ls -A                      # PASS: still EMPTY (nothing written)
-aspis init                 # PASS: every line prefixed DRY-RUN; ends "Re-run with --write"
+mkdir -p /tmp/t2 && cd /tmp/t2
+aspis init                      # dry-run
+ls -A                           # PASS: still EMPTY
 ```
 
-### 2.2 `--write` on an empty folder (the happy path)
+### 2.2 `--write` on an empty folder
 ```bash
 aspis init --write
 ```
 Inspect (PASS criteria in comments):
 ```bash
-ls -A .aspis                       # context/ config/ index/ scripts/ features/ … + manifest later
-ls -A .opencode/agents             # 11 agents rendered
-ls -A .opencode/skills             # 33 skills copied
-test -f AGENTS.md && echo ok       # root entry file
-test -f .gitignore && echo ok      # root gitignore
-test -d .git && echo ok            # git initialized
-ls .git/hooks | grep -vE 'sample'  # commit-msg, pre-commit, post-commit armed
-ls -A .aspis/scripts/context .aspis/scripts/hooks .aspis/scripts/git   # helper scripts shipped
+ls .opencode/agents | wc -l          # 12 agents (incl. the transient `bootstrap`)
+ls .opencode/skills | wc -l          # 34 skills (incl. `project-onboarding`)
+ls .opencode/commands | wc -l        # 5 commands
+ls .aspis/workflows | wc -l          # 6 workflows (incl. `bootstrap.md`)
+ls .aspis/config | wc -l             # 10 (9 exported config incl. the 4 model files + purposes.json)
+ls -A .aspis                         # config context index rules scripts templates workflows + .gitignore
+test -f AGENTS.md && echo ok         # root entry file
+ls .git/hooks | grep -vE 'sample'    # commit-msg, pre-commit, post-commit armed
+git log --oneline 2>&1               # PASS: "no commits yet" — init never commits
 ```
-- ✅ next-step "Next:" block printed (bootstrap/models/AGENTS/runtime).
-- ✅ `.gitkeep` only in dirs that are genuinely empty (none in populated ones).
+- ✅ **On-demand dirs are NOT scaffolded empty**: `.aspis/{features,current,research}` do **not** exist yet (no `.gitkeep`-only folders).
+- ✅ The 7 scaffold dirs exist: config, context, index, rules, scripts, templates, workflows.
+- ✅ Root `.gitignore` carries the universal baseline: `.env`, `.DS_Store`, `*.swp`, `!.env.example`.
 
 ### 2.3 Runtime selection
 ```bash
-mkdir -p /tmp/t2-claude && cd /tmp/t2-claude
-aspis init --write --runtime claude
-ls .claude/agents                  # PASS: Claude assets rendered, no .opencode
-aspis init --write --runtime claude --runtime opencode /tmp/t2-both   # PASS: both
+aspis init --write --runtime claude /tmp/t2-claude   # PASS: .claude/ rendered + CLAUDE.md
 ```
 
-### 2.4 Existing folder — real code present (must not clobber)
+### 2.4 Existing folder with real code (must not clobber)
 ```bash
 mkdir -p /tmp/t2-code/src && cd /tmp/t2-code
 printf 'print("hi")\n' > src/app.py ; printf '# My App\n' > README.md ; git init -q
 aspis init --write
-cat src/app.py ; cat README.md     # PASS: UNCHANGED (init never overwrites product files)
-test -d .aspis && echo "brain added ok"
+cat src/app.py ; cat README.md       # PASS: UNCHANGED
+test -d .aspis && echo "brain added"
 ```
-- ✅ existing `.git` reused, not re-init destructively.
-- Re-run `aspis init --write` → PASS: idempotent or clear "exists" message; `--force` needed to overwrite.
+- Re-run `aspis init --write` → PASS: idempotent / clear message; `--force` to overwrite.
 
-### 2.5 Existing folder — a *stale/bad* runtime dir present
+### 2.5 Catalog ↔ export parity (in the ASPIS repo)
 ```bash
-mkdir -p /tmp/t2-stale/.opencode/agents && cd /tmp/t2-stale
-echo "garbage" > .opencode/agents/old.md ; git init -q
-aspis init --write          # without --force
-aspis init --write --force  # with --force
-ls .opencode/agents         # PASS: --force re-renders clean; note whether old.md is reaped
-```
-*(Record: does init warn about pre-existing runtime files? Should it reconcile or refuse without --force?)*
-
-### 2.6 Stack detection at init/bootstrap time
-```bash
-cd /tmp/t2-code           # has src/app.py (python)
-aspis status              # PASS: project detected
-# stack is detected at bootstrap (Test 3); note here what detect sees for a python repo
+uv run pytest -q -k "transform or export or parity or init"   # PASS: export == catalog
 ```
 
-### 2.7 Catalog ↔ exported parity (the dogfood invariant)
-```bash
-# In the ASPIS repo itself:
-cd /path/to/aspis-clone
-uv run pytest -q -k "transform or export or parity"   # PASS: exported runtime == catalog
-```
-- Record: any profile in `src/aspis/data/profiles/` **not** wired to init? (compare profile list vs what init can export).
-- Record: rendered agent frontmatter has a valid `model:` (tier resolved), correct `mode:`, tools.
-
-**TEST 2 exit:** every case ✅, product files never clobbered, parity green.
+**TEST 2 exit:** every case ✅, no empty brain folders, product files never clobbered, init left uncommitted.
 
 ---
 
 # TEST 3 — `aspis bootstrap` (make the project live)
 
-**What bootstrap does** (`pre hooks → bootstrap_core → post hooks`, two commits):
-collect details (`detect.detect_stack`) → fill `AGENTS.md`/`CLAUDE.md` slots →
-write `project.yaml` (mode) → write `manifest.json` (bootstrapped flag) →
-promote leads to primary → brain fill (runs `.aspis/scripts/context/update.py`)
-→ commit init scaffolding, then commit bootstrap.
+**What bootstrap does** (two commits, then self-cleans): fill AGENTS.md/CLAUDE.md slots
+→ enrich `.gitignore` from the stack → write `project.yaml` + `manifest.json` →
+detect runtimes → `models --sync` → promote 4 leads (→ 5 primaries) → brain-fill →
+gate (doctor + readiness + validation + structure) → self-clean the onboarding package
+→ stamp `bootstrap.done` → git self-test.
 
-### 3.1 Dry-run writes nothing
+### 3.1 First-run gate
 ```bash
 cd /tmp/t2-code
-aspis bootstrap            # PASS: DRY-RUN, "Nothing was written", shows --write
-git log --oneline | head   # PASS: unchanged
+aspis bootstrap --check               # PASS: "NOT bootstrapped" (exit 1)
 ```
+(In a runtime, `project-lead` runs this on the first message and routes to the `bootstrap`
+agent before any feature work.)
 
 ### 3.2 `--write -y` (non-interactive happy path)
 ```bash
-aspis bootstrap --write -y
+aspis bootstrap --write -y --goal "a tiny tool" --stack python
 ```
 Inspect:
 ```bash
-grep -v '<!-- ' AGENTS.md | head        # PASS: definition + Stack slots FILLED (no leftover placeholders)
-cat .aspis/config/project.yaml          # PASS: mode set (production)
-cat .aspis/manifest.json                # PASS: bootstrapped: true, name/goal/stack
-aspis bootstrap --check                 # PASS: "bootstrapped: <path>"
+grep -c 'filled at bootstrap' AGENTS.md          # 0 — slots filled
+cat .aspis/manifest.json                          # bootstrapped:true, bootstrap_engine_version, goal/stack
+ls .aspis/config | wc -l                          # 12 (9 + project.yaml + agent-models.yaml + purposes.json)
+test -f .aspis/config/agent-models.yaml && echo ok  # models --sync ran
+aspis bootstrap --check                            # PASS: "bootstrapped" (exit 0)
 ```
-- ✅ "promote leads to primary: system-lead, planning-lead, build-lead, reviewer".
-- ✅ two commits exist (init scaffolding + bootstrap), messages convention-clean.
 
-### 3.3 Brain fill / context / indexing / file registry (the "full filling")
+### 3.3 Canonical structure — every folder filled, none empty/stray
 ```bash
-ls -A .aspis/context                    # CURRENT_STATE.md, RECENT_CHANGES.md, … filled (not empty)
-ls -A .aspis/index                      # FILE_REGISTRY.yaml, CODE_MAP.md present + populated
+for d in config context index rules scripts templates workflows; do
+  echo "$d: $(find .aspis/$d -type f | wc -l) files"      # PASS: all > 0 (FILLED)
+done
+test ! -d .aspis/state && echo "no state folder ✅"        # PASS: no stray 'state' dir
+ls .aspis/features .aspis/current 2>/dev/null || echo "on-demand, not created yet ✅"
+```
+
+### 3.4 Brain fill / index / registry
+```bash
 test -s .aspis/index/FILE_REGISTRY.yaml && echo "registry filled"
+test -s .aspis/index/CODE_MAP.md && echo "code map filled"
+test -s .aspis/context/CURRENT_STATE.md && echo "state filled"
 ```
-- Record: are placeholder templates copied into `.aspis/**` folders, and then **filled** by the context scripts (not left as raw placeholders)?
-- Record: did the brain-fill script run (look for "brain fill: .aspis/scripts/context/update.py" in output)?
 
-### 3.4 Interactive path
+### 3.5 Five primaries + the onboarding package self-cleaned
 ```bash
-cd /tmp/t3-interactive && aspis init --write -q 2>/dev/null; aspis bootstrap --write
-# Answer the prompts. PASS: answers land in manifest + AGENTS.md slots.
+grep -l 'mode: primary' .opencode/agents/*.md | wc -l    # 5 (project-lead + planning/build/reviewer/system)
+test ! -f .opencode/agents/bootstrap.md && echo "bootstrap agent removed ✅"
+test ! -d .opencode/skills/project-onboarding && echo "onboarding skill removed ✅"
+test ! -f .aspis/workflows/bootstrap.md && echo "bootstrap workflow removed ✅"
 ```
 
-### 3.5 Provider / model detection runs even if the user never ran `models --sync`
+### 3.6 Clean history + git self-test
 ```bash
-aspis doctor --verbose                  # PASS: runtimes detected; models line present
-# Record: does bootstrap (or first doctor) trigger detection so the project is
-# usable without a manual `aspis models --sync`? If not, note as a gap.
+git log --oneline                  # PASS: 2 ours-only commits (initialize + bootstrap)
+git status --porcelain             # PASS: clean (no dangling .gitkeep; user code untracked = fine)
 ```
+- ✅ In the bootstrap output, look for `git self-test: ok (7 checks passed)` — the probe-commit proof that hooks fire (junk clean, stale `.gitkeep` reap, attribution strip), rolled back so history is untouched.
+- ✅ `structure: canonical (no stray folders)` and `validation: all config + agent files parse`.
 
-### 3.6 Git validation + hygiene after bootstrap (first commit is clean)
+### 3.7 Re-run is idempotent
 ```bash
-git status --short                      # PASS: clean tree (bootstrap committed its work)
-git log --oneline                       # PASS: 2 conventional commits, no AI attribution
-aspis commits --audit                   # PASS: history conforms
-git ls-files | grep .gitkeep            # PASS: no stale .gitkeep in populated dirs
+aspis bootstrap --write -y         # PASS: no duplicate commits; package stays gone; "already bootstrapped"
 ```
 
-### 3.7 Live hooks / scripts smoke (everything downstream will work)
-```bash
-echo "x" > note.md
-aspis commit note.md --type docs --title "add a note"   # PASS: hooks run, message composed, commit lands
-git log -1 --format=%B                                  # PASS: clean, conventional
-```
-- Record: any script/hook that errors, warns, or is skipped during init+bootstrap (these are the "downstream will break" risks).
-
-**TEST 3 exit:** project is fully filled (context + index + registry), leads promoted, detection done, git clean & conventional, hooks live — i.e. any agent/script run *after* this works with no missing pieces.
+**TEST 3 exit:** project is fully filled (no empty folders, no `state`), 5 primaries, agent-models
+written, gates green, package self-cleaned, history clean, git subsystem self-test passed.
 
 ---
 
 # TEST 4 — Git subsystem (the hygiene wall)
 
-**Surface:** `aspis commit` (single writer) · `aspis commits --audit/--fix` (F-012)
-· commit-msg hook (style + attribution auto-fix) · pre-commit hook (junk clean,
-format/lint-fix, secret scan) · `.gitkeep` reaping · `aspis gitignore` (stack →
-ignore, Toptal + offline cache).
+**Surface:** `aspis commit` · `aspis commits --audit/--fix` · commit-msg (style + attribution
+auto-fix) · pre-commit (junk clean, format/lint-fix, secret scan, stale-`.gitkeep` reap) ·
+`aspis gitignore` (offline-first) · the bootstrap git self-test.
 
-### 4.1 Commit message style + attribution auto-fix
+### 4.1 Message style + attribution auto-fix
 ```bash
 printf 'feat(F-999): do a thing\n\nCo-Authored-By: Some Bot\n' | git commit -F - --allow-empty
-git log -1 --format=%B          # PASS: Co-Authored-By auto-stripped, commit still made
-git commit --allow-empty -m "bad subject with no type"   # PASS: warns (warn mode), still commits
-aspis commits --audit           # PASS: lists any non-conforming historical messages
+git log -1 --format=%B           # PASS: Co-Authored-By auto-stripped, commit still made
 ```
 
 ### 4.2 History audit + fix
 ```bash
-aspis commits --audit           # exit 1 + per-commit detail when violations exist
-aspis commits --fix             # PASS: backup ref made, auto-fixable messages rewritten, content identical
-git branch | grep backup/       # PASS: a backup/commits-fix-* ref exists
+aspis commits --audit            # lists non-conforming history (exit 1 if any)
+aspis commits --fix              # PASS: backup ref made, messages rewritten, content identical
 ```
 
-### 4.3 Junk / garbage auto-clean (pre-commit)
+### 4.3 Junk + stale `.gitkeep` auto-clean
 ```bash
-printf 'junk\n' > '=1.0.0'      # a shell-redirect ghost file
-git add -A && git commit -m "chore: test junk reap" --allow-empty
+printf 'x\n' > '=1.0.0'          # a shell-redirect ghost
+git add -A && git commit -m "chore: probe" --allow-empty
 git ls-files | grep '=1.0.0' && echo "LEAK ❌" || echo "reaped ✅"
 ```
 
-### 4.4 `.gitkeep` auto-removal when no longer needed
+### 4.4 `aspis gitignore` — offline-first, stack-aware
 ```bash
-# a brain dir that started empty (had .gitkeep) now has real content:
-echo "data" > .aspis/features/keepcheck.txt
-git add -A && git commit -m "chore: populate dir"
-git ls-files .aspis/features | grep .gitkeep && echo "STALE ❌" || echo "reaped ✅"
+cd /tmp/t2-code
+aspis gitignore python           # PASS: offline cache hit, no network
+aspis gitignore go               # PASS: offline (go/rust/java/node/python ship in the cache)
+grep -c '__pycache__' .gitignore # PASS: python block present, merged (not duplicated)
+```
+- Record: an uncached stack (e.g. `elixir`) falls back to the online Toptal API and caches it.
+
+### 4.5 Root vs brain gitignore (nature-based)
+```bash
+git check-ignore .env .DS_Store                          # PASS: ignored (root baseline)
+git check-ignore .aspis/index/CODE_MAP.md                # PASS: ignored (generated)
+git check-ignore .aspis/config/.runtime-inventory.json   # PASS: ignored (machine state)
+git check-ignore .aspis/config/models.yaml && echo BAD || echo "tracked ✅ (source)"
 ```
 
-### 4.5 `aspis gitignore` — stack detection + correct ignores
-```bash
-cd /tmp/t2-code                 # python project
-aspis gitignore
-cat .gitignore                  # PASS: python ignores (__pycache__, .venv, *.pyc, …) present + merged, not duplicated
-# Record: are the brain's own .gitignore(s) present (.aspis/.gitignore) and correct?
-```
-- Record: offline templates available (python/node/vscode/…) under the gitignore script's cache?
-- Record: online fallback — when offline cache misses a stack, does it fetch from gitignore.io/Toptal and cache it?
-
-### 4.6 Guards / enforcement mode
-```bash
-grep enforcement .aspis/config/hooks.yaml     # warn by default (never blocks)
-# Record: protected_paths (rules/**) — a change there needs ASPIS_ALLOW_PROTECTED=1.
-```
-
-### 4.7 Runtime-agent fallback (where a script can't fix deterministically)
-- Record (design check, may be a gap): when a hook/script cannot resolve something
-  deterministically (e.g. a non-trivial gitignore for an exotic stack, or a malformed
-  message it can't auto-fix), is there a path to hand it to an available runtime
-  agent? Note whether this exists or is future work.
-
-**TEST 4 exit:** messages conform & self-heal, history auditable/fixable, junk &
-stale `.gitkeep` reaped automatically, `.gitignore` correct for the stack from the
-first commit — git hygiene holds with no manual effort.
+**TEST 4 exit:** messages conform & self-heal, history auditable/fixable, junk & stale
+`.gitkeep` reaped, `.gitignore` correct by file nature from the first commit — git hygiene
+holds with no manual effort, and bootstrap *proved* it via the self-test.
 
 ---
 
-# TEST 1 — installation (summary; full runbook delivered separately)
-
-Clean removal → Method A (clone branch + `./install.sh`/`.ps1`) → Method B
-(`uv tool install git+…@branch`) → Method C (`uv tool install .`) → verify
-(`--version`, `doctor`, `doctor --verbose`) → edge cases (no chmod, uv
-auto-install, fresh-shell PATH, reinstall) → uninstall (`aspis uninstall
-[--write]`, `uv tool uninstall aspis`) → the true one-command (after merge→main +
-repo Public). Automated cross-check: `./scripts/smoke-test.sh`.
+## Automated cross-check (in the ASPIS repo)
+```bash
+uv run pytest -q                 # full suite
+uv run ruff format --check src tests && uv run ruff check src tests
+./scripts/smoke-test.sh          # PowerShell: .\scripts\smoke-test.ps1
+```
