@@ -209,5 +209,7 @@ def test_bootstrap_leaves_clean_tree_no_stale_gitkeep(tmp_path) -> None:
         check=True,
     ).stdout
     assert status.strip() == ""  # clean tree (no pending .gitkeep deletion)
-    # A populated brain dir carries no stale .gitkeep.
-    assert not (tmp_path / ".aspis" / "index" / ".gitkeep").exists()
+    # A dir with git-tracked content carries no stale .gitkeep...
+    assert not (tmp_path / ".aspis" / "scripts" / ".gitkeep").exists()
+    # ...but a git-empty dir (only the gitignored generated index) keeps its .gitkeep.
+    assert (tmp_path / ".aspis" / "index" / ".gitkeep").exists()

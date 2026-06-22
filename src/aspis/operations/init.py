@@ -58,6 +58,22 @@ def init_core(ctx: Context) -> None:
     if not ctx.options.get("no_git"):
         _git_init(ctx, write=write)
         _install_git_hooks(ctx, write=write)
+        _commit_scaffold(ctx, write=write)
+
+
+def _commit_scaffold(ctx: Context, *, write: bool) -> None:
+    """Commit the freshly scaffolded brain as init's own first commit.
+
+    init owns its commit (not bootstrap): a just-initialized project lands with a clean
+    first commit of *only* the ASPIS files, so bootstrap later makes a single, separate
+    commit of its fill. On an existing repo the user's own code is never swept in.
+    """
+    from aspis import gitops
+
+    if not write or not gitops.has_git(ctx.root):
+        return
+    if gitops.commit_owned(ctx.root, "chore: initialize ASPIS project"):
+        ctx.log("commit init scaffolding")
 
 
 def _ship_scripts(ctx: Context, *, write: bool) -> None:

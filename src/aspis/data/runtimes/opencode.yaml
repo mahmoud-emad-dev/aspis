@@ -4,7 +4,10 @@
 name: opencode
 detect:
   exe: opencode # the executable looked up on PATH (shutil.which)
-run: opencode # command to launch the runtime (TUI / `opencode run --agent <name> "..."`)
+run: opencode # command to launch the runtime (TUI)
+# Headless one-shot invocation template (for running an agent from the CLI, no TUI).
+# Placeholders: {prompt} {agent} {model}. Used by the future CLI-bootstrap headless path.
+headless: 'opencode run "{prompt}" --agent {agent} --model {model} --dangerously-skip-permissions'
 dir: .opencode # on-disk project dir when exported
 root_guide: # null → uses the universal AGENTS.md (no extra guide)
 capabilities:

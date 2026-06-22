@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import os
 import re
+import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -72,11 +73,35 @@ def clean(root: Path, files: list[str] | None = None) -> CleanResult:
     skip = set(rules.get("skip_dirs") or [])
     for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = [d for d in dirnames if d not in skip]
-        if ".gitkeep" in filenames and (dirnames or any(f != ".gitkeep" for f in filenames)):
+        if ".gitkeep" not in filenames:
+            continue
+        siblings = [Path(dirpath) / d for d in dirnames]
+        siblings += [Path(dirpath) / f for f in filenames if f != ".gitkeep"]
+        # Reap only when git would actually track a sibling. A dir whose only other
+        # content is gitignored (e.g. index/ with the generated FILE_REGISTRY.yaml) is
+        # git-empty, so its .gitkeep is still doing its job and must stay.
+        if _git_tracks_any(root, siblings):
             keep = Path(dirpath) / ".gitkeep"
             keep.unlink()
             result.gitkeep.append(keep.relative_to(root).as_posix())
     return result
+
+
+def _git_tracks_any(root: Path, paths: list[Path]) -> bool:
+    """True if git would track at least one of *paths* (i.e. not all are gitignored)."""
+    if not paths:
+        return False
+    rels = [p.relative_to(root).as_posix() for p in paths]
+    result = subprocess.run(
+        ["git", "-C", str(root), "check-ignore", "--", *rels],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        check=False,
+    )
+    ignored = set(result.stdout.splitlines())
+    return any(rel not in ignored for rel in rels)
 
 
 def main() -> int:

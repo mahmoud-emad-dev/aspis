@@ -3,6 +3,9 @@ name: claude
 detect:
   exe: claude
 run: claude
+# Headless one-shot invocation template (for running an agent from the CLI, no TUI).
+# Placeholders: {prompt} {agent} {model}. Used by the future CLI-bootstrap headless path.
+headless: 'claude -p "{prompt}" --agent {agent} --model {model} --permission-mode acceptEdits --output-format text'
 dir: .claude
 root_guide: CLAUDE.md # Claude ships its own root guide alongside AGENTS.md
 capabilities:

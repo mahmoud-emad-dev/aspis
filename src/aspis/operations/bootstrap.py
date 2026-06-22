@@ -8,14 +8,22 @@ first brain fill by running the project's own context scripts. Pre/post staging
 
 from __future__ import annotations
 
-import os
 import shutil
 import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
-from aspis import __version__, detect, gitcheck, manifest, project, promotion, runtime_inventory
+from aspis import (
+    __version__,
+    detect,
+    gitcheck,
+    gitops,
+    manifest,
+    project,
+    promotion,
+    runtime_inventory,
+)
 from aspis.constants import BRAIN_DIR
 from aspis.health import run_checks
 from aspis.lifecycle import Context, Engine
@@ -235,69 +243,6 @@ def bootstrap_core(ctx: Context) -> None:
 # ---------------------------------------------------------------------------
 
 
-def _git(root: Path, *args: str) -> str:
-    """Run a git command in *root*; return stripped stdout."""
-    result = subprocess.run(
-        ["git", "-C", str(root), *args],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        check=False,
-    )
-    return result.stdout.strip()
-
-
-def _has_git(ctx: Context) -> bool:
-    return (ctx.root / ".git").is_dir()
-
-
-#: The paths init/bootstrap own — the only ones their commits may stage. Scoping the
-#: commit here means a bootstrap run on an existing repo never sweeps the user's own
-#: uncommitted code into the bootstrap commit (history starts clean and ours-only).
-_OWNED_PATHS = (".aspis", ".opencode", ".claude", "AGENTS.md", "CLAUDE.md", ".gitignore")
-
-
-def _reap_stale_gitkeeps(root: Path, owned: list[str]) -> None:
-    """Delete ``.gitkeep`` from any owned dir that now holds real content (pre-stage).
-
-    Mirrors the cleanup hook, but runs *before* staging so the deletion lands in our
-    commit and the tree stays clean — otherwise the hook reaps it post-stage and
-    leaves a dangling pending deletion. Scoped to ASPIS-owned paths.
-    """
-    for name in owned:
-        base = root / name
-        if not base.is_dir():
-            continue
-        for keep in base.rglob(".gitkeep"):
-            if any(p.name != ".gitkeep" for p in keep.parent.iterdir()):
-                keep.unlink()
-
-
-def _commit_all(ctx: Context, message: str) -> bool:
-    """Stage + commit only the ASPIS-owned paths; return True if a commit was made.
-
-    init/bootstrap are authorized human setup: they ship the very R-009 protected
-    paths (rules, constitution), so these commits carry the approval the pre-commit
-    hook looks for. The guard still blocks later, unapproved edits to those paths.
-    The commit pathspec also guarantees unrelated user changes are never included.
-    """
-    owned = [p for p in _OWNED_PATHS if (ctx.root / p).exists()]
-    if not owned:
-        return False
-    _reap_stale_gitkeeps(ctx.root, owned)
-    _git(ctx.root, "add", "--", *owned)
-    if not _git(ctx.root, "diff", "--cached", "--name-only", "--", *owned):
-        return False  # nothing of ours to commit — never make an empty/foreign commit
-    result = subprocess.run(
-        ["git", "-C", str(ctx.root), "commit", "-q", "-m", message, "--", *owned],
-        capture_output=True,
-        check=False,
-        env={**os.environ, "ASPIS_ALLOW_PROTECTED": "1"},
-    )
-    return result.returncode == 0
-
-
 def _require_initialized(ctx: Context) -> None:
     """Bootstrap only runs on an initialized project (pre)."""
     if not project.is_project(ctx.root):
@@ -311,15 +256,17 @@ def _note_if_bootstrapped(ctx: Context) -> None:
 
 
 def _autocommit_init(ctx: Context) -> None:
-    """Commit the init scaffolding first, so bootstrap is a separate 2nd commit (pre).
+    """Safety net: commit the init scaffold if init did not already (pre).
 
-    Honours the user's Q2 note: init itself never commits — this pre-bootstrap step
-    commits the init scaffold (ours-only) so history starts clean before bootstrap.
+    Init commits its own scaffold, so this is normally a no-op. It still fires when the
+    scaffold is uncommitted (e.g. init ran with --no-git and git was added later, or an
+    existing repo where init's commit was skipped), so bootstrap always starts on a
+    clean, committed base — and never sweeps the user's own code (ours-only pathspec).
     """
-    if not bool(ctx.options.get("write")) or not _has_git(ctx):
+    if not bool(ctx.options.get("write")) or not gitops.has_git(ctx.root):
         return
-    if _commit_all(ctx, "chore: initialize ASPIS project"):
-        ctx.log("commit init scaffolding (1st commit)")
+    if gitops.commit_owned(ctx.root, "chore: initialize ASPIS project"):
+        ctx.log("commit init scaffolding (was uncommitted)")
 
 
 #: Brain files that must exist AND be non-empty for the project to count as "ready".
@@ -468,11 +415,11 @@ def _record_done(ctx: Context) -> None:
 
 
 def _commit_bootstrap(ctx: Context) -> None:
-    """Commit the bootstrap fill (ours-only) as the 2nd commit (post)."""
-    if not bool(ctx.options.get("write")) or not _has_git(ctx):
+    """Commit the bootstrap fill (ours-only) — bootstrap's single commit (post)."""
+    if not bool(ctx.options.get("write")) or not gitops.has_git(ctx.root):
         return
-    if _commit_all(ctx, "chore: bootstrap ASPIS project"):
-        ctx.log("bootstrap commit (2nd commit)")
+    if gitops.commit_owned(ctx.root, "chore: bootstrap ASPIS project"):
+        ctx.log("bootstrap commit")
     else:
         ctx.log("bootstrap commit: nothing to commit")
 
@@ -484,7 +431,7 @@ def _verify_subsystem(ctx: Context) -> None:
     stale-.gitkeep reap, attribution strip) on a probe and rolls it back, so the
     project leaves bootstrap with a *verified* git subsystem, not a hoped-for one.
     """
-    if not bool(ctx.options.get("write")) or not _has_git(ctx):
+    if not bool(ctx.options.get("write")) or not gitops.has_git(ctx.root):
         return
     results = gitcheck.verify(ctx.root)
     ctx.results["subsystem"] = results
