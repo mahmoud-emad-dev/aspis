@@ -34,6 +34,7 @@ _ASPIS_VERBS = {
     "artifact",
     "testledger",
     "preflight",
+    "context",
 }
 
 

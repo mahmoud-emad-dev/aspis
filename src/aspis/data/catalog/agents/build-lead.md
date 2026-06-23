@@ -18,6 +18,7 @@ permissions:
     "git diff*": allow
     "git log*": allow
     "aspis preflight*": allow # prestart gate (clean tree + branch) before delegating
+    "aspis context*": allow # one-call fresh L1 hot context (context-ladder)
     "aspis artifact*": allow # stamp task/feature reports (build.md step 7)
     "python .aspis/scripts/context/*": allow
     "python3 .aspis/scripts/context/*": allow

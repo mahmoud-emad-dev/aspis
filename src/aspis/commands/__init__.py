@@ -13,6 +13,7 @@ from aspis.commands import (
     bootstrap,
     commit,
     commits,
+    context,
     doctor,
     gitignore,
     init,
@@ -37,6 +38,7 @@ COMMAND_MODULES = (
     artifact,
     testledger,
     preflight,
+    context,
     doctor,
     uninstall,
 )

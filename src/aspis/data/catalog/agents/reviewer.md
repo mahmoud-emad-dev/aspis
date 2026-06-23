@@ -16,6 +16,7 @@ permissions:
     "git diff*": allow
     "git log*": allow
     "aspis artifact*": allow # stamp review/test reports (review step)
+    "aspis context*": allow # one-call fresh L1 hot context (context-ladder)
     "python .aspis/scripts/context/*": allow
     "python3 .aspis/scripts/context/*": allow
     "python .aspis/scripts/planning/*": allow

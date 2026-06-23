@@ -18,8 +18,9 @@ What almost every task needs — read these three short, generated files first, 
 - `.aspis/context/RECENT_CHANGES.md` — what changed, newest first.
 - `.aspis/current/active_feature.json` — the active feature, its branch, phase, and mode.
 
-If they may be stale (work happened since the last commit), refresh first:
-`python .aspis/scripts/context/update.py`. For most simple tasks, L1 is enough — act, don't dig deeper.
+If they may be stale (work happened since the last commit), get them fresh in one call:
+`aspis context` — it refreshes the brain and prints these three directly. For most simple tasks,
+L1 is enough — act, don't dig deeper.
 
 ## L2 — The active feature (only when working on it)
 
