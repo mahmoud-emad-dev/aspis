@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 232 64" role="img" aria-label="ASPIS">
+  <title>ASPIS — the shield for autonomous software production</title>
+  <svg x="8" y="8" width="48" height="48" viewBox="0 0 64 64">
+    <mask id="aspis-cut-logo">
+      <rect width="64" height="64" fill="black"/>
+      <path d="M12 9 H52 V28 C52 42 43 51 32 57 C21 51 12 42 12 28 Z" fill="white"/>
+      <path d="M22 47 L32 16 L42 47 M25.5 35 H38.5" fill="none" stroke="black"
+            stroke-width="6" stroke-linecap="butt" stroke-linejoin="round"/>
+    </mask>
+    <path d="M12 9 H52 V28 C52 42 43 51 32 57 C21 51 12 42 12 28 Z"
+          fill="currentColor" mask="url(#aspis-cut-logo)"/>
+  </svg>
+  <text x="74" y="44" fill="currentColor"
+        font-family="Inter, 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif"
+        font-size="36" font-weight="800" letter-spacing="3">ASPIS</text>
+</svg>
