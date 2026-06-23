@@ -5,16 +5,20 @@ All notable changes to ASPIS are recorded here. The format follows
 follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (pre-1.0: minor
 versions may include breaking changes).
 
-## [0.1.0b3.dev0] — unreleased
+## [0.1.0b3] — 2026-06-24
 
-System hardening (in development on `feat/F-014-system-hardening`): deterministic guarantees,
-correct per-agent permissions, scoped context, and fire-and-forget guards.
+The public launch. System hardening turned prose guarantees into machine-checked ones,
+alongside a full presentation pass for the open-source release.
 
 ### Added
 - `aspis preflight` (pre-task clean-tree + branch gate), `aspis context` (one-call fresh hot
   context), `aspis findings` (list/resolve guard findings).
 - Skills: `prestart-checks`, `context-ladder`, `config-management`, `project-health`.
 - Golden tests: every command **and** every delegate an agent uses must be permitted/real.
+- Public `ROADMAP.md` — the six-part plan with what's shipped, what's next, and what isn't done.
+- Brand identity (`assets/brand/`): shield + A logo set, wordmark, theme-adaptive favicon, and
+  brand guidelines; architecture / runtime-export / build-loop diagrams (`assets/diagrams/`).
+- GitHub community files: issue + PR templates, `CODE_OF_CONDUCT.md`, release-notes template.
 
 ### Changed
 - The committer can run `aspis commit` (the demo_win2 root cause); runtime hooks bake a working
@@ -22,6 +26,13 @@ correct per-agent permissions, scoped context, and fire-and-forget guards.
 - Guards are **fire-and-forget**: no per-tool-call hook; findings are advisory in warn mode; scope
   is checked at the git boundary, which emits findings.
 - project-lead is locked to detect-and-route; the build mode is its one direct change.
+- `CURRENT_STATE` / `RECENT_CHANGES` are now a synthesised digest (active feature, feature-grouped
+  changes) rather than a `git log` mirror; `.aspis/config` tiered into flat / policy / reference.
+- README redesigned as a landing page (hero, badges, diagrams, docs nav); docs consolidated
+  (one quickstart, one testing guide); ATTRIBUTIONS rewritten to lead with dependencies.
+
+### Removed
+- Detect-only runtime stubs (codex, cursor, gemini) — only Claude Code and OpenCode are supported.
 
 ## [0.1.0b2] — 2026-06-22
 
@@ -107,4 +118,5 @@ projects (Claude Code, OpenCode), and a small `aspis` CLI drives the lifecycle.
 - End-to-end "agent builds a real feature on a real runtime" is the focus of ongoing
   install + usage testing.
 
+[0.1.0b3]: https://github.com/mahmoud-emad-dev/aspis/releases/tag/v0.1.0b3
 [0.1.0b1]: https://github.com/mahmoud-emad-dev/aspis/releases/tag/v0.1.0b1
