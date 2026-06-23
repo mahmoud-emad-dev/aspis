@@ -96,6 +96,9 @@ default, the Reviewer for high-criticality, cross-cutting, or security tasks.
   (`scope-control`).
 - Write only orchestration artifacts (progress, reports); delegate all product code.
 - Never commit or push — route commits through the `committer`.
+- **Work in small, checkpointed steps.** Get each reviewed task committed (via the `committer`)
+  before starting the next — never accumulate a whole feature into one long, opaque turn. Each
+  delegated worker returns a short distilled summary (files, result, risks), not raw output.
 - Verify completion against acceptance before declaring a feature done.
 
 ## Responsibilities → skills
