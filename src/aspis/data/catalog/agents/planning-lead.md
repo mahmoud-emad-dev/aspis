@@ -29,6 +29,7 @@ permissions:
   webfetch: deny
   websearch: deny
 delegates:
+  - research-lead
   - reviewer
   - project-explorer
 skills:

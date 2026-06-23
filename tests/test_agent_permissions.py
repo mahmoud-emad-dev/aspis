@@ -18,6 +18,7 @@ import yaml
 from aspis import resources
 
 _AGENTS = sorted((resources.catalog_dir() / "agents").glob("*.md"))
+_AGENT_NAMES = {p.stem for p in _AGENTS}
 
 # The real `aspis` CLI verbs — only these are treated as commands when found after "aspis"
 # in prose (so phrases like "the aspis system" are not mistaken for a command).
@@ -60,6 +61,14 @@ def _referenced_skill_text(front: dict) -> str:
         if skill_file.is_file():
             chunks.append(skill_file.read_text(encoding="utf-8"))
     return "\n".join(chunks)
+
+
+@pytest.mark.parametrize("agent_path", _AGENTS, ids=lambda p: p.stem)
+def test_agent_delegates_are_real_agents(agent_path: Path) -> None:
+    # Every name in `delegates` must be an actual agent — a dangling/typo delegate can't render.
+    front, _ = _split(agent_path.read_text(encoding="utf-8"))
+    for delegate in front.get("delegates") or []:
+        assert delegate in _AGENT_NAMES, f"{agent_path.stem}: unknown delegate '{delegate}'"
 
 
 @pytest.mark.parametrize("agent_path", _AGENTS, ids=lambda p: p.stem)
