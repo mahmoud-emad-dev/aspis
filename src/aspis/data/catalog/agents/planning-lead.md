@@ -17,6 +17,7 @@ permissions:
     "git status*": allow
     "git diff*": allow
     "git log*": allow
+    "aspis preflight*": allow # prestart gate (clean tree + branch) before planning
     "python .aspis/scripts/context/*": allow
     "python3 .aspis/scripts/context/*": allow
     "python .aspis/scripts/planning/*": allow
@@ -29,6 +30,7 @@ delegates:
   - reviewer
   - project-explorer
 skills:
+  - prestart-checks
   - planning-intake
   - requirement-clarification
   - feature-planning
@@ -52,7 +54,8 @@ Planning is a lifecycle, not a single document. Move through it, persisting each
 artifact so you never carry the whole effort in one context:
 
 1. **Intake** — classify the request and size it; pick the planning depth and mode.
-2. **Context** — read the project state and relevant code/plans before deciding.
+2. **Context** — run the prestart gate `aspis preflight` (`prestart-checks`) and resolve any
+   blocker, then read the project state and relevant code/plans before deciding.
 3. **Clarify** — resolve assumptions from project conventions; ask only the few
    questions that genuinely block or shape the work.
 4. **Spec** — capture goal, scope, behavior, and measurable acceptance.

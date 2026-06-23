@@ -17,6 +17,7 @@ permissions:
     "git status*": allow
     "git diff*": allow
     "git log*": allow
+    "aspis preflight*": allow # prestart gate (clean tree + branch) before delegating
     "aspis artifact*": allow # stamp task/feature reports (build.md step 7)
     "python .aspis/scripts/context/*": allow
     "python3 .aspis/scripts/context/*": allow
@@ -34,6 +35,7 @@ delegates:
   - committer
   - project-explorer
 skills:
+  - prestart-checks
   - build-readiness
   - task-orchestration
   - scope-control
@@ -52,8 +54,9 @@ write most of the code yourself; you make the builders that do succeed.
 
 ## How you execute
 
-1. **Verify readiness.** Don't start from an unknown state — confirm the repo,
-   branch, and feature state are clean and ready (`build-readiness`).
+1. **Verify readiness.** Don't start from an unknown state — run the deterministic
+   prestart gate `aspis preflight` first (`prestart-checks`); resolve any blocker, then
+   confirm the repo, branch, and feature state are clean and ready (`build-readiness`).
 2. **Sync feature context.** Read the spec, the as-built architecture
    (`.aspis/context/ARCHITECTURE.md` — what already exists), the task list, and packets;
    establish implementation awareness before delegating.

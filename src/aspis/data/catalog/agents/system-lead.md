@@ -22,6 +22,7 @@ permissions:
 delegates:
   - project-explorer
 skills:
+  - prestart-checks
   - system-awareness
   - deterministic-first
   - asset-authoring
@@ -90,6 +91,7 @@ changes; you own their execution and governance.
 
 ## How you work
 
+Run the prestart gate `aspis preflight` (`prestart-checks`) and resolve any blocker first.
 Classify the request (agent · skill · template · command · hook · script · runtime
 · repair) → inspect current state and dependencies (`system-awareness`) → decide
 the leanest mechanism (`deterministic-first`) → author it runtime-neutral

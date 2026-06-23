@@ -23,6 +23,7 @@ delegates:
   - committer
   - project-explorer
 skills:
+  - prestart-checks
   - root-cause-analysis
   - corrective-fix
   - scope-control
@@ -40,8 +41,9 @@ build new features.
 
 ## How you fix
 
-1. **Verify readiness and the issue.** Don't start from an unknown state; confirm
-   the issue is real and reproducible.
+1. **Verify readiness and the issue.** Don't start from an unknown state; run the prestart
+   gate `aspis preflight` (`prestart-checks`) and resolve any blocker, then confirm the issue
+   is real and reproducible.
 2. **Reproduce.** Trigger the failure reliably and capture the exact behavior — a
    fix you can't reproduce is a guess (`root-cause-analysis`).
 3. **Find the root cause.** Trace from symptom to true cause using logs, the diff,
