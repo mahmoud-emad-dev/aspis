@@ -1,0 +1,15 @@
+# Categories for GitHub's auto-generated release notes.
+changelog:
+  exclude:
+    labels: [ignore-for-release, duplicate, question]
+  categories:
+    - title: ✨ Features
+      labels: [enhancement, feature]
+    - title: 🐛 Fixes
+      labels: [bug, fix]
+    - title: 📚 Documentation
+      labels: [documentation, docs]
+    - title: 🧰 Maintenance
+      labels: [chore, refactor, ci]
+    - title: Other changes
+      labels: ["*"]

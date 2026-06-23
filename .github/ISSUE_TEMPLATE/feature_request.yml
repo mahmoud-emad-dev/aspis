@@ -1,0 +1,35 @@
+name: Feature request
+description: Suggest an improvement or new capability.
+labels: ["enhancement", "triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do that ASPIS makes hard or impossible today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What would you like ASPIS to do? A CLI command, an agent/skill, a config option?
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [CLI, Agents / skills, Runtimes / models, Hooks / gates, Docs, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: roadmap
+    attributes:
+      label: Roadmap
+      options:
+        - label: I've checked the [Roadmap](../../ROADMAP.md) and this isn't already planned.

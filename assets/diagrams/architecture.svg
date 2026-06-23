@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 300" font-family="Inter, 'Segoe UI', system-ui, sans-serif" role="img" aria-label="ASPIS architecture: four layers from factory to product">
+  <text x="24" y="34" font-size="15" font-weight="700" fill="#0F172A">Four layers</text>
+  <text x="24" y="54" font-size="13" fill="#64748B">A runtime-neutral brain in Git; disposable runtime configs generated from it; the product on top.</text>
+
+  <g>
+    <rect x="24" y="74" width="772" height="46" rx="8" fill="#0F172A"/>
+    <text x="44" y="103" font-size="15" font-weight="700" fill="#FFFFFF">Factory</text>
+    <text x="200" y="103" font-size="13" fill="#CBD5E1">this repo — the catalog, rules, and engine that build ASPIS itself</text>
+    <text x="776" y="103" font-size="12" fill="#94A3B8" text-anchor="end">source</text>
+  </g>
+  <g>
+    <rect x="24" y="128" width="772" height="46" rx="8" fill="#EEF2FF" stroke="#4F46E5" stroke-width="1.5"/>
+    <text x="44" y="157" font-size="15" font-weight="700" fill="#4F46E5">Brain · .aspis/</text>
+    <text x="200" y="157" font-size="13" fill="#475569">durable, tool-neutral memory: rules, context, decisions, the active feature</text>
+    <text x="776" y="157" font-size="12" fill="#64748B" text-anchor="end">permanent</text>
+  </g>
+  <g>
+    <rect x="24" y="182" width="772" height="46" rx="8" fill="#FFFFFF" stroke="#0F172A" stroke-width="1.5"/>
+    <text x="44" y="211" font-size="15" font-weight="700" fill="#0F172A">Runtime · .claude/ · .opencode/</text>
+    <text x="320" y="211" font-size="13" fill="#475569">generated agents, skills, commands — rebuilt from the brain</text>
+    <text x="776" y="211" font-size="12" fill="#64748B" text-anchor="end">disposable</text>
+  </g>
+  <g>
+    <rect x="24" y="236" width="772" height="46" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+    <text x="44" y="265" font-size="15" font-weight="700" fill="#0F172A">Product · src/ · tests/ · docs/</text>
+    <text x="320" y="265" font-size="13" fill="#475569">the software being built — proven by the gate</text>
+    <text x="776" y="265" font-size="12" fill="#64748B" text-anchor="end">the deliverable</text>
+  </g>
+</svg>
