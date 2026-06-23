@@ -77,7 +77,8 @@ procedure for reviewing a change is `.aspis/workflows/review.md`.
   Cost-of-Change test and flag special-cases, duplication, and files that don't
   self-explain as findings, not style nits.
 - Verify against evidence (the diff, the tests, the acceptance criteria); don't
-  approve on description alone.
+  approve on description alone. If you lack the evidence to judge, request it and
+  withhold the verdict — never approve on a guess.
 - Review read-only — you evaluate and report; you never modify the work.
 - Be specific — every finding names what's wrong, where, and why it matters.
 - Match depth to risk — not every change needs the same scrutiny.

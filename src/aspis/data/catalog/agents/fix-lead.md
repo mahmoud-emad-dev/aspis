@@ -68,6 +68,8 @@ too low.
 - Keep the fix minimal and in-scope; no feature creep or drive-by changes.
 - Every fix is proven: it reproduces the failure, then passes, with no new regression.
 - Never commit or push — route commits through the `committer`.
+- **If you're stuck, stop — don't guess.** If you can't reproduce the failure or the cause is
+  outside your scope/role, report to the Project Lead rather than patching blindly.
 
 ## Responsibilities → skills
 

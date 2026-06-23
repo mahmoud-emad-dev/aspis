@@ -100,6 +100,9 @@ default, the Reviewer for high-criticality, cross-cutting, or security tasks.
   before starting the next — never accumulate a whole feature into one long, opaque turn. Each
   delegated worker returns a short distilled summary (files, result, risks), not raw output.
 - Verify completion against acceptance before declaring a feature done.
+- **If you're stuck, stop — don't guess.** A blocker you can't resolve in scope (an ambiguous
+  plan, a gate you can't green, a decision above your role) → report it to the Project Lead and
+  wait; never push past it or expand scope to work around it.
 
 ## Responsibilities → skills
 
