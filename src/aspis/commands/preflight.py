@@ -15,11 +15,11 @@ import argparse
 import json
 from pathlib import Path
 
-from aspis import findings, gitops
+from aspis import findings, gitops, resources
 from aspis.project import is_project
 
 #: Status label, ASCII-safe for any console.
-_LABELS = {"ok": "ok  ", "fail": "FAIL"}
+_LABELS = {"ok": "ok  ", "warn": "warn", "fail": "FAIL"}
 
 #: Generated, post-commit-refreshed brain dirs — churn here is expected, not a blocker.
 _GENERATED_PREFIXES = (".aspis/index/", ".aspis/context/")
@@ -111,15 +111,19 @@ def _run(args: argparse.Namespace) -> int:
         phase = feature.get("phase", "?")
         checks.append(("feature", "ok", f"{fid} ({phase}) on '{current}'"))
 
-    # Open findings emitted by the deterministic guards — resolve or route before working.
+    # Open findings emitted by the deterministic guards. Fire-and-forget: in the default
+    # `warn` mode they are advisory (surfaced, never blocking) so real work is never stopped —
+    # the agent routes them to a fix on its next turn. Only `enforcement: block` makes them gate.
     open_findings = findings.load(root)
     if open_findings:
+        enforcement = (resources.config("hooks.yaml", root) or {}).get("enforcement", "warn")
+        severity = "fail" if enforcement == "block" else "warn"
         shown = "; ".join(f.get("detail", "") for f in open_findings[:3])
         checks.append(
             (
                 "findings",
-                "fail",
-                f"{len(open_findings)} open: {shown} — fix or route, then "
+                severity,
+                f"{len(open_findings)} open: {shown} — route to a fix, then "
                 "`aspis findings --resolve <n>`.",
             )
         )

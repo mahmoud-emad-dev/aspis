@@ -44,22 +44,34 @@ def test_preflight_ignores_generated_brain_churn(tmp_path, capsys) -> None:
     assert code == 0  # brain churn is expected, not a blocker
 
 
-def test_preflight_blocks_on_open_finding(tmp_path, capsys) -> None:
-    from aspis import findings
-
-    _init(tmp_path)
-    store = tmp_path / ".aspis" / "current" / "findings.json"
+def _add_finding(root: Path) -> None:
+    store = root / ".aspis" / "current" / "findings.json"
     store.parent.mkdir(parents=True, exist_ok=True)
     store.write_text(
         '[{"kind": "scope", "detail": "out-of-scope edit: x.py", "source": "scope-guard"}]',
         encoding="utf-8",
     )
+
+
+def test_preflight_findings_advisory_in_warn_mode(tmp_path, capsys) -> None:
+    # Default warn mode: findings are surfaced but NEVER block real work (fire-and-forget).
+    _init(tmp_path)
+    _add_finding(tmp_path)
     code = cli_main(["preflight", str(tmp_path)])
     out = capsys.readouterr().out
-    assert code == 1
-    assert "x.py" in out  # the open finding is surfaced as a blocker
-    assert "findings --resolve" in out
-    assert findings.load(tmp_path)  # sanity: it was actually read
+    assert code == 0  # advisory, not a blocker
+    assert "x.py" in out  # still surfaced for the agent to route
+    assert "warn" in out
+
+
+def test_preflight_findings_block_only_in_block_mode(tmp_path, capsys) -> None:
+    _init(tmp_path)
+    _add_finding(tmp_path)
+    hooks = tmp_path / ".aspis" / "config" / "policy" / "hooks.yaml"
+    hooks.write_text("enforcement: block\n", encoding="utf-8")
+    code = cli_main(["preflight", str(tmp_path)])
+    assert code == 1  # only an opt-in block-mode project gates on findings
+    assert "x.py" in capsys.readouterr().out
 
 
 def test_preflight_blocks_on_branch_mismatch(tmp_path, capsys) -> None:
