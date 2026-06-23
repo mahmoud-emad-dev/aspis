@@ -17,7 +17,9 @@ permissions:
     "git status*": allow
     "git diff*": allow
     "git log*": allow
+    "python .aspis/scripts/context/*": allow
     "python3 .aspis/scripts/context/*": allow
+    "python .aspis/scripts/planning/*": allow
     "python3 .aspis/scripts/planning/*": allow
     "git commit*": deny
     "git push*": deny
