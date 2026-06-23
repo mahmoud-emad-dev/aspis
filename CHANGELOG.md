@@ -5,6 +5,24 @@ All notable changes to ASPIS are recorded here. The format follows
 follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (pre-1.0: minor
 versions may include breaking changes).
 
+## [0.1.0b3.dev0] — unreleased
+
+System hardening (in development on `feat/F-014-system-hardening`): deterministic guarantees,
+correct per-agent permissions, scoped context, and fire-and-forget guards.
+
+### Added
+- `aspis preflight` (pre-task clean-tree + branch gate), `aspis context` (one-call fresh hot
+  context), `aspis findings` (list/resolve guard findings).
+- Skills: `prestart-checks`, `context-ladder`, `config-management`, `project-health`.
+- Golden tests: every command **and** every delegate an agent uses must be permitted/real.
+
+### Changed
+- The committer can run `aspis commit` (the demo_win2 root cause); runtime hooks bake a working
+  interpreter so the scope-guard fires on Windows.
+- Guards are **fire-and-forget**: no per-tool-call hook; findings are advisory in warn mode; scope
+  is checked at the git boundary, which emits findings.
+- project-lead is locked to detect-and-route; the build mode is its one direct change.
+
 ## [0.1.0b2] — 2026-06-22
 
 Second beta — install, first-run onboarding, and runtime/model correctness.
