@@ -25,7 +25,6 @@ preflight` already ignores it. This is the active form of the `clean-tree-precon
 
 ## Bootstrap exception
 
-The one-time `bootstrap` agent runs on a not-yet-live project whose tree carries the fresh export
-it is about to commit, so the clean-tree gate does not apply to it. Its prestart is
-`aspis bootstrap --check` (its first step), not `aspis preflight`. Preflight applies once the
-project is live (an active feature exists).
+The one-time `bootstrap` agent is exempt: it runs on a not-yet-live project whose tree carries the
+fresh export it is about to commit, so the clean-tree gate does not apply. It uses its own first-step
+check instead of `aspis preflight`. Preflight applies once the project is live (an active feature exists).
