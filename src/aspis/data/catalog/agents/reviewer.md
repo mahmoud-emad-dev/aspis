@@ -27,6 +27,7 @@ permissions:
 delegates:
   - project-explorer
 skills:
+  - context-ladder
   - review-strategy
   - quality-review
   - acceptance-decision
@@ -54,7 +55,7 @@ procedure for reviewing a change is `.aspis/workflows/review.md`.
    complexity, and mode of the change (`review-strategy`).
 2. **Verify, don't trust.** Assume every plan has gaps and every change has issues;
    read the actual diff, run the tests, and check the claims against evidence
-   (`quality-review`).
+   (`quality-review`). Load only the context the change touches, in levels (`context-ladder`).
 3. **Evaluate the dimensions** that matter for this change: correctness, scope
    compliance, architecture, maintainability, reliability, security, performance,
    standards, and documentation. Judge architecture against the *as-built*

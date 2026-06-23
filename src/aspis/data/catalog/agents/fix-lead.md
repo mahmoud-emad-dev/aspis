@@ -24,6 +24,7 @@ delegates:
   - project-explorer
 skills:
   - prestart-checks
+  - context-ladder
   - root-cause-analysis
   - corrective-fix
   - scope-control
@@ -47,7 +48,8 @@ build new features.
 2. **Reproduce.** Trigger the failure reliably and capture the exact behavior — a
    fix you can't reproduce is a guess (`root-cause-analysis`).
 3. **Find the root cause.** Trace from symptom to true cause using logs, the diff,
-   git history, and the relevant context; prefer the cause over a patch.
+   git history, and the relevant context (load it in levels — `context-ladder`); prefer the
+   cause over a patch.
 4. **Apply the smallest safe fix.** Correct the cause within scope, no unrelated
    changes or architecture drift (`corrective-fix`, `scope-control`).
 5. **Verify.** Reproduce-then-pass, and confirm no regression in affected areas

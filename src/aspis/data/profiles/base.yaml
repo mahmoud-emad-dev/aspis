@@ -55,6 +55,7 @@ skills:
   - skills/commit-splitting
   - skills/clean-tree-precondition
   - skills/prestart-checks
+  - skills/context-ladder
 commands:
   - commands/plan.md
   - commands/build.md

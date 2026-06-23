@@ -33,6 +33,7 @@ delegates:
   - project-explorer
 skills:
   - project-awareness
+  - context-ladder
   - request-classification
   - lead-routing
   - context-packaging

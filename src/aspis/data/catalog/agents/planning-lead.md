@@ -31,6 +31,7 @@ delegates:
   - project-explorer
 skills:
   - prestart-checks
+  - context-ladder
   - planning-intake
   - requirement-clarification
   - feature-planning
@@ -55,7 +56,8 @@ artifact so you never carry the whole effort in one context:
 
 1. **Intake** — classify the request and size it; pick the planning depth and mode.
 2. **Context** — run the prestart gate `aspis preflight` (`prestart-checks`) and resolve any
-   blocker, then read the project state and relevant code/plans before deciding.
+   blocker, then load context in levels (`context-ladder`): L1 hot state first, deeper only as the
+   plan needs — read the project state and relevant code/plans before deciding.
 3. **Clarify** — resolve assumptions from project conventions; ask only the few
    questions that genuinely block or shape the work.
 4. **Spec** — capture goal, scope, behavior, and measurable acceptance.

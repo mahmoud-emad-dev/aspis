@@ -31,7 +31,8 @@ At the start of handling any request, and whenever you need current project fact
 5. **Working state.** Confirm with read-only checks: `git status`, `git log`.
 6. **Deeper exploration.** For usages or relationships beyond the map, delegate to
    `project-explorer` and consume its compact findings.
-7. Stop as soon as you have enough for the task — never load the whole project.
+7. Stop as soon as you have enough for the task — never load the whole project. Load in
+   levels per the `context-ladder` skill (L1 hot context → L4 only the source the task touches).
 
 ## Outputs
 

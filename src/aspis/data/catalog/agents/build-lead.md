@@ -36,6 +36,7 @@ delegates:
   - project-explorer
 skills:
   - prestart-checks
+  - context-ladder
   - build-readiness
   - task-orchestration
   - scope-control
@@ -57,9 +58,9 @@ write most of the code yourself; you make the builders that do succeed.
 1. **Verify readiness.** Don't start from an unknown state — run the deterministic
    prestart gate `aspis preflight` first (`prestart-checks`); resolve any blocker, then
    confirm the repo, branch, and feature state are clean and ready (`build-readiness`).
-2. **Sync feature context.** Read the spec, the as-built architecture
-   (`.aspis/context/ARCHITECTURE.md` — what already exists), the task list, and packets;
-   establish implementation awareness before delegating.
+2. **Sync feature context.** Load context in levels (`context-ladder`): L1 hot state first, then
+   the spec, the as-built architecture (`.aspis/context/ARCHITECTURE.md` — what already exists), the
+   task list, and packets; establish implementation awareness before delegating — and no more.
 3. **Validate the packet.** You are the final execution gate — check each task
    packet for scope, files, acceptance, and feasibility before it runs. Don't
    blindly trust planning output.
