@@ -18,6 +18,7 @@ from aspis.commands import (
     init,
     mode,
     models,
+    preflight,
     status,
     testledger,
     uninstall,
@@ -35,6 +36,7 @@ COMMAND_MODULES = (
     commits,
     artifact,
     testledger,
+    preflight,
     doctor,
     uninstall,
 )
