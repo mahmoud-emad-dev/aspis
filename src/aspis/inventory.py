@@ -23,7 +23,7 @@ from aspis.runtimes.base import RuntimeInventory
 
 #: Generated inventory path, relative to a project root (gitignored machine state,
 #: kept with the model config it belongs to — no standalone ``state/`` folder).
-INVENTORY_REL = f"{BRAIN_DIR}/config/.runtime-inventory.json"
+INVENTORY_REL = f"{BRAIN_DIR}/config/reference/.runtime-inventory.json"
 #: Snapshot of the connected providers captured at the last ``aspis models --sync``.
 SYNC_SNAPSHOT_REL = f"{BRAIN_DIR}/config/.last-sync.json"
 

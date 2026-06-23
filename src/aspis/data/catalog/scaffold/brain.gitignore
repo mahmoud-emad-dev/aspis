@@ -7,8 +7,8 @@ index/CODE_MAP.md
 index/test-ledger.json
 context/CURRENT_STATE.md
 context/RECENT_CHANGES.md
-config/.runtime-inventory.json
-config/.last-sync.json
+config/reference/.runtime-inventory.json
+config/reference/.last-sync.json
 current/findings.json
 traces/
 *.db
