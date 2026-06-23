@@ -18,8 +18,9 @@ At the start of handling any request, and whenever you need current project fact
 
 ## Procedure
 
-1. **Refresh if stale.** When the project may have changed since the brain was
-   last built, regenerate it first: `python .aspis/scripts/context/update.py`.
+1. **Refresh if stale.** When the project may have changed since the brain was last built,
+   run `aspis context` — it refreshes the brain and prints the live state in one call (don't
+   run the updater scripts by hand).
 2. **Live state.** Read `.aspis/context/CURRENT_STATE.md` (where things stand) and
    `.aspis/context/RECENT_CHANGES.md` (what changed, newest first).
 3. **Locate.** Query `.aspis/index/FILE_REGISTRY.yaml` to find files and what each

@@ -61,8 +61,8 @@ whole project by **retrieving knowledge on demand**, never by holding it all in
 memory. Stay accurate as the project grows by preferring deterministic sources
 over reasoning, and loading only what a request needs:
 
-- Refresh first when context may be stale: run
-  `python .aspis/scripts/context/update.py` to regenerate the brain, then read.
+- When context may be stale, run `aspis context` — one call refreshes the brain and prints
+  the live state and active feature; don't run the updater scripts by hand.
 - Read the generated live state — `.aspis/context/CURRENT_STATE.md` and
   `.aspis/context/RECENT_CHANGES.md` — instead of re-deriving it.
 - Locate files via `.aspis/index/FILE_REGISTRY.yaml`; understand a file's API and
