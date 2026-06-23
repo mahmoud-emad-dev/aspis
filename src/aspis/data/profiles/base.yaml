@@ -27,6 +27,7 @@ skills:
   - skills/context-packaging
   - skills/project-question-answering
   - skills/project-guidance
+  - skills/project-health
   - skills/planning-intake
   - skills/requirement-clarification
   - skills/feature-planning
@@ -51,9 +52,12 @@ skills:
   - skills/asset-authoring
   - skills/system-validation
   - skills/system-repair
+  - skills/config-management
   - skills/commit-message
   - skills/commit-splitting
   - skills/clean-tree-precondition
+  - skills/prestart-checks
+  - skills/context-ladder
 commands:
   - commands/plan.md
   - commands/build.md

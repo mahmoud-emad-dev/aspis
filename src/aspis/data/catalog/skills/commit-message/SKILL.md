@@ -13,20 +13,23 @@ human-facing "how" — you supply the parts, the tool builds and validates the m
 ## Format
 
 ```
-type(F-NNN[/T-NN | /T-NN..T-MM]): short imperative title
+type(F-NNN[/T-NN | /T-NN..T-MM | /SYS]): short imperative title
 
-- what changed, as a person would say it
-- one bullet per meaningful point (~3–6 lines)
-- the why when it is not obvious
+- what changed, as a person would say it — one short line per point
+- 2–5 points (3–5 typical), sized to the change; the why when it isn't obvious
+- only go past 5 when the change truly needs it
 
 Tasks: T-NN, …        # only on a multi-task commit (auto-added from a span)
 ```
 
 - **type** — one of: feat, fix, refactor, docs, chore, test, style, perf.
-- **scope** — the feature id, optionally a task or a task span: `F-007`, `F-007/T-02`,
-  `F-007/T-01..T-05`. Omitted for repo-lifecycle commits (init / bootstrap / release).
+- **scope** — almost always the **active feature** id, optionally a task or span: `F-007`,
+  `F-007/T-02`, `F-007/T-01..T-05`. Use `F-NNN/SYS` for an aspis system/config change routed
+  through the system-lead. Omit scope only for true repo-lifecycle commits (init/bootstrap/release) —
+  not for ordinary feature work.
 - **title** — imperative, lower-case, ≤ 72 chars, no trailing period.
-- **body** — required; real bullets describing the change, not a diff narration.
+- **body** — required; **2–5 concise single-line points** (3–5 typical), no filler; a point wraps
+  to a second line only for a genuinely large change. Real change/notes, not diff narration.
 
 ## Compose with the tool, don't hand-format
 

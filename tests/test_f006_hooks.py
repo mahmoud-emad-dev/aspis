@@ -152,7 +152,7 @@ def test_runtime_hooks_emitted_per_runtime(tmp_path: Path) -> None:
 
     other = tmp_path / "oc"
     assert OpenCodeAdapter().emit_runtime_hooks(catalog, other, write=True)
-    assert (other / ".opencode" / "plugins" / "scope-guard.ts").is_file()
+    assert (other / ".opencode" / "plugins" / "session-notice.ts").is_file()
 
 
 def test_runtime_without_wiring_emits_nothing(tmp_path: Path) -> None:

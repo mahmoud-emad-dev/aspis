@@ -20,6 +20,7 @@ if __package__ in (None, ""):
 
 import _config  # noqa: E402
 import _git  # noqa: E402
+import findings  # noqa: E402
 import scope  # noqa: E402
 
 
@@ -56,7 +57,10 @@ def main() -> int:
     blocking = _config.blocks(root)
     label = "blocked out-of-scope edit" if blocking else "out-of-scope edit (allowed)"
     for path in out:
+        relative = _relative(path, root)
         print(f"[aspis] {label}: {path}", file=sys.stderr)
+        # Surface it for the next agent's preflight, even in warn mode (which doesn't block).
+        findings.emit(root, "scope", f"out-of-scope edit attempted: {relative}", "scope-guard")
     return 2 if (blocking and out) else 0
 
 

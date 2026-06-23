@@ -38,7 +38,8 @@ First, on every planning request, before gathering deep context or writing anyth
    `architecture: skip` drops P3; `plan_review: skip` drops P5). `task_size` is the
    *base* granularity; **shade it by the builder's model** — a weaker/cheaper model
    earns finer task packets (smaller, more checked), a stronger one can take coarser
-   ones. Check the builder's model with `aspis models` when it matters.
+   ones. When it matters, read the builder's model from `.aspis/config/agent-models.yaml`
+   (model routing is the system-lead's domain — planning only reads it, never changes it).
 5. **State the plan-of-plan** in one or two lines before proceeding: track, mode, and
    the artifacts to produce.
 

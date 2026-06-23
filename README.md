@@ -1,29 +1,47 @@
-# ASPIS
+<div align="center">
 
-> **the shield for autonomous software production**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/brand/logo-dark.svg">
+  <img alt="ASPIS" src="assets/brand/logo-light.svg" width="240">
+</picture>
 
-ASPIS is a **file-first, deterministic software-production system** for building
-software with AI agents. Every piece of project state — plans, rules, traces,
-agent definitions — lives as plain files in Git, so any AI runtime reads and
-writes the same source of truth.
+### The shield for autonomous software production
 
-**The bet:**
+A **file-first, deterministic** system for building software with AI agents —
+where the *cheapest sufficient model* produces *production-grade* work, repeatably.
+
+![License](https://img.shields.io/badge/license-MIT-green)
+![Python](https://img.shields.io/badge/python-3.11%2B-3776AB)
+![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-0F172A)
+![Status](https://img.shields.io/badge/status-beta-4F46E5)
+![Runtimes](https://img.shields.io/badge/runtimes-Claude%20Code%20%7C%20OpenCode-64748B)
+
+[Quickstart](docs/QUICKSTART.md) · [Architecture](docs/ARCHITECTURE.md) · [Roadmap](ROADMAP.md) · [Contributing](CONTRIBUTING.md)
+
+</div>
+
+---
+
+## Why ASPIS
+
+Frontier models are capable but inconsistent. ASPIS doesn't hope a model gets it
+right — it **engineers the conditions** under which a cheap model can't get it wrong:
 
 ```text
 Quality = model capability × task clarity × test strength × review discipline
 ```
 
-Instead of hoping a frontier model gets it right, ASPIS engineers **clarity,
-determinism, tests, and review** so the *cheapest sufficient* model produces
-*production-grade* software — repeatably, not once.
+Every piece of project state — plans, rules, traces, agent definitions — lives as
+plain files in Git, so **any** AI runtime reads and writes the same source of truth.
 
-> ⚠️ **Status: early beta.** ASPIS is being built in the open. The public API and
-> CLI are not yet stable.
+<div align="center">
+  <img alt="ASPIS architecture — four layers" src="assets/diagrams/architecture.svg" width="720">
+</div>
 
 ## Install
 
-One command — it checks prerequisites, installs `uv` if missing, installs the
-global `aspis`, and verifies:
+One command — it checks prerequisites, installs `uv` if missing, installs the global
+`aspis`, and verifies:
 
 ```bash
 # Linux / macOS
@@ -34,30 +52,25 @@ curl -fsSL https://raw.githubusercontent.com/mahmoud-emad-dev/aspis/main/install
 irm https://raw.githubusercontent.com/mahmoud-emad-dev/aspis/main/install.ps1 | iex
 ```
 
-Other methods (clone, contributor, troubleshooting, uninstall, where files live):
-**[docs/INSTALL.md](docs/INSTALL.md)**.
+Other methods (clone, contributor, troubleshooting, uninstall): **[docs/INSTALL.md](docs/INSTALL.md)**.
 
-## Verify
-
-```bash
-aspis doctor             # Python, Git, project health
-aspis doctor --verbose   # + where ASPIS lives and which runtimes are detected
-```
-
-## Your first project
+## Quickstart
 
 ```bash
 mkdir my-project && cd my-project
-aspis init --write        # scaffold the brain + runtime assets
-aspis bootstrap --write   # make the project live (sets goal, promotes leads)
-aspis models --sync       # assign a model to each agent for this machine
+aspis init --write        # scaffold the brain (.aspis/) + runtime assets (.claude/, .opencode/)
+aspis bootstrap --write   # make the project live (goal, stack, promote leads)
+aspis models --sync       # assign each agent a model available on this machine
 ```
 
-Each command prints the next step. Then open **`AGENTS.md`** and start your
-runtime (OpenCode by default; `aspis init --runtime claude` for Claude Code).
-New here? The **[Quickstart](docs/QUICKSTART.md)** walks the first
-`plan → build → review` loop; **[Your first ASPIS build](docs/FIRST-BUILD.md)**
-shows a real feature end-to-end.
+Then open **`AGENTS.md`** and start your runtime (OpenCode by default; add
+`--runtime claude` for Claude Code). The factory drives a deterministic loop:
+
+<div align="center">
+  <img alt="The ASPIS build loop — plan, build, review, test" src="assets/diagrams/build-loop.svg" width="720">
+</div>
+
+The **[Quickstart](docs/QUICKSTART.md)** walks the whole first build with a worked example.
 
 ## Commands
 
@@ -65,7 +78,7 @@ shows a real feature end-to-end.
 aspis init <dir>        # scaffold an ASPIS project (dry-run; --write to apply)
 aspis bootstrap         # onboarding: make an initialized project live
 aspis status            # report project state
-aspis models            # the model each agent resolves to, per runtime (see below)
+aspis models            # the model each agent resolves to, per runtime
 aspis commit <paths…>   # compose a conventional message and commit (single writer)
 aspis commits           # audit commit-message history (--fix repairs the auto-fixable)
 aspis gitignore         # write/refresh .gitignore for the detected stack
@@ -75,29 +88,25 @@ aspis uninstall         # remove machine-wide state (keeps project brains)
 
 ## Model intelligence
 
-ASPIS routes each agent to the *cheapest sufficient* model — **per runtime**,
-because the same agent can run on a different model under Claude than OpenCode.
+ASPIS routes each agent to the *cheapest sufficient* model — **per runtime**, because
+the same agent can run on a different model under Claude than OpenCode. Agents declare a
+*tier* (`cheap`/`standard`/`deep`), never a hard-coded model; a resolver translates that
+to the exact model your connected providers expose, with per-agent and per-capability
+overrides — all data, no code change. Detection is presence-only (no session or content
+access).
 
-```bash
-aspis models            # resolved model per agent, per runtime
-aspis models --sync     # generate the editable .aspis/config/agent-models.yaml
-```
+## Documentation
 
-Agents declare a *tier* (`cheap`/`standard`/`deep`), never a hard-coded model; a
-resolver translates that to the exact model your connected providers expose, with
-per-agent and per-capability overrides — all data, no code change. Detection is
-presence-only (no session or content access). Full detail in the project docs.
+- **[Install](docs/INSTALL.md)** — every install method, troubleshooting, uninstall.
+- **[Quickstart](docs/QUICKSTART.md)** — clone → first build, with a worked example.
+- **[Architecture](docs/ARCHITECTURE.md)** — how the factory is built.
+- **[Roadmap](ROADMAP.md)** — the six parts: what's shipped, what's next, what isn't done.
+- **[Testing](docs/TESTING.md)** — the manual acceptance pass.
+- **[Contributing](CONTRIBUTING.md)** · **[Security](SECURITY.md)** · **[Changelog](CHANGELOG.md)**
 
-## How it's built
-
-ASPIS separates four layers:
-
-| Layer       | What it is                                         | Lifetime    |
-|-------------|----------------------------------------------------|-------------|
-| **Factory** | this repository — the catalog, rules, and engine   | source      |
-| **Brain**   | `.aspis/` — a project's durable, tool-neutral memory | permanent   |
-| **Runtime** | `.claude/`, `.opencode/` — generated tool configs   | disposable  |
-| **Product** | `src/`, `tests/`, `docs/` — the software being built | the deliverable |
+> ⚠️ **Status: early beta.** Parts 1–2 of the six-part plan are shipped — install,
+> onboarding, and the production system; tracing is next. The public API and CLI are
+> not yet stable. See the **[Roadmap](ROADMAP.md)**.
 
 ## License
 

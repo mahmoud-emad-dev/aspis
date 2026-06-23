@@ -28,8 +28,12 @@ class OpenCodeAdapter(RuntimeAdapter):
 
     name = "opencode"
     # supports_mode / root_guide / dir come from data/runtimes/opencode.yaml (data SSoT).
-    # Scope-guard wiring: a tool.execute.before plugin under .opencode/plugins.
-    runtime_hooks = (("runtime-hooks/opencode/scope-guard.ts", ".opencode/plugins/scope-guard.ts"),)
+    # Lite, fire-and-forget runtime plugin: a session.created notice that surfaces open
+    # findings. No per-tool-call hook — scope is checked at the git boundary (pre-commit),
+    # so the runtime never gates or slows an individual edit.
+    runtime_hooks = (
+        ("runtime-hooks/opencode/session-notice.ts", ".opencode/plugins/session-notice.ts"),
+    )
 
     def render_agent(
         self,

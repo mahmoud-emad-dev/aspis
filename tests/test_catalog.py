@@ -242,7 +242,10 @@ def test_build_workers_are_scoped(tmp_path) -> None:
         (tmp_path / ".opencode" / "agents" / "committer.md").read_text(encoding="utf-8")
     )
     assert committer["model"] == _tier("opencode", "cheap")  # cheap tier — mechanical
-    assert committer["permission"]["bash"]["git commit*"] == "allow"  # the only committer
+    # F-014 P0: `aspis commit` is the primary, sanctioned commit path — it must be in the
+    # allowlist (its absence was the demo_win2 root cause). Raw git stays as a guarded fallback.
+    assert committer["permission"]["bash"]["aspis commit*"] == "allow"  # primary commit path
+    assert committer["permission"]["bash"]["git commit*"] == "allow"  # guarded raw-git fallback
     assert committer["permission"]["bash"]["git push*"] == "deny"  # never pushes
     assert "edit" not in committer["permission"]  # never edits files
 
@@ -253,6 +256,28 @@ def test_build_lead_skills_are_copied(tmp_path) -> None:
     skills = tmp_path / ".claude" / "skills"
     for skill in ("build-readiness", "task-orchestration", "scope-control", "selective-testing"):
         assert (skills / skill / "SKILL.md").is_file()
+
+
+def test_runtime_hooks_bake_a_working_interpreter(tmp_path) -> None:
+    # F-014 T-02: the runtime hooks must not hardcode `python3` (absent on Windows → the
+    # scope-guard silently no-ops). They bake the resolved interpreter at emit, like the git hooks.
+    import sys
+    from pathlib import Path
+
+    interpreter = Path(sys.executable).as_posix()
+
+    oc = tmp_path / "oc"
+    _engine().run("init", oc, write=True, no_git=True)  # opencode (base)
+    plugin = (oc / ".opencode" / "plugins" / "session-notice.ts").read_text(encoding="utf-8")
+    assert "python3" not in plugin  # the unresolved name is gone
+    assert "__ASPIS_PY__" not in plugin  # the placeholder was substituted
+    assert interpreter in plugin  # the real interpreter is baked in
+
+    cl = tmp_path / "cl"
+    _engine().run("init", cl, write=True, no_git=True, runtimes=["claude"])
+    settings = (cl / ".claude" / "settings.json").read_text(encoding="utf-8")
+    assert "python3" not in settings
+    assert interpreter in settings
 
 
 def test_reviewer_is_a_deep_readonly_authority(tmp_path) -> None:

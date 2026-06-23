@@ -48,10 +48,18 @@ heavier tooling is added only when a part truly needs it.
 
 1. Keep the gate green and include tests for any behavior change.
 2. Keep each change scoped to a single concern.
-3. Explain the *why*, not just the *what*.
+3. Explain the *why*, not just the *what* — the PR template prompts for this.
 
-## Reporting
+Open a [bug report or feature request](https://github.com/mahmoud-emad-dev/aspis/issues/new/choose)
+before a large change so we can align on the approach.
+
+## Reporting & conduct
 
 - **Security vulnerabilities:** see [SECURITY.md](SECURITY.md) — please do **not** open a
   public issue.
-- Please be respectful and constructive in all project interactions.
+- By participating, you agree to our [Code of Conduct](CODE_OF_CONDUCT.md): be respectful
+  and constructive in all project interactions.
+
+---
+
+**Next:** [Architecture](docs/ARCHITECTURE.md) · [Roadmap](ROADMAP.md) · [Quickstart](docs/QUICKSTART.md)

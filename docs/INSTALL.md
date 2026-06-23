@@ -52,7 +52,7 @@ uv run pytest && uv run ruff check .
 ```console
 $ aspis doctor
   [ok  ] python   Python 3.12
-  [ok  ] aspis    aspis 0.1.0b1
+  [ok  ] aspis    aspis 0.1.0b3
   [ok  ] git      /usr/bin/git
   [warn] project  not an ASPIS project (run `aspis init`)
 
@@ -60,8 +60,7 @@ All checks passed.
 ```
 
 `aspis doctor --verbose` additionally shows the CLI path, where config/data/cache
-live, and which agent runtimes (Claude Code, OpenCode, Cursor, Gemini, Codex) are
-on your PATH.
+live, and which agent runtimes (Claude Code, OpenCode) are detected on your PATH.
 
 ## Where ASPIS stores things
 
@@ -102,3 +101,7 @@ executable bit set, but if your filesystem dropped it: `bash install.sh` works, 
 
 **Python too old.** ASPIS needs Python 3.11+. Install from
 [python.org/downloads](https://python.org/downloads) and re-run the installer.
+
+---
+
+**Next:** [Quickstart](QUICKSTART.md) — your first build · [Architecture](ARCHITECTURE.md) · [Roadmap](../ROADMAP.md)

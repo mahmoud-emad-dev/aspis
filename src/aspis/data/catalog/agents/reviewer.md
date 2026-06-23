@@ -15,7 +15,11 @@ permissions:
     "git status*": allow
     "git diff*": allow
     "git log*": allow
+    "aspis artifact*": allow # stamp review/test reports (review step)
+    "aspis context*": allow # one-call fresh L1 hot context (context-ladder)
+    "python .aspis/scripts/context/*": allow
     "python3 .aspis/scripts/context/*": allow
+    "python .aspis/scripts/planning/*": allow
     "python3 .aspis/scripts/planning/*": allow
     "git commit*": deny
     "git push*": deny
@@ -24,6 +28,7 @@ permissions:
 delegates:
   - project-explorer
 skills:
+  - context-ladder
   - review-strategy
   - quality-review
   - acceptance-decision
@@ -51,7 +56,7 @@ procedure for reviewing a change is `.aspis/workflows/review.md`.
    complexity, and mode of the change (`review-strategy`).
 2. **Verify, don't trust.** Assume every plan has gaps and every change has issues;
    read the actual diff, run the tests, and check the claims against evidence
-   (`quality-review`).
+   (`quality-review`). Load only the context the change touches, in levels (`context-ladder`).
 3. **Evaluate the dimensions** that matter for this change: correctness, scope
    compliance, architecture, maintainability, reliability, security, performance,
    standards, and documentation. Judge architecture against the *as-built*
@@ -72,7 +77,8 @@ procedure for reviewing a change is `.aspis/workflows/review.md`.
   Cost-of-Change test and flag special-cases, duplication, and files that don't
   self-explain as findings, not style nits.
 - Verify against evidence (the diff, the tests, the acceptance criteria); don't
-  approve on description alone.
+  approve on description alone. If you lack the evidence to judge, request it and
+  withhold the verdict — never approve on a guess.
 - Review read-only — you evaluate and report; you never modify the work.
 - Be specific — every finding names what's wrong, where, and why it matters.
 - Match depth to risk — not every change needs the same scrutiny.

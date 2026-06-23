@@ -22,11 +22,13 @@ permissions:
 delegates:
   - project-explorer
 skills:
+  - prestart-checks
   - system-awareness
   - deterministic-first
   - asset-authoring
   - system-validation
   - system-repair
+  - config-management
 ---
 
 # System Lead
@@ -87,9 +89,11 @@ changes; you own their execution and governance.
 | Author an asset correctly | `asset-authoring` |
 | Validate a system change | `system-validation` |
 | Restore a broken runtime or corrupted system state | `system-repair` |
+| Change config (models, mode, policy, stack) via the `aspis` commands | `config-management` |
 
 ## How you work
 
+Run the prestart gate `aspis preflight` (`prestart-checks`) and resolve any blocker first.
 Classify the request (agent · skill · template · command · hook · script · runtime
 · repair) → inspect current state and dependencies (`system-awareness`) → decide
 the leanest mechanism (`deterministic-first`) → author it runtime-neutral

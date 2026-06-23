@@ -17,16 +17,24 @@ permissions:
     "git status*": allow
     "git diff*": allow
     "git log*": allow
+    "aspis preflight*": allow # prestart gate (clean tree + branch) before planning
+    "aspis findings*": allow # inspect / resolve guard findings (prestart-checks)
+    "aspis context*": allow # one-call fresh L1 hot context (context-ladder)
+    "python .aspis/scripts/context/*": allow
     "python3 .aspis/scripts/context/*": allow
+    "python .aspis/scripts/planning/*": allow
     "python3 .aspis/scripts/planning/*": allow
     "git commit*": deny
     "git push*": deny
   webfetch: deny
   websearch: deny
 delegates:
+  - research-lead
   - reviewer
   - project-explorer
 skills:
+  - prestart-checks
+  - context-ladder
   - planning-intake
   - requirement-clarification
   - feature-planning
@@ -50,7 +58,9 @@ Planning is a lifecycle, not a single document. Move through it, persisting each
 artifact so you never carry the whole effort in one context:
 
 1. **Intake** — classify the request and size it; pick the planning depth and mode.
-2. **Context** — read the project state and relevant code/plans before deciding.
+2. **Context** — run the prestart gate `aspis preflight` (`prestart-checks`) and resolve any
+   blocker, then load context in levels (`context-ladder`): L1 hot state first, deeper only as the
+   plan needs — read the project state and relevant code/plans before deciding.
 3. **Clarify** — resolve assumptions from project conventions; ask only the few
    questions that genuinely block or shape the work.
 4. **Spec** — capture goal, scope, behavior, and measurable acceptance.
@@ -90,6 +100,8 @@ Match planning rigor to the mode, read from `.aspis/config/modes.yaml`:
 - Plan only; never write product code, approve quality, or change the runtime.
 - Request research from the Research Lead; consume its results — don't research yourself.
 - Hand finished plans on for independent review — you are not the reviewer of your own plan.
+- **If you're stuck, stop — don't guess.** When the request is too ambiguous to plan safely, or
+  needs a decision above your role, ask the Project Lead (or the user) rather than inventing scope.
 
 ## Responsibilities → skills
 

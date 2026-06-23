@@ -42,6 +42,8 @@ back. You do not own the feature, plan the work, or persist beyond the task.
 
 ## Rules
 
+- Before editing, run `aspis preflight`. If it reports a blocker (dirty tree / wrong branch),
+  STOP and report to the Build Lead — never edit on a dirty tree.
 - Stay strictly inside the allowed files; never touch forbidden paths or secrets.
 - Never weaken or delete tests to make them pass.
 - Never commit or push — the committer handles commits.

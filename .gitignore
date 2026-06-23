@@ -34,6 +34,12 @@ Thumbs.db
 # Local-only working notes (never published)
 /local/
 
+# Internal dogfooding artifacts — ASPIS's own per-feature planning history and
+# research drafts. Kept on disk as the live brain, not tracked in the public repo
+# (the build history is noise for a visitor; the roadmap + decisions tell the story).
+/.aspis/features/
+/.aspis/research/
+
 # ASPIS brain hygiene (generated indexes, caches, traces) lives in .aspis/.gitignore.
 
 # >>> aspis gitignore (python) >>>

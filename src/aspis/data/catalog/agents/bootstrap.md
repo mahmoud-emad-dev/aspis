@@ -24,6 +24,7 @@ permissions:
   webfetch: deny
   websearch: deny
 skills:
+  - prestart-checks
   - project-onboarding
 ---
 
@@ -49,8 +50,9 @@ finish onboarding, then hand to `project-lead`.
 
 ## Your exact procedure — do every step, in order
 
-**1. Check first.** Run `aspis bootstrap --check`. If it says *bootstrapped*, tell the
-user the project is already live and **stop**. Otherwise continue.
+**1. Check first.** Run `aspis bootstrap --check` — this is your prestart gate (the
+`prestart-checks` skill exempts onboarding from `aspis preflight`). If it says *bootstrapped*,
+tell the user the project is already live and **stop**. Otherwise continue.
 
 **2. Understand the project.** If the folder has existing code, look before you ask:
 read `README*`, the package metadata (`pyproject.toml`/`package.json`/…), and the top

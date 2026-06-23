@@ -24,6 +24,27 @@ def test_state_reports_stack_and_branch(git_repo) -> None:
     assert "**Branch:**" in text
 
 
+def test_state_reports_active_feature(git_repo) -> None:
+    current = git_repo / ".aspis" / "current"
+    current.mkdir(parents=True)
+    (current / "active_feature.json").write_text(
+        '{"id": "F-009", "title": "widgets", "phase": "build", "mode": "mvp"}',
+        encoding="utf-8",
+    )
+    _run(git_repo)
+
+    text = (git_repo / ".aspis" / "context" / "CURRENT_STATE.md").read_text(encoding="utf-8")
+    assert "**Active feature:** F-009 widgets" in text
+    assert "phase build" in text
+    assert "no commits yet" in text  # seed commit carries no F-009 scope
+
+
+def test_state_reports_no_active_feature(git_repo) -> None:
+    _run(git_repo)
+    text = (git_repo / ".aspis" / "context" / "CURRENT_STATE.md").read_text(encoding="utf-8")
+    assert "**Active feature:** none" in text
+
+
 def test_manual_content_is_preserved(git_repo) -> None:
     target = git_repo / ".aspis" / "context" / "CURRENT_STATE.md"
     target.parent.mkdir(parents=True)
