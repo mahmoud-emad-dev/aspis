@@ -17,8 +17,10 @@ Instead of hoping a frontier model gets it right, ASPIS engineers **clarity,
 determinism, tests, and review** so the *cheapest sufficient* model produces
 *production-grade* software — repeatably, not once.
 
-> ⚠️ **Status: early beta.** ASPIS is being built in the open. The public API and
-> CLI are not yet stable.
+> ⚠️ **Status: early beta.** Parts 1–2 of the six-part plan are shipped — install,
+> onboarding, and the production system; tracing is next. See the
+> **[Roadmap](ROADMAP.md)** for what's built, what's next, and what isn't done yet.
+> The public API and CLI are not yet stable.
 
 ## Install
 
@@ -56,8 +58,7 @@ aspis models --sync       # assign a model to each agent for this machine
 Each command prints the next step. Then open **`AGENTS.md`** and start your
 runtime (OpenCode by default; `aspis init --runtime claude` for Claude Code).
 New here? The **[Quickstart](docs/QUICKSTART.md)** walks the first
-`plan → build → review` loop; **[Your first ASPIS build](docs/FIRST-BUILD.md)**
-shows a real feature end-to-end.
+`plan → build → review` loop and ends with a real feature built end-to-end.
 
 ## Commands
 
@@ -98,6 +99,15 @@ ASPIS separates four layers:
 | **Brain**   | `.aspis/` — a project's durable, tool-neutral memory | permanent   |
 | **Runtime** | `.claude/`, `.opencode/` — generated tool configs   | disposable  |
 | **Product** | `src/`, `tests/`, `docs/` — the software being built | the deliverable |
+
+## Documentation
+
+- **[Install](docs/INSTALL.md)** — every install method, troubleshooting, uninstall.
+- **[Quickstart](docs/QUICKSTART.md)** — clone → first build, with a worked example.
+- **[Architecture](docs/ARCHITECTURE.md)** — how the factory is built.
+- **[Roadmap](ROADMAP.md)** — the six parts: what's shipped, what's next, what isn't done.
+- **[Testing](docs/TESTING.md)** — the manual acceptance pass.
+- **[Contributing](CONTRIBUTING.md)** · **[Security](SECURITY.md)** · **[Changelog](CHANGELOG.md)**
 
 ## License
 

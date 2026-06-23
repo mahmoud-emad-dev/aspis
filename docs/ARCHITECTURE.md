@@ -43,7 +43,7 @@ protected areas.
 
 ## Direction
 
-Ordered phases: engine spine → lead roster → live factory + governance → default
-production system → **tracing spine** → **self-improvement** → **surfaces (dashboard)**.
-The later phases are reserved seams, not yet built — see [`ROADMAP.md`](../.aspis/context/ROADMAP.md)
-for live status.
+Six parts, in order: install & onboarding → the production system → **tracing** →
+**intelligence** → **surfaces (dashboard)** → **scale**. Parts 1–2 are shipped; the
+rest are reserved seams, not yet built — see [`ROADMAP.md`](../ROADMAP.md) for live
+status and what ASPIS deliberately does not do yet.

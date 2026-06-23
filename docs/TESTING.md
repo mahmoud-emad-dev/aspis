@@ -44,7 +44,7 @@ git clone <repo>; cd aspis
 .\install.ps1
 ```
 Expect: prerequisite checks pass, `uv` installed if missing, `aspis --version` prints
-`aspis 0.1.0b1`, `aspis doctor` runs. ✅ when `aspis` resolves from a new shell.
+the installed version, `aspis doctor` runs. ✅ when `aspis` resolves from a new shell.
 
 **Check:** `command -v aspis` (Linux) / `(Get-Command aspis).Source` (Windows) →
 points at `~/.local/bin/aspis` (Linux) or `%USERPROFILE%\.local\bin\aspis.exe` (Windows).
@@ -76,6 +76,19 @@ aspis doctor          # now [ok] project
 aspis status
 ```
 ✅ when the project is recognized and the runtime dirs contain agents + skills.
+
+---
+
+## S3b — Bootstrap (make the project live)
+```
+aspis bootstrap --write -y       # non-interactive happy path
+aspis doctor                     # 0-FAIL, tree clean (auto-committed)
+aspis bootstrap --write -y       # run again
+```
+Expect: the brain is filled (goal, stack, default mode), the canonical structure has
+**every folder filled, none empty or stray**, the onboarding package self-cleans once the
+project is live, and history is clean. ✅ when the **second** run is idempotent (no
+changes, no error). ❌ if a `bootstrap` agent/skill lingers after the project is live.
 
 ---
 
@@ -125,6 +138,29 @@ files untouched.
 
 ---
 
+## S8 — Git hygiene (auto-clean + gitignore)
+```
+# inside an initialized project (git repo)
+touch junk.tmp .aspis/templates/.gitkeep   # a populated dir shouldn't keep .gitkeep
+aspis commit notes.md --type docs --title "trigger hooks"
+aspis gitignore                            # offline-first, stack-aware
+```
+Expect: `post-commit` cleans junk + reaps stale `.gitkeep` from populated dirs; the
+commit-msg hook strips any AI/tool attribution; `aspis gitignore` maintains a
+nature-based ignore (generated/state ignored, source/durable tracked) without network.
+❌ if attribution survives or a populated dir keeps a `.gitkeep`.
+
+---
+
+## S9 — Catalog ↔ export parity (in the ASPIS repo)
+```
+uv run pytest -k "regenerate or parity" -q
+```
+Expect: the runtime-neutral catalog reproduces the live `.claude/` and `.opencode/`
+byte-for-byte — the moat that proves there is no second source of truth. ❌ on any drift.
+
+---
+
 ## Where things live (verify the layout)
 
 | Item | Linux / macOS | Windows |
@@ -133,5 +169,5 @@ files untouched.
 | Tool environment | uv-managed (`uv tool dir`) | uv-managed (`uv tool dir`) |
 | **Global** model config (optional) | `~/.aspis/config/project.yaml` | `%USERPROFILE%\.aspis\config\project.yaml` |
 | **Per-project** brain (tracked) | `<project>/.aspis/` | `<project>\.aspis\` |
-| Per-project generated state (gitignored) | `<project>/.aspis/state/` | `<project>\.aspis\state\` |
+| Per-project generated state (gitignored) | `<project>/.aspis/index/`, `config/reference/.runtime-inventory.json` | same, under `<project>\.aspis\` |
 | Detected provider config (read, not written) | `~/.local/share/opencode/auth.json`, `~/.claude/settings.json` | `%USERPROFILE%\.local\share\opencode\auth.json`, `%USERPROFILE%\.claude\settings.json` |
