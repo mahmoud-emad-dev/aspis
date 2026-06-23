@@ -1,16 +1,5 @@
 {
   "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"__ASPIS_PY__\" \"$CLAUDE_PROJECT_DIR/.aspis/scripts/hooks/runtime_guard.py\""
-          }
-        ]
-      }
-    ],
     "SessionStart": [
       {
         "hooks": [

@@ -22,6 +22,7 @@ if __package__ in (None, ""):
 import _config  # noqa: E402
 import _git  # noqa: E402
 import cleanup  # noqa: E402
+import findings  # noqa: E402
 import scope  # noqa: E402
 import secret_scan  # noqa: E402
 
@@ -99,6 +100,8 @@ def main() -> int:
     label = "BLOCKED" if blocking else "warning"
     for message in issues:
         print(f"[aspis] {label}: {message}", file=sys.stderr)
+        # Fire-and-forget: record it so the next session/prestart surfaces it (warn never blocks).
+        findings.emit(root, "precommit", message, "pre-commit")
     return 1 if (blocking and issues) else 0
 
 

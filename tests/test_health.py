@@ -27,9 +27,9 @@ def test_runtime_hook_interpreter_missing_warns(tmp_path) -> None:
     # Simulates a Windows<->WSL move: the baked path no longer resolves -> doctor must flag it,
     # never silently no-op the guard.
     _init(tmp_path)
-    guard = tmp_path / ".opencode" / "plugins" / "scope-guard.ts"
-    text = guard.read_text(encoding="utf-8")
-    guard.write_text(
+    plugin = tmp_path / ".opencode" / "plugins" / "session-notice.ts"
+    text = plugin.read_text(encoding="utf-8")
+    plugin.write_text(
         text.replace(Path(sys.executable).as_posix(), "/no/such/python"), encoding="utf-8"
     )
     check = check_runtime_hooks(tmp_path)

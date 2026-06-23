@@ -268,10 +268,10 @@ def test_runtime_hooks_bake_a_working_interpreter(tmp_path) -> None:
 
     oc = tmp_path / "oc"
     _engine().run("init", oc, write=True, no_git=True)  # opencode (base)
-    guard = (oc / ".opencode" / "plugins" / "scope-guard.ts").read_text(encoding="utf-8")
-    assert "python3" not in guard  # the unresolved name is gone
-    assert "__ASPIS_PY__" not in guard  # the placeholder was substituted
-    assert interpreter in guard  # the real interpreter is baked in
+    plugin = (oc / ".opencode" / "plugins" / "session-notice.ts").read_text(encoding="utf-8")
+    assert "python3" not in plugin  # the unresolved name is gone
+    assert "__ASPIS_PY__" not in plugin  # the placeholder was substituted
+    assert interpreter in plugin  # the real interpreter is baked in
 
     cl = tmp_path / "cl"
     _engine().run("init", cl, write=True, no_git=True, runtimes=["claude"])

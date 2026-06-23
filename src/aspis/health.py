@@ -72,11 +72,11 @@ def check_project(root: Path) -> Check:
 
 def _baked_interpreter(root: Path) -> tuple[str, str] | None:
     """Pull (hook-file, interpreter) baked into a project's runtime hook, if one exists."""
-    ts = root / ".opencode" / "plugins" / "scope-guard.ts"
+    ts = root / ".opencode" / "plugins" / "session-notice.ts"
     if ts.is_file():
         match = re.search(r'const py = "([^"]+)"', ts.read_text(encoding="utf-8"))
         if match:
-            return (".opencode/plugins/scope-guard.ts", match.group(1))
+            return (".opencode/plugins/session-notice.ts", match.group(1))
     settings = root / ".claude" / "settings.json"
     if settings.is_file():
         try:
