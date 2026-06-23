@@ -7,7 +7,7 @@ prerequisite is [`uv`](https://docs.astral.sh/uv/).
 ## 1. Get ASPIS
 
 ```bash
-git clone <your-clone-url> aspis && cd aspis
+git clone https://github.com/mahmoud-emad-dev/aspis.git && cd aspis
 uv sync
 uv run aspis --version
 ```
@@ -36,6 +36,7 @@ aspis init . --write    # actually scaffold the project
   commands) for Claude Code and OpenCode. Disposable — regenerated from the brain.
 - Root files (`AGENTS.md`, `.gitignore`, and `CLAUDE.md` when Claude is a target).
 
+> [!NOTE]
 > Generated brain indexes (`CURRENT_STATE.md`, `RECENT_CHANGES.md`, `CODE_MAP.md`,
 > `FILE_REGISTRY.yaml`) are **not** tracked — they're derived and regenerate on demand.
 

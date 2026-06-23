@@ -47,3 +47,7 @@ Six parts, in order: install & onboarding → the production system → **tracin
 **intelligence** → **surfaces (dashboard)** → **scale**. Parts 1–2 are shipped; the
 rest are reserved seams, not yet built — see [`ROADMAP.md`](../ROADMAP.md) for live
 status and what ASPIS deliberately does not do yet.
+
+---
+
+**Next:** [Quickstart](QUICKSTART.md) · [Roadmap](../ROADMAP.md) · [Contributing](../CONTRIBUTING.md)

@@ -7,7 +7,7 @@ it reads and writes.
 
 ## Supported versions
 
-ASPIS is pre-1.0 (alpha). Security fixes are applied to the latest release only.
+ASPIS is pre-1.0 (beta). Security fixes are applied to the latest release only.
 
 | Version | Supported |
 |---------|-----------|

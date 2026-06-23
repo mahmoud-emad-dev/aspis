@@ -35,12 +35,12 @@ smoke test cannot assert automatically (real shells, `gh`, the agent loop).
 
 **Linux / macOS**
 ```bash
-git clone <repo> && cd aspis
+git clone https://github.com/mahmoud-emad-dev/aspis.git && cd aspis
 ./install.sh
 ```
 **Windows (PowerShell)**
 ```powershell
-git clone <repo>; cd aspis
+git clone https://github.com/mahmoud-emad-dev/aspis.git; cd aspis
 .\install.ps1
 ```
 Expect: prerequisite checks pass, `uv` installed if missing, `aspis --version` prints
