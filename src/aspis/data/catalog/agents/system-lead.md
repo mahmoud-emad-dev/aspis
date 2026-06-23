@@ -28,6 +28,7 @@ skills:
   - asset-authoring
   - system-validation
   - system-repair
+  - config-management
 ---
 
 # System Lead
@@ -88,6 +89,7 @@ changes; you own their execution and governance.
 | Author an asset correctly | `asset-authoring` |
 | Validate a system change | `system-validation` |
 | Restore a broken runtime or corrupted system state | `system-repair` |
+| Change config (models, mode, policy, stack) via the `aspis` commands | `config-management` |
 
 ## How you work
 
