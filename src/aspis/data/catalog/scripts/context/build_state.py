@@ -15,20 +15,49 @@ from pathlib import Path
 import _common
 
 
+def _feature_line(root: Path, branch: str) -> str:
+    """One-line active-feature summary, with commits-on-this-feature count."""
+    feature = _common.active_feature(root)
+    if not feature:
+        return "- **Active feature:** none"
+    fid = feature.get("id", "?")
+    title = feature.get("title", feature.get("slug", "?"))
+    phase = feature.get("phase", "?")
+    mode = feature.get("mode", "?")
+    # How many commits on this branch carry this feature's scope (0 → no code yet).
+    count = 0
+    for commit in _common.recent_commits(root, 50):
+        if commit["feature"] == fid.upper():
+            count += 1
+    body = f"{fid} {title} — phase {phase}, mode {mode}"
+    tail = "no commits yet" if count == 0 else f"{count} commit(s)"
+    return f"- **Active feature:** {body} · {tail}"
+
+
+def _tree_line(root: Path) -> str:
+    """Working-tree status: clean, or a count of changed paths."""
+    status = _common.git(root, "status", "--porcelain")
+    changed = [ln for ln in status.splitlines() if ln.strip()]
+    if not changed:
+        return "- **Working tree:** clean"
+    return f"- **Working tree:** {len(changed)} changed"
+
+
 def run(root: Path) -> Path:
     """Regenerate CURRENT_STATE.md's auto block; return the file path."""
     stack = _common.detect_stack(root)
     branch = _common.git(root, "rev-parse", "--abbrev-ref", "HEAD") or "(no git)"
-    last_commit = _common.git(root, "log", "-1", "--pretty=%h %s") or "(no commits)"
+    last = _common.git(root, "log", "-1", "--pretty=%h %s — %ad", "--date=short") or "(no commits)"
 
     body = "\n".join(
         [
             "## Current state",
             "",
-            f"- **Project:** {root.name}",
-            f"- **Stack:** {stack}",
+            f"- **Project:** {root.name} · **Stack:** {stack}",
             f"- **Branch:** {branch}",
-            f"- **Last commit:** {last_commit}",
+            _feature_line(root, branch),
+            _tree_line(root),
+            f"- **Last commit:** {last}",
         ]
     )
 
