@@ -28,8 +28,12 @@ class OpenCodeAdapter(RuntimeAdapter):
 
     name = "opencode"
     # supports_mode / root_guide / dir come from data/runtimes/opencode.yaml (data SSoT).
-    # Scope-guard wiring: a tool.execute.before plugin under .opencode/plugins.
-    runtime_hooks = (("runtime-hooks/opencode/scope-guard.ts", ".opencode/plugins/scope-guard.ts"),)
+    # Runtime plugins under .opencode/plugins: a tool.execute.before scope-guard and a
+    # session.created notice that surfaces open findings.
+    runtime_hooks = (
+        ("runtime-hooks/opencode/scope-guard.ts", ".opencode/plugins/scope-guard.ts"),
+        ("runtime-hooks/opencode/session-notice.ts", ".opencode/plugins/session-notice.ts"),
+    )
 
     def render_agent(
         self,

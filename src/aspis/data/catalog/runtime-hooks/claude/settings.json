@@ -10,6 +10,16 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"__ASPIS_PY__\" \"$CLAUDE_PROJECT_DIR/.aspis/scripts/hooks/session_start.py\""
+          }
+        ]
+      }
     ]
   }
 }
