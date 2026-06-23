@@ -18,7 +18,9 @@ aspis preflight
 - **Blocker (non-zero):** do **not** edit. Resolve first, then re-run until it is Ready:
   - finished, reviewed work in the tree → hand it to the `committer` (see the `commit-message` skill);
   - unrelated uncommitted work → stash it deliberately (never edit on top of it);
-  - wrong branch → `git checkout <the active feature's branch>`.
+  - wrong branch → `git checkout <the active feature's branch>`;
+  - **open findings** (a guard flagged a wrong state) → inspect with `aspis findings`, fix or route
+    the cause, then `aspis findings --resolve <n>`.
 
 Generated brain churn (`.aspis/index/`, `.aspis/context/`) is expected and never blocks — `aspis
 preflight` already ignores it. This is the active form of the `clean-tree-precondition` rule.

@@ -44,6 +44,24 @@ def test_preflight_ignores_generated_brain_churn(tmp_path, capsys) -> None:
     assert code == 0  # brain churn is expected, not a blocker
 
 
+def test_preflight_blocks_on_open_finding(tmp_path, capsys) -> None:
+    from aspis import findings
+
+    _init(tmp_path)
+    store = tmp_path / ".aspis" / "current" / "findings.json"
+    store.parent.mkdir(parents=True, exist_ok=True)
+    store.write_text(
+        '[{"kind": "scope", "detail": "out-of-scope edit: x.py", "source": "scope-guard"}]',
+        encoding="utf-8",
+    )
+    code = cli_main(["preflight", str(tmp_path)])
+    out = capsys.readouterr().out
+    assert code == 1
+    assert "x.py" in out  # the open finding is surfaced as a blocker
+    assert "findings --resolve" in out
+    assert findings.load(tmp_path)  # sanity: it was actually read
+
+
 def test_preflight_blocks_on_branch_mismatch(tmp_path, capsys) -> None:
     _init(tmp_path)
     pointer = tmp_path / ".aspis" / "current" / "active_feature.json"

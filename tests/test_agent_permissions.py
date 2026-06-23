@@ -35,6 +35,7 @@ _ASPIS_VERBS = {
     "testledger",
     "preflight",
     "context",
+    "findings",
 }
 
 

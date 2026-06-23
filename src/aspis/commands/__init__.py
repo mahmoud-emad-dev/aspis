@@ -15,6 +15,7 @@ from aspis.commands import (
     commits,
     context,
     doctor,
+    findings,
     gitignore,
     init,
     mode,
@@ -39,6 +40,7 @@ COMMAND_MODULES = (
     testledger,
     preflight,
     context,
+    findings,
     doctor,
     uninstall,
 )

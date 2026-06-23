@@ -9,6 +9,7 @@ context/CURRENT_STATE.md
 context/RECENT_CHANGES.md
 config/.runtime-inventory.json
 config/.last-sync.json
+current/findings.json
 traces/
 *.db
 __pycache__/

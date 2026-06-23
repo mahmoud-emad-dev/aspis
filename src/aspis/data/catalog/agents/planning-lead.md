@@ -18,6 +18,7 @@ permissions:
     "git diff*": allow
     "git log*": allow
     "aspis preflight*": allow # prestart gate (clean tree + branch) before planning
+    "aspis findings*": allow # inspect / resolve guard findings (prestart-checks)
     "aspis context*": allow # one-call fresh L1 hot context (context-ladder)
     "python .aspis/scripts/context/*": allow
     "python3 .aspis/scripts/context/*": allow

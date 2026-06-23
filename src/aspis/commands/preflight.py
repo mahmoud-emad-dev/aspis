@@ -15,7 +15,7 @@ import argparse
 import json
 from pathlib import Path
 
-from aspis import gitops
+from aspis import findings, gitops
 from aspis.project import is_project
 
 #: Status label, ASCII-safe for any console.
@@ -110,6 +110,21 @@ def _run(args: argparse.Namespace) -> int:
     else:
         phase = feature.get("phase", "?")
         checks.append(("feature", "ok", f"{fid} ({phase}) on '{current}'"))
+
+    # Open findings emitted by the deterministic guards — resolve or route before working.
+    open_findings = findings.load(root)
+    if open_findings:
+        shown = "; ".join(f.get("detail", "") for f in open_findings[:3])
+        checks.append(
+            (
+                "findings",
+                "fail",
+                f"{len(open_findings)} open: {shown} — fix or route, then "
+                "`aspis findings --resolve <n>`.",
+            )
+        )
+    else:
+        checks.append(("findings", "ok", "none"))
 
     for name, status, detail in checks:
         print(f"  [{_LABELS.get(status, status)}] {name:<8} {detail}")
