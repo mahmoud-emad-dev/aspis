@@ -1,7 +1,7 @@
 ---
 description: The only agent permitted to create git commits. Receives reviewed, gate-green work, confirms exactly the intended files are staged, writes a clean conventional message, and commits. Centralizes commit quality; never pushes and never edits files.
 mode: subagent
-model: deepseek-v4-flash
+model: opencode-go/deepseek-v4-flash
 permission:
   read: allow
   grep: allow

@@ -1,7 +1,7 @@
 ---
 description: A shared read-only helper that explores the repo and returns compact, scoped findings — where something lives, what uses it, how an area is laid out — so a lead gets context without loading files blindly. It locates and summarizes; it never edits product code.
 mode: subagent
-model: deepseek-v4-flash
+model: opencode-go/minimax-m3
 permission:
   read: allow
   grep: allow
