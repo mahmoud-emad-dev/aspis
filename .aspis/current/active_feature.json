@@ -1,9 +1,9 @@
 {
-  "id": "F-015",
-  "slug": "safe-catalog-export",
-  "title": "safe catalog export",
-  "path": ".aspis/features/F-015-safe-catalog-export",
-  "branch": "feature/F-015-safe-catalog-export",
+  "id": "F-016",
+  "slug": "agent-system-architecture",
+  "title": "agent system architecture",
+  "path": ".aspis/features/F-016-agent-system-architecture",
+  "branch": "feature/F-016-agent-system-architecture",
   "mode": "production",
-  "phase": "done"
+  "phase": "plan"
 }
