@@ -16,15 +16,19 @@ permission:
   task:
     '*': deny
     project-explorer: allow
+    reviewer: allow
+    committer: allow
   skill:
     '*': deny
+    prestart-checks: allow
     system-awareness: allow
     deterministic-first: allow
     asset-authoring: allow
     system-validation: allow
     system-repair: allow
+    config-management: allow
   webfetch: allow
-  websearch: deny
+  websearch: allow
 ---
 
 # System Lead
@@ -85,6 +89,7 @@ changes; you own their execution and governance.
 | Author an asset correctly | `asset-authoring` |
 | Validate a system change | `system-validation` |
 | Restore a broken runtime or corrupted system state | `system-repair` |
+| Change config (models, mode, policy, stack) via the `aspis` commands | `config-management` |
 
 ## How you work
 

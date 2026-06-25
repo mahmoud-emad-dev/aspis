@@ -8,8 +8,18 @@ permission:
   grep: allow
   glob: allow
   write: allow
+  bash:
+    '*': deny
+    python .aspis/scripts/context/*: allow
+    python3 .aspis/scripts/context/*: allow
+    git commit*: deny
+    git push*: deny
+  task:
+    '*': deny
+    project-explorer: allow
   skill:
     '*': deny
+    context-ladder: allow
     knowledge-research: allow
     knowledge-packaging: allow
   webfetch: allow
@@ -34,7 +44,7 @@ builds against reality rather than stale assumptions.
 ## How you work
 
 1. **Scope the question.** Pin down exactly what's unknown and what a good answer
-   must contain.
+   must contain — read L1 hot context first to ground the scope (`context-ladder`).
 2. **Research from authority.** Find official docs, release notes, and reputable
    sources; verify the version and that the information is current (`knowledge-research`).
 3. **Validate.** Cross-check claims; separate verified fact from opinion; note

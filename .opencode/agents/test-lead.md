@@ -52,6 +52,8 @@ approve the work — you give the Reviewer and the leads the evidence to decide.
 - Never weaken or delete a test to make it pass; a failing test is a finding.
 - Make results objective and reproducible so later stages can reuse them.
 - Never commit or push — hand any committed work to the committer.
+- **If you're stuck, stop — don't guess.** If you can't validate (missing acceptance, an
+  unreproducible case), report what's needed rather than inventing a result.
 
 ## Responsibilities → skills
 
