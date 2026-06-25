@@ -274,6 +274,14 @@ class TestPlanRuntime:
         assert result["prot"].kind is DecisionKind.PROTECT
         assert result["conf"].kind is DecisionKind.CONFLICT
 
+    def test_plan_runtime_with_explicit_none(self):
+        # An explicit None live hash must behave identically to an absent key
+        # (both yield live_hash=None -> ADD).
+        explicit = plan_runtime({}, {"path": None}, {"path": H1})
+        absent = plan_runtime({}, {}, {"path": H1})
+        assert explicit["path"].kind is DecisionKind.ADD
+        assert absent["path"].kind is DecisionKind.ADD
+
 
 # --------------------------------------------------------------------------- #
 # summary

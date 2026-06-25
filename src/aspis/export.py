@@ -316,6 +316,9 @@ def write_export(
     inventory = load_inventory(target_root)
     performed: list[str] = []
 
+    if scope is not None and not any(a.target.startswith(scope) for a in plan.actions):
+        return [f"scope '{scope}' matched no actions"]
+
     effective_write = write or apply
     lock_path = target_root / ".aspis" / "current" / "export.lock"
     if effective_write:
@@ -489,7 +492,8 @@ def _write_decide(
                 _apply(action, destination, project_config, inventory)
                 paths[target_posix] = regen_hash
         else:
-            performed.append(f"{decision.kind.value}: {action.target}")
+            hint = " (use --force-conflicts to overwrite)" if decision.kind is DecisionKind.CONFLICT else ""
+            performed.append(f"{decision.kind.value}: {action.target}{hint}")
 
         log_entries.append(
             {
@@ -511,7 +515,7 @@ def _write_decide(
                 _append_log(target_root, log_entries)
             if decision.kind is DecisionKind.CONFLICT:
                 raise ProtectionError(
-                    f"conflict on {action.target}: both user and catalog changed"
+                    f"conflict on {action.target}: both user and catalog changed (use --force-conflicts to overwrite)"
                 )
             raise ProtectionError(
                 f"protected on {action.target}: user-customized file skipped "

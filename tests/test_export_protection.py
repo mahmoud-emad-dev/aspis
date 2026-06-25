@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import pytest
 
-from aspis.export import ExportAction, ExportPlan, ProtectionError, write_export
+from aspis.export import ExportAction, ExportPlan, ProtectionError, _acquire_lock, write_export
 from aspis.protect import sha256_text
 
 
@@ -213,6 +214,17 @@ def test_stale_lock_with_dead_pid_is_taken_over(tmp_path: Path) -> None:
     assert performed[0].startswith("copy:")
     assert (target / ".aspis" / "templates" / "a.md").read_text(encoding="utf-8") == "alpha"
     assert not lock_path.exists()
+
+
+def test_lock_held_by_alive_pid_raises(tmp_path: Path) -> None:
+    # A lockfile holding an alive PID that is not our own must raise, not be
+    # taken over (contrast with test_stale_lock_with_dead_pid_is_taken_over).
+    lock_path = tmp_path / ".aspis" / "current" / "export.lock"
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    lock_path.write_text(str(os.getppid()), encoding="utf-8")
+
+    with pytest.raises(ProtectionError, match="export already in progress"):
+        _acquire_lock(lock_path)
 
 
 # --------------------------------------------------------------------------- #

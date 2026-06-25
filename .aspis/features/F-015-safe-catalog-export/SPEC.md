@@ -19,10 +19,10 @@ agent file — even ones the user edited.
 
 In scope:
 - `.aspis/current/export-snapshot.json` — hash snapshot of what was last written
-- `.aspis/current/export-log.json` — append-only audit log of every export decision
+- `.aspis/current/export-log.jsonl` — append-only audit log of every export decision
 - Runtime hook outputs (emit_runtime_hooks) are protected by the same decide
   flow as catalog actions.
-- Hash-based classification of every export target into 5 categories
+- Hash-based classification of every export target into 6 categories
 - `--apply` flag: write only safe files (NEW + CATALOG-CHANGED)
 - `--scope` flag: limit export to a single project-relative path
 - `--strict` flag: fail on conflicts (non-zero exit)
@@ -122,10 +122,10 @@ Out of scope:
 - **FR-002**: The system MUST persist a snapshot (`export-snapshot.json`) mapping
   every written file's project-relative path to its hash.
 - **FR-003**: The system MUST classify every export target into exactly one of
-  five categories: NEW, IDENTICAL, CATALOG-CHANGED, LIVE-CUSTOMIZED, CONFLICT.
+  six categories: ADD, UNCHANGED, UNKNOWN, UPDATE, PROTECT, CONFLICT.
 - **FR-004**: The system MUST decide write-or-skip per file based on its category
   and the active flags (`--force`, `--apply`, `--force-conflicts`).
-- **FR-005**: The system MUST append an audit entry to `export-log.json` for every
+- **FR-005**: The system MUST append an audit entry to `export-log.jsonl` for every
   `write_export` invocation that performs writes.
 - **FR-006**: The `--apply` flag MUST write NEW and CATALOG-CHANGED files, and
   MUST skip LIVE-CUSTOMIZED and CONFLICT files.
@@ -168,7 +168,7 @@ Out of scope:
   SHA-256 hashes of the content as last written. Versioned. One per project.
 - **ExportAuditEntry**: A record of one `write_export` invocation — timestamp,
   flags, every file's category and decision, and a summary count. Appended to
-  `export-log.json`.
+  `export-log.jsonl`.
 - **Category**: One of `NEW`, `IDENTICAL`, `CATALOG_CHANGED`, `LIVE_CUSTOMIZED`,
   `CONFLICT` — the result of comparing three hashes (disk, snapshot, catalog).
 
@@ -204,6 +204,8 @@ Out of scope:
 - Q: Should `--force` override `--apply`? → A: Yes. If both are passed, `force`
   wins (writes everything, including LIVE-CUSTOMIZED and CONFLICT).
 - Q: Should the snapshot record files that were skipped? → A: No. The snapshot
-  only records what was actually written. The audit log records everything.
+  only records what was actually written — except UNKNOWN targets, whose live
+  hash is recorded so a future run can reclassify them. The audit log records
+  everything.
 - Q: Should `models --apply` change behavior? → A: Yes — this is the feature's
   explicit goal. The old `force=True` is the problem statement.
