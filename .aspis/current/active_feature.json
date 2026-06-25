@@ -5,5 +5,5 @@
   "path": ".aspis/features/F-015-safe-catalog-export",
   "branch": "feature/F-015-safe-catalog-export",
   "mode": "production",
-  "phase": "build"
+  "phase": "done"
 }
