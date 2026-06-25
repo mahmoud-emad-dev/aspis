@@ -13,12 +13,22 @@ def _engine():
 
 
 def test_init_does_not_scaffold_on_demand_dirs(tmp_path) -> None:
-    """On-demand dirs (features/current/research) are not created empty at init."""
+    """On-demand dirs are not scaffolded with .gitkeep at init.
+
+    ``features`` and ``research`` are truly absent (no writer has run yet).
+    ``current`` may be created by ``write_export`` for export state (F-015),
+    but it is never scaffolded empty — it only exists when it has content.
+    """
     _engine().run("init", tmp_path, write=True, no_git=True, name="demo")
-    for name in ("features", "current", "research"):
-        assert not (tmp_path / ".aspis" / name).exists(), (
-            f"{name} should be on-demand, not scaffolded"
-        )
+    # features and research: no writer has created them yet.
+    assert not (tmp_path / ".aspis" / "features").exists()
+    assert not (tmp_path / ".aspis" / "research").exists()
+    # current: not scaffolded with .gitkeep (the empty-dir scaffold mechanism).
+    current = tmp_path / ".aspis" / "current"
+    assert not (current / ".gitkeep").exists()
+    # If current exists (created by write_export for export state), it has content.
+    if current.exists():
+        assert any(current.iterdir()), "current should not be empty if it exists"
     # The filled scaffold dirs are present.
     for name in ("config", "context", "index", "rules", "scripts", "templates", "workflows"):
         assert (tmp_path / ".aspis" / name).is_dir()
