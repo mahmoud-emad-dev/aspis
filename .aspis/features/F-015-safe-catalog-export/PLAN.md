@@ -37,6 +37,9 @@ src/aspis/protect.py          (~141 lines)  NEW
 **Purpose:** Content-hash-based per-file write decision — pure data in, pure data
 out. No file I/O, no diff computation, no runtime awareness.
 
+**Module docstring requirement:** The module must carry a top docstring with
+Purpose / Responsibilities / Does Not / Used By per the constitution's file rules.
+
 **Public interface:**
 
 ```python
@@ -57,7 +60,15 @@ class Decision:
     regen_hash: str | None = None
 
 def sha256_text(text: str) -> str:
-    """SHA-256 hex digest after CRLF→LF normalization."""
+    """SHA-256 hex digest after stripping UTF-8 BOM and normalizing CRLF→LF."""
+    if text.startswith("\ufeff"):
+        text = text[1:]
+    text = text.replace("\r\n", "\n")
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+def sha256_bytes(data: bytes) -> str:
+    """SHA-256 hex digest of raw bytes. No normalization. For binary files."""
+    return hashlib.sha256(data).hexdigest()
 
 def decide(
     live_hash: str | None,
@@ -90,9 +101,12 @@ def summary(decisions: dict[str, Decision]) -> dict[DecisionKind, int]:
 
 **Key adaptation from old repo:**
 - `UNTRACKED` renamed to `UNKNOWN` (clearer semantics: "we don't know the history")
-- `sha256_text` normalizes CRLF→LF before hashing (prevents false PROTECT on
-  Windows line-ending mismatch)
+- `sha256_text` strips UTF-8 BOM and normalizes CRLF→LF before hashing (prevents
+  false PROTECT on Windows line-ending mismatch and on editor-added BOMs)
+- `sha256_bytes` hashes raw bytes with no normalization, for binary files
 - `decide()` is pure — no file I/O inside it (caller computes hashes)
+- Snapshot keys are always `Path.as_posix()` — never use `str(path)` for the
+  snapshot key
 
 ### 2.2 Changed file: `src/aspis/export.py`
 
@@ -120,14 +134,18 @@ def write_export(
 
 **Flow (when `force=False`):**
 
+0. **Acquire lock:** create `.aspis/current/export.lock` using
+   `os.open(O_CREAT | O_EXCL | O_RDWR)`. If it exists, check if the PID is
+   alive; if dead, allow takeover. Release lock on completion (delete the file).
+
 1. **Load snapshot** from `{target_root}/.aspis/current/export-snapshot.json`
    - If absent → empty `{"version": 1, "paths": {}}`
    - If corrupted and not `reset_snapshot` → refuse with clear error
    - If corrupted and `reset_snapshot` → treat as empty
 
 2. **Filter by scope** (if `scope is not None`):
-   - Keep only actions where `action.source` (relative to `plan.catalog_root`)
-     starts with `scope`
+   - Keep only actions where `action.target` starts with `scope` (target path = the
+     project-relative path the file will be written to)
 
 3. **For each action, compute three hashes:**
    - **regen_hash:** `sha256_text(source.read_text())` — what the catalog says
@@ -147,11 +165,18 @@ def write_export(
    | PROTECT | Skip, log "protected (user-modified)" |
    | CONFLICT | Skip unless `force_conflicts`; log "conflict (both changed)" |
 
-6. **After all actions:** write snapshot **atomically** (tempfile + `os.replace`)
-   to prevent partial writes from concurrent runs
+5a. **Runtime hook outputs (emit_runtime_hooks)** are also tracked in the
+    snapshot. Every file `write_export` writes — whether from `plan.actions`
+    or from `emit_runtime_hooks` — is protected by the same decide flow.
 
-7. **Append audit entries** to `{target_root}/.aspis/current/export-log.json`
-   (append-mode: read existing, add entries, write)
+6. **After all actions:** Ensure `.aspis/current/` exists before writing:
+   `path.parent.mkdir(parents=True, exist_ok=True)`. Then write snapshot
+   **atomically** using `tempfile.mkstemp(dir=parent, suffix='.tmp')` +
+   `os.fdopen` + `os.replace` (NOT `NamedTemporaryFile` — it holds the file
+   open on Windows) to prevent partial writes from concurrent runs
+
+7. **Append audit entries** to `{target_root}/.aspis/current/export-log.jsonl`
+   (JSONL format — one JSON object per line, true append-only, O(1) per entry)
 
 8. **When `force=True`:** skip the decide loop entirely — overwrite every
    destination (exact existing behavior preserved for backward compat)
@@ -201,7 +226,7 @@ parser.add_argument("--apply", action="store_true",
 parser.add_argument("--strict", action="store_true",
     help="Refuse on CONFLICT (exit non-zero).")
 parser.add_argument("--scope", default=None,
-    help="Export only assets whose catalog source path starts with this prefix.")
+    help="Export only assets whose target path starts with this prefix (e.g. .opencode/agents/).")
 parser.add_argument("--force-conflicts", action="store_true",
     help="Overwrite files even when both catalog and user changed the file.")
 parser.add_argument("--reset-snapshot", action="store_true",
@@ -246,6 +271,30 @@ DRY-RUN — init /path/to/project
 SUMMARY: 3 ADD, 15 UNCHANGED, 1 UNKNOWN, 2 UPDATE, 1 PROTECT, 1 CONFLICT
 ```
 
+### 2.3a Changed file: `src/aspis/operations/init.py`
+
+```
+src/aspis/operations/init.py   (+8 lines, ~55 total)  CHANGED
+```
+
+**Read new flags from `ctx.options` and forward to `write_export()`:**
+
+The current implementation reads `ctx.options.get("write")` and
+`ctx.options.get("force")` at line ~34-35 and calls
+`write_export(plan, ctx.root, force=force, write=write)` at line ~47. This file
+must also read the new flags from `ctx.options` and pass them to `write_export`:
+
+```python
+write_export(plan, ctx.root, force=force, write=write,
+             apply=ctx.options.get("apply", False),
+             strict=ctx.options.get("strict", False),
+             scope=ctx.options.get("scope"),
+             force_conflicts=ctx.options.get("force_conflicts", False),
+             reset_snapshot=ctx.options.get("reset_snapshot", False))
+```
+
+(Inherits the same options dict shape as the CLI layer.)
+
 ### 2.4 Changed file: `src/aspis/commands/models.py`
 
 ```
@@ -271,11 +320,18 @@ decision engine will correctly:
   unchanged)
 - **CONFLICT** agents where both the catalog and user changed
 
+**`--force` flag added as escape hatch:**
+
+Add `--force` flag to `aspis models --apply` as an escape hatch. When `--force`
+is passed, use `force=True` instead of `apply=True` (old behavior — overwrites
+everything, including user-edited agents). Without `--force`, `models --apply`
+uses `apply=True` (new protected behavior).
+
 ### 2.5 New brain files (generated, gitignored)
 
 ```
 .aspis/current/export-snapshot.json    NEW  (generated, gitignored)
-.aspis/current/export-log.json         NEW  (generated, gitignored)
+.aspis/current/export-log.jsonl        NEW  (generated, gitignored)
 ```
 
 **`export-snapshot.json` format:**
@@ -294,30 +350,16 @@ decision engine will correctly:
 - `paths`: posix-relative path → SHA-256 hex digest
 - Atomic write via tempfile + `os.replace` (concurrent-run safe)
 
-**`export-log.json` format:**
-```json
-{
-  "version": 1,
-  "entries": [
-    {
-      "timestamp": "2026-06-24T14:30:00.123456",
-      "path": ".opencode/agents/planning-lead.md",
-      "kind": "UPDATE",
-      "action": "wrote",
-      "hashes": {
-        "live": "abc123...",
-        "snapshot": "abc123...",
-        "regen": "def456..."
-      }
-    }
-  ]
-}
+**`export-log.jsonl` format (JSONL — one JSON object per line, no array wrapper):**
+```jsonl
+{"timestamp": "2026-06-24T14:30:00.123456", "path": ".opencode/agents/planning-lead.md", "kind": "UPDATE", "action": "wrote", "hashes": {"live": "abc123...", "snapshot": "abc123...", "regen": "def456..."}}
 ```
 
 - `timestamp`: ISO 8601 with microseconds (UTC)
 - `kind`: DecisionKind value
 - `action`: `"wrote"` | `"skipped"` | `"preserved"` | `"protected"` | `"conflict"`
 - `hashes`: the three hashes at decision time
+- One JSON object per line — true append-only, O(1) per entry
 
 ### 2.6 Brain `.gitignore` update
 
@@ -328,7 +370,7 @@ decision engine will correctly:
 Add entries to ignore generated export state:
 ```
 current/export-snapshot.json
-current/export-log.json
+current/export-log.jsonl
 ```
 
 This is a scaffolding data change (not product code) — the `resources/scaffold/brain.gitignore`
@@ -431,13 +473,13 @@ database migration, no schema change.
 
 | Category | Files | Count |
 |---|---|---|
-| **Existing files changed** | `src/aspis/export.py`, `src/aspis/commands/init.py`, `src/aspis/commands/models.py` | **3** |
+| **Existing files changed** | `src/aspis/export.py`, `src/aspis/commands/init.py`, `src/aspis/commands/models.py`, `src/aspis/operations/init.py` | **4** |
 | **New product code files** | `src/aspis/protect.py` | **1** |
 | **New test files** | `tests/test_protect.py`, `tests/test_export_snapshot.py`, `tests/test_export_protection.py`, `tests/test_commands_models.py` (extended), `tests/test_commands_init.py` (extended), `tests/test_f015_e2e.py` | **6** |
 | **Generated brain files** | `.aspis/current/export-snapshot.json`, `.aspis/current/export-log.json` | **2** (generated) |
 | **Brain data update** | `src/aspis/data/catalog/scaffold/brain.gitignore` | **1** (2 lines) |
 
-**Cost-of-Change verdict: 3 existing product files changed → HEALTHY** (within 1–3 range).
+**Cost-of-Change verdict: 4 existing product files changed → WARNING** (within 5–10 range).
 
 ---
 
@@ -445,7 +487,7 @@ database migration, no schema change.
 
 | # | Rule | How satisfied |
 |---|---|---|
-| 1 | **Local Change** | 3 existing files changed, 1 new module. Well within healthy range. |
+| 1 | **Local Change** | 4 existing files changed, 1 new module. Within warning range (4 ≤ 5). |
 | 2 | **Plugin First** | `protect.py` is runtime-agnostic — no `if runtime == "claude"`. Decision function compares hashes only. |
 | 3 | **Single Source of Truth** | Catalog = source of what to write. Snapshot = record of what was last written. `decide()` reads both to determine action. No third source. |
 | 4 | **No Special Cases** | No `if kind == "agents"` or `if scope == "x"` in the decision engine. Scope filtering is a prefix match on the source path — generic mechanism. |
@@ -545,8 +587,8 @@ def _regen_hash(source: Path, op: str) -> str: ...                           # N
 | `tests/test_protect.py` | 16 | 100% branch coverage of `decide()` and `sha256_text()` |
 | `tests/test_export_snapshot.py` | 8 | Snapshot load/save/corruption/reset paths |
 | `tests/test_export_protection.py` | 12 | Full export cycle: ADD, UNCHANGED, UNKNOWN, UPDATE, PROTECT, CONFLICT, force bypass, force_conflicts, strict, scope |
-| `tests/test_commands_models.py` | 3 | models --apply with changed catalog, user-edited agent, both-changed |
-| `tests/test_commands_init.py` | 6 | Flag parsing, invalid combinations, dry-run output, apply with protection |
+| `tests/test_models_command.py` | 3 | models --apply with changed catalog, user-edited agent, both-changed |
+| `tests/test_init_cli.py` | 6 | Flag parsing, invalid combinations, dry-run output, apply with protection |
 | `tests/test_f015_e2e.py` | 6 | End-to-end: init→edit→re-init protects, catalog-change→re-init updates, both-change conflicts, force bypass, models-apply, snapshot corruption recovery |
 
 **Total: ~51 tests across 6 test files.**

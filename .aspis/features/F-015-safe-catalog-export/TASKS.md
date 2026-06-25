@@ -31,7 +31,8 @@
 
 **Objective:** Implement the pure 6-way hash-based decision engine. Zero file I/O,
 zero ASPIS imports, zero runtime awareness. The module is self-contained and
-testable in isolation.
+testable in isolation. Includes UTF-8 BOM stripping in `sha256_text()` and a
+separate `sha256_bytes()` function for binary files.
 
 **Key acceptance:**
 - [ ] `sha256_text()` produces correct SHA-256 hex digest, normalizes CRLF→LF
@@ -63,7 +64,12 @@ testable in isolation.
 **Objective:** Add snapshot/log persistence helpers. Rewire `write_export` to compute
 hashes per action, call `protect.decide()`, and dispatch write/skip per DecisionKind.
 `--force` bypasses the loop entirely (backward-compatible). `--apply` writes NEW and
-UPDATE files, skips PROTECT and CONFLICT.
+UPDATE files, skips PROTECT and CONFLICT. The audit log uses JSONL format (one
+JSON object per line, true append-only). A lockfile mechanism guards against
+concurrent runs. The snapshot is written atomically using
+`tempfile.mkstemp` + `os.replace`, with `path.parent.mkdir(parents=True,
+exist_ok=True)` called first. Runtime hook outputs (`emit_runtime_hooks`) are
+tracked in the snapshot and protected by the same decide flow.
 
 **Key acceptance:**
 - [ ] Snapshot loads/saves atomically (tempfile + `os.replace`); corruption raises
@@ -91,14 +97,17 @@ UPDATE files, skips PROTECT and CONFLICT.
 **Plan steps:** Step 4 + Step 5
 
 **Files to modify:**
-- `src/aspis/commands/models.py` — line 230: `force=True` → `apply=True`
+- `src/aspis/commands/models.py` — line 230: `force=True` → `apply=True`; add
+  `--force` flag to `aspis models --apply` as escape hatch
 - `src/aspis/commands/init.py` — add `--dry-run`, `--apply`, `--strict`, `--scope`,
   `--force-conflicts`, `--reset-snapshot` flags to `register()` and pass through in
   `_run()`
+- `src/aspis/operations/init.py` — read new flags from `ctx.options` and forward
+  to `write_export()`
 
 **Files to create:**
-- `tests/test_commands_models.py` — 3 tests (if new; otherwise extend existing)
-- `tests/test_commands_init.py` — 6 tests (extend existing)
+- `tests/test_models_command.py` — 3 tests (if new; otherwise extend existing)
+- `tests/test_init_cli.py` — 6 tests (extend existing)
 
 **Objective:** Fix the `models --apply` blind-force bug so hand-edited agent files are
 protected. Add the 6 new CLI flags to `aspis init` and wire them through to
@@ -162,7 +171,7 @@ After each unit, confirm:
 
 | # | Rule | Check |
 |---|---|---|
-| 1 | **Local Change** | ≤ 3 existing product files changed total (export.py, init.py, models.py) |
+| 1 | **Local Change** | 4 existing product files changed total (export.py, init.py, models.py, operations/init.py) — within warning range |
 | 2 | **No Special Cases** | No `if kind == "agents"` or `if runtime == "claude"` in new code |
 | 3 | **Automation before Intelligence** | `decide()` and `sha256_text()` are pure deterministic functions |
 | 4 | **Core is Stable** | `plan_export()` and `_apply()` unchanged |

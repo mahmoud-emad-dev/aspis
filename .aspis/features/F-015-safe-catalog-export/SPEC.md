@@ -20,6 +20,8 @@ agent file — even ones the user edited.
 In scope:
 - `.aspis/current/export-snapshot.json` — hash snapshot of what was last written
 - `.aspis/current/export-log.json` — append-only audit log of every export decision
+- Runtime hook outputs (emit_runtime_hooks) are protected by the same decide
+  flow as catalog actions.
 - Hash-based classification of every export target into 5 categories
 - `--apply` flag: write only safe files (NEW + CATALOG-CHANGED)
 - `--scope` flag: limit export to a single project-relative path
@@ -131,8 +133,8 @@ Out of scope:
   (backward-compatible legacy behavior).
 - **FR-008**: The `--force-conflicts` flag, when combined with `--apply`, MUST
   also write CONFLICT files while still skipping LIVE-CUSTOMIZED files.
-- **FR-009**: The `--scope` flag MUST limit all export decisions to a single
-  project-relative target path.
+- **FR-009**: The `--scope` flag MUST limit all export decisions to actions whose
+  target path starts with the given prefix.
 - **FR-010**: The `--strict` flag MUST cause a non-zero exit code when any file
   is classified as CONFLICT or LIVE-CUSTOMIZED during an `--apply` run.
 - **FR-011**: The snapshot MUST be atomically written (temp file + rename) to
@@ -149,7 +151,7 @@ Out of scope:
 ## Feature rules & style
 
 - **Constitution #1 (Local Change)**: New protection logic lives in
-  `src/aspis/export_lock.py`; existing files change only at integration points.
+  `src/aspis/protect.py`; existing files change only at integration points.
 - **Constitution #2 (Plugin First)**: No `if runtime == "opencode"` anywhere.
 - **Constitution #3 (Single Source of Truth)**: Catalog is the source; snapshot is
   the record of what was written from it.
