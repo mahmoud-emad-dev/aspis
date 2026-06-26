@@ -20,10 +20,11 @@ if __package__ in (None, ""):
 import _config  # noqa: E402
 import _git  # noqa: E402
 
-# Scope is optional: feature work carries F-NNN[/T-NN | /T-NN..T-MM]; repo-lifecycle
-# commits (init, bootstrap, release) may omit it.
+# Scope is optional: feature work carries F-NNN[/SYS | /T-NN | /T-NN..T-MM]; a
+# system/config change made through the system-lead path carries F-NNN/SYS;
+# repo-lifecycle commits (init, bootstrap, release) may omit scope.
 _SUBJECT = re.compile(r"^(?P<type>[a-z]+)(?:\((?P<scope>[^)]+)\))?: (?P<title>.+)$")
-_SCOPE = re.compile(r"^F-\d{3}(/T-\d{2}(\.\.T-\d{2})?)?$")
+_SCOPE = re.compile(r"^F-\d{3}(/(?:SYS|T-\d{2}(?:\.\.T-\d{2})?))?$")
 # A model name counts as *credited* only next to one of these — covers authorship
 # claims ("claude-generated", "by claude") and tool trailers ("Claude-Session").
 _CREDIT = r"generated|authored|assisted|wrote|co-authored|session|assistant"
@@ -83,14 +84,14 @@ def validate(message: str, convention: dict[str, Any]) -> list[str]:
 
     match = _SUBJECT.match(subject)
     if not match:
-        errors.append("subject must be '<type>(F-NNN[/T-NN | /T-NN..T-MM]): <title>'")
+        errors.append("subject must be '<type>(F-NNN[/SYS | /T-NN | /T-NN..T-MM]): <title>'")
         return errors
 
     types = convention.get("types") or []
     if types and match["type"] not in types:
         errors.append(f"type '{match['type']}' is not one of {types}")
     if match["scope"] is not None and not _SCOPE.match(match["scope"]):
-        errors.append(f"scope '{match['scope']}' must be F-NNN, F-NNN/T-NN, or F-NNN/T-NN..T-MM")
+        errors.append(f"scope '{match['scope']}' must be F-NNN, F-NNN/SYS, F-NNN/T-NN, or F-NNN/T-NN..T-MM")
 
     max_len = int((convention.get("subject") or {}).get("max_length") or 72)
     if len(subject) > max_len:
