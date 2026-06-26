@@ -4,15 +4,35 @@
 > Total tasks: 41
 > Critical path: T-01 → T-03 → T-04 → T-05 → T-14 → T-18 → T-30 → T-32..T-37 → T-38 → T-40
 
+## Build notes — locked decisions (read before starting)
+
+- **T-01, T-02, T-03 are DONE** — research verified; `cross_ref_agents.py` built
+  (`994d592`); `findings-1.md` audit produced (`d0e2d88`). **Resume at T-04.**
+- **T-04 is scoped by `Research/audit/findings-triage.md`** (owner-decided):
+  apply the ~10 Group-1 fixes only, NOT all 40 findings. Group-2 = defer /
+  handled elsewhere; Group-3 = skip (conformance-only).
+- **Catalog is the truth.** Fix the design in the catalog (Phase 4); the owner's
+  *live* runtime is a personal/custom setup — do not chase it. Fixes are
+  **iterative, not final** — set what a clear, minimal role needs now.
+- **Keep each role clear and minimal** (role + skills + assets) so standard/cheap
+  models succeed; differentiate do-it-myself vs delegate (R-010).
+- **Subagent roster is OUT of scope → F-017.** The "future subagents" named in the
+  specs are NOT built here — leave them as references. See
+  `Research/subagent-roster-and-delegation.md`.
+- **Rules reorg is already DONE** (4-layer model + R-010 + `project-rules.md`,
+  live+catalog synced). Do not redo; keep agent specs consistent with it.
+- **Model tiers:** standard default / deeper when warranted, per user preference +
+  available models. Full model-tier scoring is a **future feature** — not built here.
+
 ## Phase 1 — Setup
 Shared scaffolding everything else needs. Blocked by: nothing.
 
-- [ ] T-01 [P0] [low] [simple] [config] — Verify research completeness: confirm all 12 research files, 8 reference specs, and 2 reviewer audits exist and are accessible
+- [x] T-01 [P0] [low] [simple] [config] — Verify research completeness: confirm all 12 research files, 8 reference specs, and 2 reviewer audits exist and are accessible — **DONE**
   - Files: `Research/core-loops-2026.md` through `Research/review-local-docs-rules.md` (14 files total)
   - Depends on: none | Blocks: T-03
   - Packet: V1 (light) | Builder: cheap | Review: self
 
-- [ ] T-02 [P1] [medium] [moderate] [feature] [P] — Create cross-reference validation script `cross_ref_agents.py`
+- [x] T-02 [P1] [medium] [moderate] [feature] [P] — Create cross-reference validation script `cross_ref_agents.py` — **DONE** (`994d592`)
   - Files: `.aspis/scripts/planning/cross_ref_agents.py` (new)
   - Depends on: none | Blocks: T-05, T-14, T-18, T-40
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
@@ -23,7 +43,7 @@ Shared scaffolding everything else needs. Blocked by: nothing.
 ## Phase 2 — Foundational (blocking)
 Core infrastructure ALL stories depend on — no story work until this completes.
 
-- [ ] T-03 [P0] [high] [complex] [review] — Reviewer adversarial audit of all 8 lead reference specs
+- [x] T-03 [P0] [high] [complex] [review] — Reviewer adversarial audit of all 8 lead reference specs — **DONE** (`d0e2d88`; triaged in `findings-triage.md`)
   - Files: All 8 `Research/ref/{project-lead,planning-lead,build-lead,reviewer,system-lead,fix-lead,test-lead,research-lead}.md`
   - Depends on: T-01 | Blocks: T-04, T-05
   - Packet: V3 (deep) | Builder: deep | Review: reviewer (multi-lens, all 9 dimensions)
@@ -33,7 +53,7 @@ Core infrastructure ALL stories depend on — no story work until this completes
   - Files: Affected `Research/ref/*.md` files (subset, determined by T-03 findings)
   - Depends on: T-03 | Blocks: T-05
   - Packet: V3 (deep) | Builder: standard | Review: build-lead
-  - **Goal**: Resolve all CRITICAL and HIGH findings. Each resolution documented with: finding ref, what changed, why the fix is sufficient. MEDIUM findings deferred to follow-up unless blocking.
+  - **Goal**: Apply the LOCKED work-order in `Research/audit/findings-triage.md` (owner-decided) — the focused **~10 Group-1 fixes, NOT all 40**. Honour its refinements: system-lead modifies runtime **only via tools scoped to `.aspis/`** (B-6); research-lead `write:allow`/`edit:deny` is **intentional** — document the rationale, don't add edit (B-5); reviewer + research-lead tiers = **standard default / deeper when warranted** per user preference + available models, **ignore the live custom model** (F-3/A-1/C-7); reviewer drops `aspis artifact test` (D-9); remove `plan-critic`/`review-strategy` from planning-lead (B-1); add the "if stuck, stop" rule to reviewer + research-lead (A-4/A-5); reviewer plan-critic 12-vs-6 labelled (B-2). Also **reword one side** of the planning-lead↔build-lead "confirm clean state" responsibility so the cross-ref gate (E-2 MEDIUM) goes green. Group-2 = defer; Group-3 = skip. Each resolution documented (finding ref, what changed, why sufficient).
 
 - [ ] T-05 [P0] [medium] [moderate] [test] — Cross-reference consistency check: run `cross_ref_agents.py` on all 8 lead specs
   - Files: `cross_ref_agents.py`, all 8 `Research/ref/*.md`
