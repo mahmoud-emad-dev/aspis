@@ -23,6 +23,28 @@ never all of them at once. The System Lead governs how they fit together.
 Precedence when they conflict: a valid user rule overrides a project default;
 system rules are never overridden — they bound what the others may do.
 
+## Applying these rules — practice over theory
+
+These rules exist to produce one outcome: a system that is **cheap to change and
+safe to run**. They are the means, never the goal. Apply them with judgment, not
+as a checklist:
+
+- **Apply a rule where it improves the work; don't apply it where it would force
+  an illogical, impractical, or lower-value result.** A rule that makes a
+  specific case worse is a signal to question the application — raise it under
+  R-008 — not to comply mechanically.
+- **Only the rules a role actually owns apply to it.** An agent, spec, or file is
+  not defective for "missing" a rule it does not own (see the three layers and
+  `config/constitution-checks.yaml`). The absence of a box-ticking section is not,
+  by itself, a defect.
+- **A real defect is concrete:** it raises cost-of-change, breaks a gate, creates
+  a wrong/unsafe behaviour, or makes the system harder to understand, change, or
+  run. Judge every finding by that test. Conformance for its own sake is not a
+  defect to fix.
+- **When a rule and reality genuinely conflict, fix the rule or narrow its scope —
+  don't bend reality to fit the rule.** These rules are a living working guide,
+  not a fixed theory. When in doubt, optimise for the working system.
+
 ## Rules
 
 ### R-001 Scope
