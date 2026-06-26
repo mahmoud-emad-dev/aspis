@@ -1,18 +1,25 @@
 # Architecture Constitution
 
-The global engineering standards every ASPIS project is held to — including
-ASPIS itself. Where [system rules](system-rules.md) (R-001…) govern how the
-*agentic system* operates, this constitution governs how *code and assets* are
-designed, so a project stays easy to understand, change, test, and extend as it
-grows.
+The **global default standard** every ASPIS project is held to — including ASPIS
+itself — until a project sets its own [project rules](project-rules.md), which
+take precedence. Where [system rules](system-rules.md) (R-001…) govern how the
+*agents* operate, this constitution governs how a project's *work product* is
+designed, so it stays easy to understand, change, test, and extend as it grows.
+
+It applies to **any kind of project, not only software** — data analysis, data
+science, automation, web, research, content — wherever a user runs ASPIS. The
+rules below are written in software terms because that is the most common case;
+read each as the **general principle first**, with the software phrasing as one
+domain's expression of it. A project's own rules and profile specialise them.
 
 It is a **shipped, reusable asset**, not prompt text: the planning lead designs
 against it, the build lead builds to it, and the reviewer checks against it. The
 machine-readable checklist (`config/constitution-checks.yaml`) says which rule
 each role owns. An agent loads only the rules its role enforces.
 
-> SOLID and clean-code are the means, never the goal. The goal is low cost of
-> change. These rules are how we keep it low.
+> The means (SOLID, clean code, a tidy pipeline, a clear dataset) are never the
+> goal. The goal is **low cost of change**. These rules are how we keep it low —
+> in any domain.
 
 ---
 
