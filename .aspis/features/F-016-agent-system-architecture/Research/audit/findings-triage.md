@@ -11,6 +11,57 @@
 
 ---
 
+## Owner decisions — LOCKED (T-04 work order)
+
+Recorded from the owner's annotations. **Cross-cutting intent that overrides the
+raw audit wording:** (1) the **catalog is the target** — fix the design in the
+catalog; the owner's *live* runtime is a personal/custom setup and is NOT the
+truth to chase; (2) every fix is **iterative, not final** — set what a clear,
+minimal role needs to work now; refine with real usage later; (3) keep each
+agent's role **clear and minimal (role + skills + assets)** so even a standard/
+cheap model succeeds; differentiate **do-it-myself vs delegate-to-subagent**.
+
+**Group 1 — all FIX, with these refinements:**
+- **B-6 (system-lead):** Keep "only lead that may modify runtime/protected files,"
+  but state it acts **only through aspis tools/commands (never raw direct edits)**
+  and is **scoped to `.aspis/`**. Remove the free self-edit/hook-disable framing;
+  those route through governed tools (+ R-008 where required). Note project-lead
+  may **read only some** runtime files, not all. (Specialised subagents take the
+  dangerous ops later.)
+- **F-3 + A-1 (reviewer, research-lead tiers):** Declare both **standard by
+  default, deeper when the task warrants**; tier resolves against user preference
+  + available models. Full capability-scoring is a **future feature** — keep simple.
+- **C-7 (reviewer drift):** Set the **catalog** tier per design (standard/deep);
+  **ignore the live custom model** (personal setup). Model scoring = future feature.
+- **D-6 (system-lead bash):** Replace the `*` wildcard with the **named commands
+  it actually needs now**; accept it's iterative; move dangerous ops to subagents later.
+- **B-5 (research-lead write/edit):** **KEEP write:allow + edit:deny — it's
+  intentional.** Research writes NEW files (to `<feature>/Research/` or
+  `.aspis/research/` by kind), doesn't edit existing. Just **document the rationale**
+  in the permission section. (Do not add edit.)
+- **B-1 (planning-lead):** Remove `plan-critic`/`review-strategy` from planning-lead's
+  owned/added skills; it **consumes** plan-review via the reviewer.
+- **B-2 (reviewer 12-vs-6):** Handler's discretion — label the 6 as a v2 extension
+  so the count is unambiguous.
+- **D-9 (reviewer):** Remove `aspis artifact test` (read-only; test-lead stamps).
+- **A-4 + A-5:** Add the one-line "if stuck, stop — don't guess" to research-lead + reviewer.
+- **C-6 (planning-lead):** Fix in the **catalog** (remove committer from the
+  task-list); live file deferred. Goal = accurate catalog that follows the design.
+
+**Group 2 — dispositions:**
+- **E-4/F-9:** Keep as a prompt/instruction rule now; defer runtime enforcement.
+- **F-8:** Defer; when built, make the scope "real needed." ("Enforcement work" =
+  the later warn→block + scope-guard hardening.)
+- **C-5/F-4:** Skip per-spec duplication; but ensure each agent's design is correct on its own.
+- **E-5/E-6/E-9/E-10:** Subagent roster — per lead, the subagents it genuinely
+  needs + complete that lead's skills with the new subagents' skills; clear minimal
+  roles. Tracked in `subagent-roster-and-delegation.md`.
+- **F-5:** Skills inventory (T-31) must list the **real needed** skills per lead/subagent.
+
+**Group 3 — SKIP all** (no owner override; conformance-only).
+
+---
+
 ## Group 1 — FIX (concrete defects; I recommend fixing in T-04)
 
 These change behaviour, safety, or cause a real contradiction.
