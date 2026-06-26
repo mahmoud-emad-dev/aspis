@@ -1,8 +1,8 @@
 # F-016 — Tasks
 
 > Mode: **production**
-> Total tasks: 33
-> Critical path: T-01 → T-03 → T-05 → T-06..T-14 → T-29 → T-38 → T-40
+> Total tasks: 41
+> Critical path: T-01 → T-03 → T-04 → T-05 → T-14 → T-18 → T-30 → T-32..T-37 → T-38 → T-40
 
 ## Phase 1 — Setup
 Shared scaffolding everything else needs. Blocked by: nothing.
@@ -280,7 +280,7 @@ Cross-cutting cleanup and final acceptance.
 | Level | Tasks | Count |
 |---|---|---|
 | **P0** (blocking) | T-01, T-03, T-04, T-05, T-30, T-38, T-40 | 7 |
-| **P1** (important) | T-02, T-06..T-29, T-31..T-37, T-41 | 25 |
+| **P1** (important) | T-02, T-06..T-29, T-31..T-37, T-41 | 33 |
 | **P2** (nice-to-have) | T-39 | 1 |
 
 ## Packet version distribution
@@ -288,7 +288,7 @@ Cross-cutting cleanup and final acceptance.
 |---|---|---|
 | **V0** (inline) | T-39 | 1 |
 | **V1** (light) | T-01, T-06..T-13, T-41 | 10 |
-| **V2** (standard) | T-02, T-05, T-14..T-37 (except V0/V1/V3) | 18 |
+| **V2** (standard) | T-02, T-05, T-14..T-37 (except V0/V1/V3) | 25 |
 | **V3** (deep) | T-03, T-04, T-30, T-32, T-38 | 5 |
 | **V4** (comprehensive) | — | 0 |
 
