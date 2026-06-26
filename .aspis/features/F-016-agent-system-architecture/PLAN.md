@@ -19,7 +19,7 @@ The plan must clear the project's rules before any build.
 - [x] **R-001 Scope** — Changes stay within `src/aspis/data/catalog/agents/` (11 files, focused edits) and `Research/ref/` (3 new leaf specs). No product code changes. No runtime files edited directly. PASS.
 - [x] **R-002 Gates** — Deterministic gates: (1) `cross_ref_agents.py` validates cross-agent consistency, (2) reviewer adversarial audit on every spec, (3) catalog frontmatter structural validation. PASS.
 - [x] **R-005 Tests-as-spec** — Agent acceptance criteria serve as the "tests." Every spec's checkbox list is verifiable. Cross-reference script provides deterministic pass/fail. PASS.
-- [x] **R-009 Human gate** — Governance subagent design, enforcement mode flip, and mode routing changes flagged for R-008 approval below. PASS (flagged, not bypassed).
+- [x] **R-008 Human gate** — Governance subagent design, enforcement mode flip, and mode routing changes flagged for R-008 approval below. PASS (flagged, not bypassed).
 
 ## Components
 

@@ -866,7 +866,7 @@ User cost profile influences packet version:
 3. Draft PLAN.md: approach, technical context, components, steps+gates, risks/rollback
 4. Delegate to constitution-checker: audit against 12 constitution rules
 5. Apply fixes for any FAIL/WARN findings
-6. Fill Gate check section: R-001 Scope, R-002 Gates, R-005 Tests-as-spec, R-009 Human gate
+6. Fill Gate check section: R-001 Scope, R-002 Gates, R-005 Tests-as-spec, R-008 Human gate
 7. OUTPUT: PLAN.md
 ```
 
