@@ -56,7 +56,7 @@ as a checklist:
   specific case worse is a signal to question the application — raise it under
   R-008 — not to comply mechanically.
 - **Only the rules a role actually owns apply to it.** An agent, spec, or file is
-  not defective for "missing" a rule it does not own (see the three layers and
+  not defective for "missing" a rule it does not own (see the rule layers and
   `config/constitution-checks.yaml`). The absence of a box-ticking section is not,
   by itself, a defect.
 - **A real defect is concrete:** it raises cost-of-change, breaks a gate, creates
