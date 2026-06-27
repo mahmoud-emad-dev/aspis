@@ -83,3 +83,11 @@ Right-sizes process per `.aspis/context/DYNAMIC_READINESS.md`:
 - **Task kind** = always narrow (one question per call) → no plan, no spec, lean path.
 - **Mode** from the active feature → sets the rigor ceiling for what "complete" means.
 - **Default:** leanest correct path — answer from the index when possible, open source only when the index cannot resolve the question.
+
+## Edge Cases
+
+### File Not Found
+When a requested file path does not exist in the repository, report that the path is not present. Offer up to three similar paths (fuzzy match by name or directory) to help the caller correct their reference. Never fabricate a file or guess its location.
+
+### Repository Too Large
+When a single exploration query would require opening more than ~20 files, split the search into staged reads. Report progress after each stage ("stage 1/3 complete — found X candidates") so the caller knows work is ongoing. Return the full result only after all stages.

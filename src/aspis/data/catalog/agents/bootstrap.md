@@ -121,3 +121,11 @@ and run steps 4–7. Keep output short.
   folder and the user's answers.
 - Never invent facts, design, or a stack the project does not have.
 - Never start the user's feature work — make the project live, then hand off.
+
+## Edge Cases
+
+### Existing .aspis/ Directory
+When `aspis bootstrap --check` detects an existing `.aspis/` directory, warn the user that the project appears to already be live. Offer the `--force` flag to overwrite, but abort if the user does not explicitly force. Never overwrite a live project without confirmation.
+
+### Python Version Incompatible
+Before running the bootstrap command, verify Python ≥ 3.11 is available. If the Python version is older, abort with a clear message: "bootstrap requires Python 3.11 or newer; found X.Y". Do not attempt to run with an unsupported interpreter.

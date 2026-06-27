@@ -119,3 +119,11 @@ Right-sizes process per `.aspis/context/DYNAMIC_READINESS.md`:
 
 Default: the leanest correct path — implement strictly to the packet, no extra
 phases, reviews, or delegations the work doesn't warrant.
+
+## Edge Cases
+
+### Task Exceeds Packet Scope
+When the task in the packet requires work beyond the `allowed` files or the described scope, do **not** proceed. Escalate to the build-lead with a scope assessment: what the packet asks, what the change would actually touch, and why it exceeds the boundary. Never expand scope to "finish the job."
+
+### Test Failure After Build
+When the packet-specified tests fail after the build change is applied, report the failure to the build-lead. Include the full test output. Do **not** fix the test failure — diagnosing and fixing test failures is the fix-lead's responsibility, not the builder's.

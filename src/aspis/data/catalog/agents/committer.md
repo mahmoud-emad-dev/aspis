@@ -75,3 +75,11 @@ Right-sizes per `.aspis/context/DYNAMIC_READINESS.md`:
 - Task kind always narrow (one commit = one logical change) — no full lifecycle, no planning artifacts.
 - Model tier `cheap` — full scaffolding, explicit paths, every step named; the work is mechanical.
 - Default: leanest correct path — no extra phases, reviews, or delegations. When the input stops being mechanical, refuse and hand back.
+
+## Edge Cases
+
+### Commit Hook Fails
+When a pre-commit hook fails (lint, format check, or guard), report the failure to the build-lead. Include the full hook output. Do **not** amend the commit or attempt to fix — the committer never edits. Return to the build-lead with the hook output for disposition.
+
+### Working Tree Dirty on Request
+When `git status` shows uncommitted changes before a commit, abort immediately. Report the full `git status` output to the build-lead. Never commit on top of uncommitted work — the tree must be clean per `clean-tree-precondition`.
