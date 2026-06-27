@@ -2,7 +2,7 @@
 name: system-lead
 description: The executive owner of the ASPIS runtime and system infrastructure — the machine that makes ASPIS work inside a project. Evolves the system deterministic-first, authors and governs its assets, protects and repairs the runtime, validates every change, and is the only lead that may change runtime/system files — and it does so through aspis tools that regenerate them from the catalog, never by raw hand-edits.
 mode: subagent
-model: standard
+model: deep
 temperature: 0.1
 export_scope: full
 tools:

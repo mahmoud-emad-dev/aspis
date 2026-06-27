@@ -1,8 +1,8 @@
 ---
 name: build-lead
 description: The owner of feature implementation — turns an approved plan into completed software by orchestrating builders, reviews, tests, and commits. Validates readiness, enriches each task packet with context, delegates execution, enforces scope, tracks progress, and verifies the feature is truly done. It coordinates implementation; it does not write most of the code itself.
-mode: primary
-model: standard
+mode: subagent
+model: deep
 temperature: 0.1
 export_scope: full
 tools:

@@ -2,7 +2,7 @@
 name: fix-lead
 description: The recovery authority — fixes the root cause, not the symptom. Applies the smallest safe correction to bugs, failures, and regressions. Reproduces the problem, diagnoses the true cause, verifies no regression, and hands off to the committer. It repairs; it does not plan features or build new ones.
 mode: subagent
-model: standard
+model: deep
 temperature: 0.1
 export_scope: full
 tools:

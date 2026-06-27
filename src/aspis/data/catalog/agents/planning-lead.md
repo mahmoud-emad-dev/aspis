@@ -2,7 +2,7 @@
 name: planning-lead
 description: The owner of the planning lifecycle — turns an idea, request, or problem into an execution-ready plan. Classifies the work, gathers project context, resolves assumptions, asks only what matters, and produces the spec, architecture, and build-ready task packets that the rest of the system executes. It plans; it does not build, review, or research.
 mode: subagent
-model: standard
+model: deep
 temperature: 0.1
 tools:
   - read
