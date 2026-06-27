@@ -38,6 +38,14 @@ delegates:
   - research-lead
   - reviewer
   - project-explorer
+  - clarify
+  - task-decomposer
+  - constitution-checker
+  - idea-capture
+  - prd-writer
+  - scope-estimator
+  - research-request-writer
+  - dependency-analyzer
 skills:
   # Core (7) — match reference spec §4
   - prestart-checks
@@ -135,13 +143,17 @@ warrants.
 
 ## Delegation
 
-Delegate context-gathering to `project-explorer`, research to `research-lead`,
-and independent plan review to `reviewer` — but own the final plan regardless
-of who drafts a part of it. The `committer` is **never** in the planning task
-allow-list — planning produces artifacts, not commits. Specialized planning
-workers (clarify, task-decomposer, idea-capture, prd-writer, constitution-checker,
-scope-estimator, research-request-writer) are extracted only when the work
-repeats enough to justify them (F-017).
+- **research-lead** — Acquires, validates, and packages external knowledge. Delegated for research tasks. See `src/aspis/data/catalog/agents/research-lead.md`.
+- **reviewer** — Independent quality authority that renders verdicts on plans. Delegated for independent plan review. See `src/aspis/data/catalog/agents/reviewer.md`.
+- **project-explorer** — Explores the repo and returns compact, scoped findings. Delegated for context-gathering. See `src/aspis/data/catalog/agents/project-explorer.md`.
+- **clarify** — Asks structured clarifying questions when a feature request is ambiguous. Delegated for requirement clarification when intake is vague. See `src/aspis/data/catalog/agents/clarify.md`.
+- **task-decomposer** — Breaks a feature spec into atomic, ordered tasks with dependency edges. Delegated for producing TASKS.md and per-task packets. See `src/aspis/data/catalog/agents/task-decomposer.md`.
+- **constitution-checker** — Audits a plan/spec against the 12 architecture constitution rules. Delegated for architecture compliance checks. See `src/aspis/data/catalog/agents/constitution-checker.md`.
+- **idea-capture** — Captures raw feature ideas into a structured intake card. Delegated for initial feature intake. See `src/aspis/data/catalog/agents/idea-capture.md`.
+- **prd-writer** — Expands a structured idea card into a Product Requirements Document. Delegated for SPEC.md generation. See `src/aspis/data/catalog/agents/prd-writer.md`.
+- **scope-estimator** — Estimates story points and scope from a spec. Delegated for effort estimation and file-count proxy. See `src/aspis/data/catalog/agents/scope-estimator.md`.
+- **research-request-writer** — Formulates knowledge gaps into structured RESEARCH_REQUEST packets. Delegated for research request formulation. See `src/aspis/data/catalog/agents/research-request-writer.md`.
+- **dependency-analyzer** — Analyzes and visualizes task dependencies with critical path identification. Delegated for dependency graph generation. See `src/aspis/data/catalog/agents/dependency-analyzer.md`.
 
 ## Dynamic-readiness
 

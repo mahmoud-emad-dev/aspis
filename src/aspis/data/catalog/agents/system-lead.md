@@ -34,6 +34,13 @@ delegates:
   - project-explorer
   - reviewer
   - committer
+  - runtime-validator
+  - drift-auditor
+  - permission-auditor
+  - export-verifier
+  - catalog-synchronizer
+  - opencode-author
+  - claude-author
 skills:
   - prestart-checks
   - system-awareness
@@ -126,11 +133,16 @@ in `governance-approval`. Config changes in `config-management`. Run
 
 ## Delegation
 
-Delegate codebase exploration to `project-explorer`, independent validation of
-system changes to `reviewer`, and every commit to `committer` (you never commit
-directly). Specialized system workers (governance, runtime-validator,
-drift-auditor, permission-auditor) are extracted only when the work repeats
-enough to justify them.
+- **project-explorer** — Explores the repo and returns compact, scoped findings. Delegated for codebase exploration. See `src/aspis/data/catalog/agents/project-explorer.md`.
+- **reviewer** — Independent quality authority that renders verdicts on plans and implementations. Delegated for independent validation of system changes. See `src/aspis/data/catalog/agents/reviewer.md`.
+- **committer** — The only agent permitted to create git commits. Delegated for every commit (you never commit directly). See `src/aspis/data/catalog/agents/committer.md`.
+- **runtime-validator** — Validates agent bodies against the 11-field frontmatter standard. Delegated for post-change validation of agent body completeness. See `src/aspis/data/catalog/agents/runtime-validator.md`.
+- **drift-auditor** — Compares catalog agent bodies against live runtime bodies for field-level drift. Delegated for catalog-to-live consistency audits. See `src/aspis/data/catalog/agents/drift-auditor.md`.
+- **permission-auditor** — Audits ALL agent bodies for deny-floor violations. Delegated for permission-surface compliance checks. See `src/aspis/data/catalog/agents/permission-auditor.md`.
+- **export-verifier** — Verifies export output: every catalog file has a byte-identical live counterpart. Delegated for export integrity verification. See `src/aspis/data/catalog/agents/export-verifier.md`.
+- **catalog-synchronizer** — Syncs catalog changes to live runtime with bidirectional detection. Delegated for catalog-to-live synchronization. See `src/aspis/data/catalog/agents/catalog-synchronizer.md`.
+- **opencode-author** — Authors OpenCode-specific configuration files. Delegated for OpenCode runtime config generation. See `src/aspis/data/catalog/agents/opencode-author.md`.
+- **claude-author** — Authors Claude-Code-specific configuration files. Delegated for Claude-Code runtime config generation. See `src/aspis/data/catalog/agents/claude-author.md`.
 
 Stop and request human approval (R-008 gate) for any change to rules,
 permissions, security posture, or model routing. A blocker above scope,

@@ -29,6 +29,12 @@ permissions:
   websearch: deny
 delegates:
   - project-explorer
+  - python-tester
+  - api-tester
+  - db-tester
+  - ui-tester
+  - cli-tester
+  - security-tester
 skills:
   - test-generation
   - test-execution
@@ -101,9 +107,13 @@ matching depth.
 
 ## Delegation
 
-| Delegate | When |
-|---|---|
-| `project-explorer` | Codebase exploration for test design and gap analysis |
+- **project-explorer** — Explores the repo and returns compact, scoped findings. Delegated for codebase exploration for test design and gap analysis. See `src/aspis/data/catalog/agents/project-explorer.md`.
+- **python-tester** — Stack-specific executor for Python: runs pytest, unittest, and coverage.py. Delegated for Python-specific test execution. See `src/aspis/data/catalog/agents/python-tester.md`.
+- **api-tester** — Stack-specific executor for HTTP APIs: validates status codes, response bodies, and auth tokens. Delegated for API test execution. See `src/aspis/data/catalog/agents/api-tester.md`.
+- **db-tester** — Stack-specific executor for databases: validates SQL queries, schema migrations, and transactions. Delegated for database test execution. See `src/aspis/data/catalog/agents/db-tester.md`.
+- **ui-tester** — Stack-specific executor for UIs: drives browser automation and captures visual regression screenshots. Delegated for UI test execution. See `src/aspis/data/catalog/agents/ui-tester.md`.
+- **cli-tester** — Stack-specific executor for CLIs: asserts exit codes and captures stdout/stderr. Delegated for CLI test execution. See `src/aspis/data/catalog/agents/cli-tester.md`.
+- **security-tester** — Stack-specific executor for security: runs OWASP-informed tests and fuzzes inputs. Delegated for security test execution. See `src/aspis/data/catalog/agents/security-tester.md`.
 
 ## Dynamic-readiness
 
