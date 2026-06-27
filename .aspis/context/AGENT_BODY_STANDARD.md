@@ -77,6 +77,24 @@ One short block (3–6 lines) applying the three dynamic-readiness dials to this
 agent's work. References `.aspis/context/DYNAMIC_READINESS.md`. See that document
 for the convention.
 
+## Exceptions
+
+### Bootstrap agent
+
+The `bootstrap` agent (`bootstrap.md`) is a **transient primary** — it runs once
+during project initialization, confirms the project name/goal/stack, runs the
+deterministic bootstrap, enriches the judgment files, and then removes itself.
+Because it is a one-shot onboarding agent, not a persistent lead:
+
+- It may omit sections that are irrelevant to a single run — specifically
+  **Delegation** (it delegates to no one), **Dynamic-readiness** (it runs once
+  at a fixed rigor, not varying by mode), and **Responsibilities→skills** (its
+  procedure is self-contained in the body).
+- It must still satisfy all **Principles**, **Required frontmatter**, and the
+  **Forbidden patterns**.
+- The `## Edge Cases` section is **required** — one-shot agents must still
+  handle failure paths explicitly.
+
 ## Forbidden patterns
 
 - **No duplicated content**: skill procedures, rule text, workflow steps, or
