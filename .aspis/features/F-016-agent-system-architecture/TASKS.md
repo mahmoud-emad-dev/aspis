@@ -139,7 +139,7 @@ Core infrastructure ALL stories depend on — no story work until this completes
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
   - **Sections**: Identity, Responsibilities, Permission Surface, Model Tier, Use Cases, Acceptance Criteria. Read-only. Compact summaries, never raw output.
 
-- [ ] T-18 [P1] [medium] [moderate] [test] [US2] — Cross-reference leaf specs against leads
+- [x] T-18 [P1] [medium] [moderate] [test] [US2] — Cross-reference leaf specs against leads — **DONE** (`8d41c56`)
   - Files: `cross_ref_agents.py`, 3 new `Research/ref/{committer,general-builder,project-explorer}.md`
   - Depends on: T-15, T-16, T-17 | Blocks: T-19..T-29
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
