@@ -15,6 +15,7 @@ from aspis.commands import (
     commit,
     commits,
     context,
+    drift,
     doctor,
     export_cmd,
     findings,
@@ -27,6 +28,7 @@ from aspis.commands import (
     status,
     testledger,
     uninstall,
+    validate_index,
     validate_runtime,
 )
 
@@ -47,8 +49,10 @@ COMMAND_MODULES = (
     preflight,
     context,
     findings,
+    drift,
     doctor,
     governance,
     uninstall,
+    validate_index,
     validate_runtime,
 )

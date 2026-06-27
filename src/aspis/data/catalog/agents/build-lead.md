@@ -139,3 +139,11 @@ Right-sizes process per `.aspis/context/DYNAMIC_READINESS.md`:
 Default: the leanest correct path — validate the packet, pick the right builder
 tier, delegate, review, commit. No extra phases or reviews the work doesn't
 warrant.
+
+## Edge Cases
+
+### Builder Timeout
+When a delegated builder does not return within its turn limit, stop waiting. Re-delegate the same packet with a tighter scope (single file, single change) — or, if the builder is structurally stuck, escalate to fix-lead. Never let a stuck builder hold the queue.
+
+### Packet Impossible
+When the packet references files that do not exist (and cannot be created under the allowed paths), stop the build and report the blocker to planning-lead. The plan is wrong; building around it would violate scope. Do not invent a substitute file or path.

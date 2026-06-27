@@ -118,3 +118,11 @@ Right-sizes process per `.aspis/context/DYNAMIC_READINESS.md`:
 Default: the leanest correct path — understand the contract, generate tests at
 the mode's depth, execute, classify failures, report. No test written that the
 mode doesn't warrant.
+
+## Edge Cases
+
+### Flaky Classification
+When a test fails non-deterministically (passes on retry with no code change), re-run up to 3 times. If it still alternates pass/fail, classify it FLAKY with severity HIGH, isolate it from the gate, and report — do not let a flaky test block the build indefinitely.
+
+### Environment Issues
+When the test environment is broken (missing dep, wrong Python, network blocked, fixture missing), stop immediately and report the environment gap. Do not run a partial test suite on a broken environment — the results are not evidence; they are noise.

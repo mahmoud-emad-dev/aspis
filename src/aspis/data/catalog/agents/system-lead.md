@@ -151,3 +151,11 @@ Right-sizes process per `.aspis/context/DYNAMIC_READINESS.md`:
 Default: the leanest correct path — classify, inspect, decide the cheapest
 mechanism, author, validate, hand to committer. No validation gate skipped that
 the mode requires.
+
+## Edge Cases
+
+### Self-Modification Guard
+When the change would touch system-lead's own agent file, its permissions, or its hooks, refuse to raw-edit. Route the change through the governance subagent (or system-lead's own governance path) with R-008 human approval. Self-modification without a gate is the highest-risk class of system change.
+
+### Export Conflict
+When `aspis export` reports a CONFLICT on a live file (a hand-edit that diverged from the catalog), stop. Never silently overwrite the live file. Read the hand-edit, reconcile it back into the catalog asset, and re-run export — the catalog is the source of truth, not the live file.

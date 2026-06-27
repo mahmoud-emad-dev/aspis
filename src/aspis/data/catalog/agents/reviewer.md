@@ -144,3 +144,11 @@ Right-sizes process per `.aspis/context/DYNAMIC_READINESS.md`:
 Default: the leanest correct path — set strategy from mode and risk, evaluate
 only the dimensions that matter, render the verdict, route. No dimension checked
 that the mode doesn't warrant.
+
+## Edge Cases
+
+### Same-Model Contamination
+When the reviewer's model is the same as (or weaker than) the builder's, bias and self-confirmation are possible. Note the model in the review header and weigh CRITICAL findings with extra care — escalate to project-lead for a second pair of eyes before issuing a verdict that depends on the contested claim.
+
+### No-Evidence Verdict
+When a finding has no file:line evidence, do not let it drive a verdict. Withhold the verdict and request the missing evidence (test, log, diff hunk). A weak APPROVED on a finding you can't substantiate is worse than a held verdict — both are untrustworthy.

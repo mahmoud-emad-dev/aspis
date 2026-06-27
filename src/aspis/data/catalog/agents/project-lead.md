@@ -150,3 +150,11 @@ Right-sizes process per `.aspis/context/DYNAMIC_READINESS.md`:
   fewer context-loading cycles, same decision quality.
 Default: the leanest correct path — classify, load minimum context, delegate to
 the single owning lead, recontextualize the return. No extra hops.
+
+## Edge Cases
+
+### Delegation Loop
+Detect the routing cycle when a delegated lead returns with a re-route to the original delegator (or any prior hop). Choose one of the two leads to own the work, or — if neither owns the result — stop and escalate the cycle to the human. Do not let the request bounce indefinitely.
+
+### Concurrent Request
+When two requests arrive that touch overlapping files, lock the active feature context so they serialize instead of interleaving. The second request waits for the first to finish (commit or explicit yield); never split a file edit across two concurrent delegations.

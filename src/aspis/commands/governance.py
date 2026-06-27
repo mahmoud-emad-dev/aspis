@@ -497,12 +497,29 @@ def _revoke(args: argparse.Namespace) -> int:
 
 
 def _ledger(args: argparse.Namespace) -> int:
-    """Print ledger health: path, entry count, oldest / newest timestamps."""
+    """Print ledger health: path, entry count, oldest / newest timestamps.
+
+    With ``--pretty``, dumps the full ledger as YAML so a human or agent
+    can inspect every field without reading the raw file.
+    """
     ledger = Path.cwd() / LEDGER_REL
+    lock = Path.cwd() / LOCK_REL
     entries = _read_ledger(ledger)
+
+    if getattr(args, "pretty", False):
+        payload = yaml.dump(
+            {"entries": entries},
+            default_flow_style=False,
+            sort_keys=False,
+            allow_unicode=True,
+        )
+        print(payload.rstrip())
+        return 0
+
     print(f"path:   {ledger}")
     print(f"exists: {ledger.is_file()}")
     print(f"count:  {len(entries)}")
+    print(f"lock:   {'held' if lock.is_file() else 'free'}")
     if entries:
         stamps = sorted(
             (str(e.get("timestamp") or "") for e in entries),
@@ -611,6 +628,11 @@ def register(subparsers: argparse._SubParsersAction) -> None:
 
     # ledger
     led = sub.add_parser("ledger", help="Show ledger health + entry count.")
+    led.add_argument(
+        "--pretty",
+        action="store_true",
+        help="Print full ledger as YAML (default: summary only).",
+    )
     led.set_defaults(func=_ledger)
 
     # check

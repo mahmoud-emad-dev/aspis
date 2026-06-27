@@ -147,3 +147,11 @@ Right-sizes process per `.aspis/context/DYNAMIC_READINESS.md`:
   same fix quality.
 Default: reproduce → root-cause → minimal fix → verify → report. No extra steps;
 fixes are minimal by design.
+
+## Edge Cases
+
+### Cannot Reproduce
+When the provided steps don't reproduce the failure, stop and request a minimal reproduction case (commands, inputs, observed vs expected output). Do not guess at the root cause or apply a speculative fix. Without a reproduction, every change is a coin flip.
+
+### Scope Expansion
+When the true root cause lives outside the task's allowed files (e.g. requires editing a system file, a config, or another feature), stop and escalate to build-lead. The fix is structurally out of scope for fix-lead; do not silently expand scope or create parallel copies.

@@ -155,3 +155,11 @@ Right-sizes process per `.aspis/context/DYNAMIC_READINESS.md`:
   intermediate artifacts, same plan quality.
 Default: the leanest correct path — classify first, skip the plan when the change
 is trivial, run the full lifecycle only when the work warrants it.
+
+## Edge Cases
+
+### Stuck on Ambiguous Request
+When the request cannot be classified into a clear feature scope (track, mode, target area), ask exactly one clarifying question. Do not guess a scope, do not start a plan without classification. If the user cannot clarify, stop and route to project-lead.
+
+### Mode Mismatch
+When the active build mode (lean/standard/deep) does not match what the plan needs to be safe (e.g. a security-critical change in vibe mode), stop planning and escalate to project-lead. The mode is the user's call, not planning-lead's — do not silently override it.

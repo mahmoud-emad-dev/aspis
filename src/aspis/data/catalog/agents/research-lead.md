@@ -131,3 +131,11 @@ Right-sizes process per `.aspis/context/DYNAMIC_READINESS.md`:
 Default: the leanest correct path — check cache first, scope the question,
 research only what's needed, validate against ≥1 source, package for reuse.
 No web fetch that a cache hit could answer.
+
+## Edge Cases
+
+### Cache Staleness
+When a cached research asset is older than its TTL (declared in `cache-management`), treat it as missing — force-refresh from the authoritative source before serving. Stale knowledge in a fast-moving domain (versions, security advisories) is more dangerous than no knowledge at all.
+
+### Source Authority Conflict
+When two authoritative sources disagree on a claim, do not pick one and bury the other. Report both, with each source's claim and the source identifier, and let the consumer (planning, build, fix) decide. Silent source-picking erodes trust in the research layer.
