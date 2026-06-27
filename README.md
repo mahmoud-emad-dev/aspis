@@ -5,7 +5,9 @@
   <img alt="ASPIS" src="assets/brand/logo-light.svg" width="240">
 </picture>
 
-### The shield for autonomous software production
+### The shield for agentic software production
+
+**ASPIS** — *Agentic Software Production & Integration System.*
 
 A **file-first, deterministic** system for building software with AI agents —
 where the *cheapest sufficient model* produces *production-grade* work, repeatably.

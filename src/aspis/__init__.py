@@ -1,4 +1,6 @@
-"""ASPIS — the shield for autonomous software production.
+"""ASPIS — Agentic Software Production & Integration System.
+
+The shield for agentic software production.
 
 A file-first, deterministic software-production system. This package is the
 engine; project state lives in plain files under ``.aspis/``.

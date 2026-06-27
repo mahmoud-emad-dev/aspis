@@ -1,7 +1,7 @@
 # ASPIS — Brand Guidelines
 
-ASPIS is **the shield for autonomous software production** — an *Agentic Software
-Production & Intelligence System*. The brand reads the way the software behaves:
+ASPIS is **the shield for agentic software production** — an *Agentic Software
+Production & Integration System*. The brand reads the way the software behaves:
 deterministic, reliable, engineering-first. Flat, geometric, monochrome-capable.
 No gradients, no AI clichés (no brains, robots, or glowing circuits).
 

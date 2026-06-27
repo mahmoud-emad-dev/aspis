@@ -16,7 +16,7 @@ import sys
 from aspis import __version__
 from aspis.commands import COMMAND_MODULES
 
-TAGLINE = "the shield for autonomous software production"
+TAGLINE = "the shield for agentic software production"
 
 
 # ---------------------------------------------------------------------------

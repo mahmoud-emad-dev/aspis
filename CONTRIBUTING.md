@@ -1,6 +1,6 @@
 # Contributing to ASPIS
 
-Thanks for your interest in ASPIS — *the shield for autonomous software production*.
+Thanks for your interest in ASPIS — *the shield for agentic software production*.
 
 ASPIS is a **file-first, deterministic** agentic software factory: all durable project
 state lives as plain files under `.aspis/`, so any AI runtime reads and writes the same
