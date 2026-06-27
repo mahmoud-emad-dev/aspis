@@ -3,11 +3,13 @@ name: committer
 description: The only agent permitted to create git commits. R-004 one-writer — the ONLY agent with git commit* allowed. Receives reviewed, gate-green work, confirms exactly the intended files are staged, writes a clean conventional message, and commits. Centralizes commit quality; never pushes and never edits files.
 mode: subagent
 model: cheap
+temperature: 0.1
 export_scope: full
 skills:
   - clean-tree-precondition
   - commit-message
   - commit-splitting
+delegates: []
 tools:
   - read
   - grep
