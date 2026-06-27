@@ -58,6 +58,20 @@ skills:
   - skills/clean-tree-precondition
   - skills/prestart-checks
   - skills/context-ladder
+  - skills/mode-decision
+  - skills/recontextualization
+  - skills/session-continuation
+  - skills/builder-selection
+  - skills/packet-validation
+  - skills/constitution-check
+  - skills/constitution-checks
+  - skills/evidence-validation
+  - skills/security-review
+  - skills/cache-management
+  - skills/harvest-protocol
+  - skills/catalog-validator
+  - skills/drift-detector
+  - skills/governance-approval
 commands:
   - commands/plan.md
   - commands/build.md
@@ -72,6 +86,7 @@ templates:
   - templates/planning/ACCEPTANCE.md
   - templates/report/build.md
   - templates/report/feature.md
+  - templates/report/fix.md
   - templates/review/review.md
   - templates/review/test.md
 rules:

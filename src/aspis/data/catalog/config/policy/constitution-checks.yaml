@@ -59,6 +59,11 @@ checks:
     enforced_by: [planning, build, review]
     review_question: Can this be tested alone, and does a test prove the new behaviour?
 
+  - id: C-ARCH-BEFORE-FEATURES
+    statement: If more features of this shape are coming, build the extension mechanism first, then the feature (C-011 in the architecture constitution).
+    enforced_by: [planning]
+    review_question: Is a feature being added whose shape will repeat? If yes, is the extension seam built first?
+
   - id: C-PORTABLE
     statement: Scripts and tools run on Windows and Linux; prefer cross-platform mechanisms (UTF-8 stdio + subprocess reads, pathlib, no assumed console codec/shell).
     enforced_by: [build, review]

@@ -21,28 +21,40 @@ project rules. Nothing else yet.
 2. **Scaffold** — run `python .aspis/scripts/planning/feature_scaffold.py --name "<goal>"
    --mode <mode>`. This creates `.aspis/features/F-NNN-slug/`, copies SPEC/PLAN/TASKS,
    writes the active pointer, and creates the branch.
-3. **Clarify** — skill `requirement-clarification`. Resolve assumptions; ask at most
+3. **Context** — skills `prestart-checks` + `context-ladder`. Run `aspis preflight` to
+   confirm the branch is clean. Load context in levels per the ladder: L1 hot state
+   first, then the existing architecture, then deeper research. Stop loading as soon as
+   you have enough to act.
+4. **Clarify** — skill `requirement-clarification`. Resolve assumptions; ask at most
    five real questions (impact × uncertainty); record answers in the SPEC's
    Clarifications. Send genuine unknowns to the Research Lead. Mark anything still
    open as `[NEEDS CLARIFICATION]`.
-4. **Spec** — skill `feature-planning` → fill `SPEC.md`: goal, scope, prioritized
-   user stories (P1/P2), `FR-###`, `SC-###`, feature rules & style.
-5. **Architecture** — skill `architecture-planning` → fill `PLAN.md`: approach,
-   technical context, the rules gate-check, steps, risks/rollback.
-6. **Tasks** — skill `task-decomposition` → fill `TASKS.md` (phases: Setup →
+5. **Spec** — skill `feature-planning` → fill `SPEC.md`: goal, scope, prioritized
+   user stories (P1/P2), `FR-###`, `SC-###`, feature rules & style. Apply the 12
+   quality standards (S-01…S-12): one-sentence goal, explicit scope, FR→task
+   traceability, SC→verification, sequenced deps, ≤3 files/task, named tests,
+   constitution compliance, review strategy, no unresolved clarifications, no stubs,
+   plan as a file.
+6. **Architecture** — skill `architecture-planning` → fill `PLAN.md`: approach,
+   technical context, the rules gate-check, steps, risks/rollback. Auto-escalate
+   mode if the scope warrants it (E1 protected paths → ≥MVP; E2 architecture/security
+   → production; E3 10+ files → production).
+7. **Tasks** — skill `task-decomposition` → fill `TASKS.md` (phases: Setup →
    Foundational → per-story tests-first → Polish; `[P]`/`[US]` markers; exact paths).
    Then run `python .aspis/scripts/planning/task_compile.py` to emit one packet per
    task into `tasks/`, and enrich each packet's rich fields from feature context.
-7. **Plan review** — skill `review-strategy` + the `plan-critic` workflow: check
-   cross-artifact consistency (spec↔plan↔tasks) before any build.
-8. **Gate** — run `python .aspis/scripts/planning/prereq_validate.py --phase build`.
+8. **Plan review** — skill `review-strategy` + the `plan-critic` workflow: check
+   cross-artifact consistency (spec↔plan↔tasks) before any build. In production
+   mode this must be an independent Reviewer pass, not a self-check.
+9. **Gate** — run `python .aspis/scripts/planning/prereq_validate.py --phase build`.
    It must pass before handing off.
 
 ## Mode overlays
-- **vibe** — step 1 sets it; compress step 4 to a few SPEC bullets; **skip** steps 5
-  and 7; step 6 stays coarse (large tasks). prereq-validate won't require PLAN.md.
-- **mvp** — step 5 is a light note; step 7 is a self-check, not the Reviewer.
-- **production** — all steps, full depth; step 7 is an independent Reviewer pass.
+- **vibe** — step 1 sets it; compress step 5 to a few SPEC bullets; **skip** steps 3
+  (Context), 6 (Architecture), and 8 (Plan review); step 7 stays coarse (large tasks).
+  prereq-validate won't require PLAN.md.
+- **mvp** — step 6 is a light note; step 8 is a self-check, not the Reviewer.
+- **production** — all steps, full depth; step 8 is an independent Reviewer pass.
 
 ## Outputs
 A scaffolded feature with SPEC (+ PLAN, TASKS per mode), task packets in `tasks/`, a
