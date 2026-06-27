@@ -13,8 +13,12 @@
 **System-lead is the executive owner of the ASPIS runtime and operating
 infrastructure.** The project-lead owns the project; system-lead owns the machine
 that makes ASPIS work inside it. It governs agents, skills, templates, configs,
-commands, hooks, and the runtime — never product features. It is the **only**
-lead that may modify `.opencode/`, `.claude/`, and protected `.aspis/`.
+commands, hooks, and the runtime — never product features. It is the **only** lead
+that may change runtime/system files — and it does so **through `aspis`
+tools/commands that regenerate them from the catalog, never by raw hand-edits**. Its
+direct edits are the catalog source under `.aspis/` (config, scripts) and the asset
+catalog; the generated `.opencode/`/`.claude/` runtimes are produced by tools, not
+edited by hand. (project-lead may *read* only some runtime files, not all.)
 
 ### What it IS
 
@@ -124,11 +128,23 @@ territory), novel runtime adapter work, and root-cause system-repair diagnostics
 |---|---|---|
 | `read`, `grep`, `glob` | allow | System inspection |
 | `edit`, `write` | allow | System assets (agents, skills, config, hooks, runtime) |
-| `bash` | allow all except `git commit*`/`git push*` | Full system access for validation, repair, authoring |
+| `bash` | named allowlist (see below) — **not `*`** | Validation, repair, authoring via aspis tools; dangerous ops migrate to subagents |
 | `webfetch` | allow | Fetching current runtime docs |
 | `websearch` | allow | Runtime documentation and validation |
 | `git commit*` | **deny** | Only committer commits (R-004) |
 | `git push*` | **deny** | Human-gated (R-008) |
+
+### Bash allowlist (initial — iterative, not final)
+
+System-lead has **no `*` wildcard.** Named commands only; the set grows with real
+need, and dangerous ops migrate to specialised subagents over time:
+
+| Pattern | Purpose |
+|---|---|
+| `aspis *` | System CLI: validate, export, doctor, models, preflight, artifact, context |
+| `python .aspis/scripts/**`, `python3 .aspis/scripts/**` | Deterministic scripts |
+| `ruff *`, `mypy *`, `pytest *`, `uv run *` | Validation gates |
+| `git status*`, `git diff*`, `git log*` | Read-only git inspection |
 
 ### Task delegation
 
@@ -138,19 +154,20 @@ territory), novel runtime adapter work, and root-cause system-repair diagnostics
 | `reviewer` | Independent validation of system changes |
 | `committer` | Every commit (system-lead never commits directly) |
 
-### ⚠️ CRITICAL WARNING: Self-Modification Risk
+### Self-modification is governed, not free
 
-System-lead can edit its own agent file. Can edit the committer's permissions.
-Can disable hooks. Can change any config. The only defense is R-008 (human gate)
-— currently enforced as a **prompt rule**, not code. The target design prescribes:
-1. `governance` subagent (only path to edit `rules/**`)
+System-lead does **not** raw-edit its own agent file, the committer's permissions,
+or hooks. Those are governance territory: they change only through the `governance`
+subagent and an R-008 human gate, never by a direct write. The guardrails:
+1. `governance` subagent is the only path to edit `rules/**` and `profiles/defaults.yaml`
 2. `enforcement: block` on protected paths
-3. Signed/hash-checked live agent files
-4. Restricted bash allowlist (no `*` wildcard)
-5. Trace spine in a path system-lead does not own
+3. Bash is a **named allowlist, not `*`** (see §5 above)
+4. System-lead edits catalog source + regenerates via tools; it never hand-edits live agents
+5. Trace spine lives in a path system-lead does not own
 
-These are documented gaps — the reference describes the target state, not the
-current one. See §13 for open design questions.
+Items still to build (governance subagent, enforcement flip, trace spine) are
+tracked in §13; until then R-008 holds as the human gate. The dangerous direct
+capabilities are removed from the lead and moved to specialised subagents over time.
 
 ---
 
@@ -405,7 +422,7 @@ M1. Self-improvement loop · M2. Dashboard/cockpit · M3. Trace spine · M4. Mul
 | 1 | `governance` subagent: LLM agent or deterministic script? | **Decided: deterministic script** — constitution checks are tests, not judgments |
 | 2 | `enforcement: warn` → `block` — when to flip? | Block for runtime tools, warn for pre-commit. CI override via env var |
 | 3 | R-008 enforcement: prompt rule only — needs code | **P0** — governance subagent + approval ledger + intervention handler |
-| 4 | `bash: '*': allow` — too permissive for the most dangerous agent | Must tighten: explicit named commands, no wildcard |
+| 4 | `bash: '*': allow` — too permissive for the most dangerous agent | **Resolved:** §5 now a named allowlist (no `*`), iterative; dangerous ops move to subagents |
 | 5 | 6 missing CLI verbs needed for validation gates | **P0** — `validate-runtime`, `validate-index` are critical |
 | 6 | 5 planning scripts not deployed to `.aspis/scripts/` | **P0** — deploy from catalog |
 | 7 | 10 missing skills (governance-approval, catalog-validator, etc.) | Build in priority order |
@@ -417,7 +434,7 @@ M1. Self-improvement loop · M2. Dashboard/cockpit · M3. Trace spine · M4. Mul
 | 13 | Dashboard (Part 5): designed, not built | Deferred to roadmap |
 | 14 | Self-improvement loop (Part 4): designed, not built | Deferred to roadmap |
 | 15 | Multi-profile support: only `base.yaml` exists | Build specialized profiles |
-| 16 | Self-modification risk: system-lead can edit own permissions | Governance subagent + signed live files |
+| 16 | Self-modification risk: system-lead can edit own permissions | **Resolved (design):** §5 — runtime changed only via tools; self-edits go through governance + R-008, never raw |
 
 ---
 

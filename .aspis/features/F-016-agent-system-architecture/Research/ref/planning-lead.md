@@ -142,7 +142,7 @@ This is "mode is a ceiling, not a floor" made operational.
 | # | Responsibility | Skill | Phase |
 |---|---|---|---|
 | 1 | Classify and size the work, pick depth and mode | `planning-intake` | P0 |
-| 2 | Confirm clean state before starting | `prestart-checks` | P2 |
+| 2 | Confirm a clean working tree before planning | `prestart-checks` | P2 |
 | 3 | Load project context in levels | `context-ladder` | P2 |
 | 4 | Resolve assumptions, ask max 5 real questions | `requirement-clarification` | P3 |
 | 5 | Write the spec and acceptance | `feature-planning` | P4 |
@@ -164,9 +164,11 @@ This is "mode is a ceiling, not a floor" made operational.
 
 | Skill | Purpose | Priority |
 |---|---|---|
-| `plan-critic` | Cross-artifact consistency check (spec↔plan↔tasks) — currently only in reviewer's allow-list but referenced by plan workflow step 7 | Critical |
-| `review-strategy` | Defines the review strategy section of PLAN.md — referenced in core rules but not in allow-list | Critical |
 | `deterministic-first` | Mechanism selection ladder (script→tool→workflow→agent) — referenced in architecture-planning | High |
+
+> `plan-critic` and `review-strategy` are **reviewer's** skills, not planning-lead's.
+> Planning-lead consumes plan review by **delegating to the reviewer at P7** — it
+> does not own these skills (see "Skills NOT in planning-lead's set" above).
 | `scope-control` | File-count estimation and blast-radius checking — needed for scope estimation | High |
 | `mode-decision` | Named procedure for "infer the build mode from risk and scope" — currently inline prose | Medium |
 | `constitution-checks` | Named procedure for the 12-rule constitution gate check | Medium |
@@ -1111,7 +1113,7 @@ without losing already-written work.
 |---|---|---|
 | 1 | Deploy planning scripts to `.aspis/scripts/planning/` — currently only in catalog | Blocker — system-lead must fix |
 | 2 | modes.yaml does not exist on disk — the entire rigor dial is undocumented intent | Blocker — system-lead must author |
-| 3 | Add `plan-critic` and `review-strategy` to planning-lead's skill allow-list | Critical — referenced in plan.md step 7 |
+| 3 | plan-critic / review-strategy ownership | **Resolved:** these are reviewer's skills; planning-lead consumes plan review by delegating to the reviewer at P7 — not added to planning-lead |
 | 4 | `committer` in live task allow-list — remove (drift) | Must fix |
 | 5 | Model tier: catalog says standard, live says deep — reconcile | Deferred to system-lead |
 | 6 | 5 missing templates (CLARIFICATION_LOG, RESEARCH_REQUEST, PLAN_OF_PLAN, DEPENDENCIES, SCOPE_ESTIMATE) | Near-term |

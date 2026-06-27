@@ -37,11 +37,20 @@ It serves every other lead; it does not build, plan, or review.
 | Tool | Access |
 |---|---|
 | `read`, `grep`, `glob` | allow |
-| `write` | allow (packaged references only) |
-| `edit` | **deny** (never modifies product code) |
+| `write` | allow — research is written as **new** reference files (one per research, on the correct path: `<feature>/Research/` or `.aspis/research/` by kind) |
+| `edit` | **deny** — never edits existing files; references are write-new, not edit-in-place. The write-without-edit asymmetry is **intentional**, not a gap. |
 | `bash` | **deny** except context scripts |
 | `webfetch`, `websearch` | **allow** (only subagent with both) |
 | `git commit*`, `git push*` | **deny** |
+
+### Model Tier
+
+**Default: standard.** Research is summarise-and-validate work a standard model
+does well; it steps up to **deep** only for high-stakes verification (security
+advisories, CVEs, contested multi-source claims). The concrete tier resolves at
+render time against the user's model preference and the runtime's available models
+(R-007); full capability-based tier scoring is a future feature. A live runtime may
+pin a custom model — personal setup, not this design.
 
 ---
 
@@ -172,6 +181,10 @@ Source: <URL> | Retrieved: <YYYY-MM-DD>
 | Paywalled content | Note "behind paywall — unable to verify" |
 | Unverifiable claim | Mark `UNVERIFIED` with reason; never guess |
 
+**If stuck — stop, don't guess.** On repeated tool failure, contradictory sources,
+or a claim that cannot be verified, STOP and hand back to the delegating lead with
+what's known and what's blocked. A guessed answer is worse than an honest "unknown".
+
 ---
 
 ## 9 · Anti-Patterns
@@ -248,14 +261,14 @@ Source: <URL> | Retrieved: <YYYY-MM-DD>
 | 4 | **Single-source trust** — "cross-check" without minimum N sources | HIGH |
 | 5 | **Version blindness** — records source version, not project version | HIGH |
 | 6 | **Infinite research loop** — no fetch budget, no termination rule | HIGH |
-| 7 | **No "if stuck" rule** — documented gap against system-wide doctrine | HIGH |
+| 7 | **No "if stuck" rule** — ✅ addressed: explicit rule added in §8 | HIGH (resolved) |
 | 8 | **Cache staleness detection failure** — no revalidation procedure | HIGH |
-| 9 | **Model tier drift** — standard live vs deep catalog intent, unresolved | HIGH |
+| 9 | **Model tier drift** — ✅ resolved: Model Tier in §1 (standard default, deep for high-stakes; live custom ignored) | HIGH (resolved) |
 | 10 | **Source authority confusion** — no explicit source hierarchy | MEDIUM |
 | 11 | **Webfetch failure** — no fallback for 403/404/JS-rendered | MEDIUM |
 | 12 | **Bypassing cache** — cache location not documented | MEDIUM |
 | 13 | **Lane violation** — research drifts into recommendation/planning | MEDIUM |
-| 14 | **write without edit** — forces cache fragmentation | MEDIUM |
+| 14 | **write without edit** — ✅ by design: references are write-new, not edit-in-place (§1) | MEDIUM (resolved) |
 | 15 | **Over-fetching** — no rate limit or fetch budget | MEDIUM |
 
 ---

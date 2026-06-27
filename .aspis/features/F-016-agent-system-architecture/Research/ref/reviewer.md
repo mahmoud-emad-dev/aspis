@@ -76,7 +76,7 @@ testing says what happened; reviewing says whether it's good enough.
 | 2 | `context-ladder` | Load minimum context in levels | Sufficient |
 | 3 | `quality-review` | Evaluate in-scope dimensions against FR/SC | Missing per-dimension rubric |
 | 4 | `acceptance-decision` | Render 4 verdicts, route rejections | Missing severity rubric |
-| 5 | `plan-critic` | Cross-artifact consistency before build | Missing 6 checks (12 needed) |
+| 5 | `plan-critic` | Cross-artifact consistency before build | 6 existing (v1); 6 added (v2) = 12 |
 
 ### Missing skills (6 — build list)
 
@@ -99,7 +99,7 @@ testing says what happened; reviewing says whether it's good enough.
 |---|---|---|
 | `read`, `grep`, `glob` | allow | Review requires reading |
 | `edit`, `write` | **deny** | Read-only — the defining constraint |
-| `bash` | limited allowlist | Diff inspection, artifact stamping |
+| `bash` | limited allowlist | Diff inspection, review stamping |
 | `git commit*`, `git push*` | deny | Only committer commits |
 | `webfetch`, `websearch` | deny | Facts come from diff and spec |
 
@@ -109,7 +109,6 @@ testing says what happened; reviewing says whether it's good enough.
 |---|---|
 | `git status*`, `git diff*`, `git log*` | Diff inspection |
 | `aspis artifact review --task` | Stamp REVIEW_REPORT (mode-gated) |
-| `aspis artifact test` | Stamp TEST_REPORT |
 | `aspis context*` | Brain refresh |
 | `python .aspis/scripts/context/*` | Context scripts (specific basenames) |
 | `python .aspis/scripts/planning/prereq_validate.py` | Verify plan gate |
@@ -120,6 +119,16 @@ testing says what happened; reviewing says whether it's good enough.
 |---|---|
 | `project-explorer` | Codebase context for a finding |
 | `research-lead` | Claim hinges on current docs/APIs |
+
+### Model Tier
+
+**Default: standard.** The reviewer renders judgment, so it is never cheaper than
+standard. It steps up to **deep** for high-risk reviews — security, architecture,
+production plan-critic, or any V3–V4 change — and may drop to **cheap** only for a
+P2 self-check. The concrete tier resolves at render time against the user's model
+preference and the runtime's available models (R-007); full capability-based tier
+scoring is a future feature. A live runtime may pin a custom model — that is a
+personal setup, not this design.
 
 ---
 
@@ -189,6 +198,12 @@ The reviewer must withhold verdict when evidence is missing. This is a hard rule
 no test run → request test run. No diff → request diff. Gate not green → refuse
 review until gate passes. Never approve on description alone.
 
+### If stuck — stop, don't guess
+
+If the inputs are contradictory, the evidence is unobtainable, or a dimension is
+out of the reviewer's scope, **stop and report back to the delegating lead** —
+withhold the verdict rather than guess. A guessed verdict is worse than none.
+
 ---
 
 ## 7 · Plan Review (Plan-Critic)
@@ -209,6 +224,9 @@ review until gate passes. Never approve on description alone.
 | 10 | **Rollback plan** | Destructive changes have documented rollback |
 | 11 | **Complexity tracking** | Flagged complexities are honest |
 | 12 | **Estimation realism** | Task sizes match mode (no "large" tasks in production) |
+
+> **v1 vs v2:** checks **1–6** are the existing plan-critic (v1); checks **7–12**
+> are the v2 extension being added. "12 checks" = v1 (6) + v2 (6).
 
 ### Plan-critic mode overlay
 
@@ -348,9 +366,9 @@ ASPIS already separates them: deterministic scope guard (safety) vs Reviewer
 
 | # | Question | Status |
 |---|---|---|
-| 1 | Model drift: live `minimax-m3` (cheap) vs config `deepseek-v4-pro` (deep) | Must fix — `aspis models --apply` |
+| 1 | Model tier | **Resolved (F-016):** default standard, deep for high-risk; resolves vs user preference + available models. A live custom model is personal and ignored; full tier scoring is a future feature. |
 | 2 | 6 missing skills (3 P0, 2 P1, 1 P2) | Build P0 skills first |
-| 3 | 6 missing plan-critic checks | Extend from 6 to 12 |
+| 3 | 6 missing plan-critic checks | **Resolved:** labelled v1 (checks 1–6) + v2 (checks 7–12) in §7 |
 | 4 | No severity rubric in acceptance-decision skill | Add 4-level rubric |
 | 5 | "Approved with notes" has no follow-up enforcement | Link notes to follow-up tasks |
 | 6 | Constitution checks are prose, not deterministic | Mechanize C-COST, C-PORTABLE, C-FILE-SELF-EXPLAINS |
