@@ -49,13 +49,13 @@ Core infrastructure ALL stories depend on — no story work until this completes
   - Packet: V3 (deep) | Builder: deep | Review: reviewer (multi-lens, all 9 dimensions)
   - **Goal**: Produce `Research/audit/findings-1.md` — adversarial review of all 8 specs against the architecture constitution, system rules, and cross-agent consistency. Classify findings: CRITICAL / HIGH / MEDIUM / LOW. Every finding has file:line evidence.
 
-- [ ] T-04 [P0] [high] [moderate] [fix] — Address CRITICAL and HIGH findings from audit
+- [x] T-04 [P0] [high] [moderate] [fix] — Address CRITICAL and HIGH findings from audit — **DONE** (`7bfd679`)
   - Files: Affected `Research/ref/*.md` files (subset, determined by T-03 findings)
   - Depends on: T-03 | Blocks: T-05
   - Packet: V3 (deep) | Builder: standard | Review: build-lead
   - **Goal**: Apply the LOCKED work-order in `Research/audit/findings-triage.md` (owner-decided) — the focused **~10 Group-1 fixes, NOT all 40**. Honour its refinements: system-lead modifies runtime **only via tools scoped to `.aspis/`** (B-6); research-lead `write:allow`/`edit:deny` is **intentional** — document the rationale, don't add edit (B-5); reviewer + research-lead tiers = **standard default / deeper when warranted** per user preference + available models, **ignore the live custom model** (F-3/A-1/C-7); reviewer drops `aspis artifact test` (D-9); remove `plan-critic`/`review-strategy` from planning-lead (B-1); add the "if stuck, stop" rule to reviewer + research-lead (A-4/A-5); reviewer plan-critic 12-vs-6 labelled (B-2). Also **reword one side** of the planning-lead↔build-lead "confirm clean state" responsibility so the cross-ref gate (E-2 MEDIUM) goes green. Group-2 = defer; Group-3 = skip. Each resolution documented (finding ref, what changed, why sufficient).
 
-- [ ] T-05 [P0] [medium] [moderate] [test] — Cross-reference consistency check: run `cross_ref_agents.py` on all 8 lead specs
+- [x] T-05 [P0] [medium] [moderate] [test] — Cross-reference consistency check: run `cross_ref_agents.py` on all 8 lead specs — **DONE** — gate PASS (0 HIGH/0 MEDIUM)
   - Files: `cross_ref_agents.py`, all 8 `Research/ref/*.md`
   - Depends on: T-02, T-04 | Blocks: T-06..T-14
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
