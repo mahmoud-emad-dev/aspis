@@ -1,4 +1,4 @@
-"""ASPIS — Agentic Software Production & Integration System.
+"""ASPIS — Agentic Software Production & Intelligence System.
 
 The shield for agentic software production.
 

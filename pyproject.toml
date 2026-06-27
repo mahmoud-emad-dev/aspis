@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "aspis"
-description = "ASPIS — Agentic Software Production & Integration System. The shield for agentic software production: a file-first, deterministic agentic software factory."
+description = "ASPIS — Agentic Software Production & Intelligence System. The shield for agentic software production: a file-first, deterministic agentic software factory."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
