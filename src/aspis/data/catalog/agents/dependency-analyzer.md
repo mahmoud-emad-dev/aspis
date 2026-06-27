@@ -12,11 +12,11 @@ summary: Analyzes and visualizes task dependencies — calls the L1 dependency_g
 tools: [read, grep, glob, bash]
 export_scope: full
 permissions:
-  bash: {git commit: deny, git push: deny, 'python .aspis/scripts/planning/dependency_graph.py*': allow, '*': deny}
+  bash: {git commit: deny, git push: deny, 'python .aspis/scripts/planning/*': allow, '*': deny}
   webfetch: deny
   websearch: deny
   file_write: deny
-deny_floor: {bash: {git commit: deny, git push: deny, 'python .aspis/scripts/planning/dependency_graph.py*': allow, '*': deny}, webfetch: deny, websearch: deny, file_write: deny}
+deny_floor: {bash: {git commit: deny, git push: deny, 'python .aspis/scripts/planning/*': allow, '*': deny}, webfetch: deny, websearch: deny, file_write: deny}
 ---
 
 # Dependency Analyzer
