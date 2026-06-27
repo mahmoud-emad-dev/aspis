@@ -71,6 +71,12 @@ def register(subparsers: argparse._SubParsersAction) -> None:
             "always the bundled one."
         ),
     )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        default=True,
+        help="Plan without writing (default — the verb is always read-only/dry-run).",
+    )
     parser.set_defaults(func=_run)
 
 

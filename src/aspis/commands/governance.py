@@ -303,10 +303,11 @@ def _request(args: argparse.Namespace) -> int:
         print("request needs at least one --path", file=sys.stderr)
         return 2
     quoted = " ".join(p if " " not in p else f'"{p}"' for p in paths)
+    reason = (args.reason or "").strip() or "<reason>"
     print("To write the protected path(s), a human must run:\n")
     print(
         f"  aspis governance approve --paths {quoted} \\\n"
-        f"      --reason \"{args.reason}\" \\\n"
+        f"      --reason \"{reason}\" \\\n"
         f"      --approver <human-identity-handle>"
     )
     return 0
@@ -392,9 +393,37 @@ def _audit(args: argparse.Namespace) -> int:
             if (lambda ts: ts is not None and ts >= cutoff)(_parse_iso(str(e.get("timestamp", ""))))
         ]
 
+    if getattr(args, "until", None):
+        cutoff = _parse_iso(args.until)
+        if cutoff is None:
+            print(f"audit --until must be ISO 8601 (got {args.until!r})", file=sys.stderr)
+            return 2
+        if cutoff.tzinfo is None:
+            cutoff = cutoff.replace(tzinfo=timezone.utc)
+        entries = [
+            e for e in entries
+            if (lambda ts: ts is not None and ts <= cutoff)(_parse_iso(str(e.get("timestamp", ""))))
+        ]
+
     if args.approver:
         want = args.approver.strip()
         entries = [e for e in entries if e.get("approver") == want]
+
+    if getattr(args, "status", None):
+        now = _now_utc()
+
+        def _status_of(e: dict) -> str:
+            if e.get("status") == "revoked":
+                return "revoked"
+            exp = _parse_iso(str(e.get("expiry") or ""))
+            if exp is not None:
+                if exp.tzinfo is None:
+                    exp = exp.replace(tzinfo=timezone.utc)
+                if exp < now:
+                    return "expired"
+            return "active"
+
+        entries = [e for e in entries if _status_of(e) == args.status]
 
     if getattr(args, "path_filters", None):
         filters = [_normalize(p) for p in args.path_filters]
@@ -426,9 +455,6 @@ def _revoke(args: argparse.Namespace) -> int:
     if not args.id or not args.id.strip():
         print("revoke needs --id (e.g. APRV-001)", file=sys.stderr)
         return 2
-    if not args.approver or not args.approver.strip():
-        print("revoke requires --approver (R-008 Human gate)", file=sys.stderr)
-        return 2
     if not args.reason or not args.reason.strip():
         print("revoke requires a non-empty --reason", file=sys.stderr)
         return 2
@@ -449,14 +475,20 @@ def _revoke(args: argparse.Namespace) -> int:
                 if entry.get("status") == "revoked":
                     print(f"already revoked: {target_id}", file=sys.stderr)
                     return 3
+                # --approver optional: default to the original approver (spec §6).
+                revoker = (
+                    args.approver.strip()
+                    if args.approver and args.approver.strip()
+                    else entry.get("approver", "unknown")
+                )
                 entry["status"] = "revoked"
                 entry["revocation"] = {
                     "revoked_at": _now_iso(),
-                    "revoked_by": args.approver.strip(),
+                    "revoked_by": revoker,
                     "reason": args.reason,
                 }
                 _write_ledger(ledger, entries)
-                print(f"revoked: {target_id} by {args.approver}")
+                print(f"revoked: {target_id} by {revoker}")
                 return 0
         print(f"not found: {target_id}", file=sys.stderr)
         return 3
@@ -531,7 +563,7 @@ def register(subparsers: argparse._SubParsersAction) -> None:
         "--path", dest="paths", required=True, action="append",
         help="Protected path(s) you intend to write (repeatable).",
     )
-    req.add_argument("--reason", required=True, help="Human-readable reason for the write.")
+    req.add_argument("--reason", help="Human-readable reason for the write (optional).")
     req.set_defaults(func=_request)
 
     # approve
@@ -555,7 +587,12 @@ def register(subparsers: argparse._SubParsersAction) -> None:
     # audit
     aud = sub.add_parser("audit", help="Query the approval ledger.")
     aud.add_argument("--since", help="ISO 8601 filter: at/after this timestamp.")
+    aud.add_argument("--until", help="ISO 8601 filter: at/before this timestamp.")
     aud.add_argument("--approver", help="Filter by approver handle.")
+    aud.add_argument(
+        "--status", choices=("active", "revoked", "expired"),
+        help="Filter by entry status.",
+    )
     aud.add_argument(
         "--path", action="append", dest="path_filters",
         help="Filter by path glob (repeatable).",
@@ -567,8 +604,8 @@ def register(subparsers: argparse._SubParsersAction) -> None:
     rev.add_argument("--id", required=True, help="APRV-NNN to revoke.")
     rev.add_argument("--reason", required=True, help="Why this approval is being revoked.")
     rev.add_argument(
-        "--approver", required=True,
-        help="Who is revoking (REQUIRED — R-008 gate).",
+        "--approver",
+        help="Who is revoking (optional — defaults to the original approver).",
     )
     rev.set_defaults(func=_revoke)
 

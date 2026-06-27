@@ -1,10 +1,15 @@
 """Claude Code runtime adapter.
 
-Claude agents key on ``name`` and a ``tools`` list. Claude expresses access only
-through ``tools``, auto-discovers skills, and has implicit subagent access — so
-this adapter deliberately drops the superset fields it cannot express (``mode``,
-``temperature``, ``permissions``, ``delegates``, ``skills``). Claude commands do
-NOT bind to an agent (the binding is dropped). Model ids are data and editable.
+Claude agents key on ``name`` and a ``tools`` list. Claude expresses tool access
+through ``tools`` and auto-discovers skills, so this adapter drops the fields
+Claude consumes natively in another way (``mode``, ``temperature``,
+``delegates``, ``skills``). It DOES preserve the catalog ``permissions`` block
+(FR-010): the deny floor and the R-008 protected-path set are load-bearing
+safety, so they ride along in the rendered frontmatter for capability-equivalence
+with OpenCode and for a PreToolUse guard to enforce. (Native Claude enforcement of
+that block additionally requires the settings.json PreToolUse hook — a follow-up;
+preserving the block is the prerequisite and what FR-010 requires.) Claude commands
+do NOT bind to an agent (the binding is dropped). Model ids are data and editable.
 """
 
 from __future__ import annotations
@@ -47,15 +52,17 @@ class ClaudeAdapter(RuntimeAdapter):
         project_config: dict | None = None,
         inventory: RuntimeInventory | None = None,
     ) -> str:
-        frontmatter = to_frontmatter(
-            {
-                "name": agent.name,
-                "description": agent.description,
-                "tools": self.tools_for(agent.tools),
-                "model": self._resolve_model(agent, project_config, inventory),
-            }
-        )
-        return f"{frontmatter}\n{agent.body}\n"
+        data: dict = {
+            "name": agent.name,
+            "description": agent.description,
+            "tools": self.tools_for(agent.tools),
+            "model": self._resolve_model(agent, project_config, inventory),
+        }
+        # FR-010: preserve the permission block (deny floor + R-008 protected
+        # paths) so the runtime can enforce capability-equivalence with OpenCode.
+        if agent.permissions:
+            data["permissions"] = dict(agent.permissions)
+        return f"{to_frontmatter(data)}\n{agent.body}\n"
 
     def render_command(self, command: CatalogCommand) -> str:
         # Claude commands are not bound to an agent — drop the binding.

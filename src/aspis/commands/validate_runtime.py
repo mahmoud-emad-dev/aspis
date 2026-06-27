@@ -54,6 +54,12 @@ def register(subparsers: argparse._SubParsersAction) -> None:
             "skill refs resolve, delegate refs resolve (no orphans)."
         ),
     )
+    parser.add_argument(
+        "--runtime",
+        default="all",
+        choices=("all",),
+        help="Scope to a runtime set (default: all — the verb always checks every agent).",
+    )
     parser.set_defaults(func=_run)
 
 

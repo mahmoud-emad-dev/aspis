@@ -161,7 +161,8 @@ Each verb:
 - Has `--help` returning usage information
 - Exits 0 on success, non-zero on failure
 - Outputs per-file pass/fail with file:line evidence on failure
-- Is stdlib-only (no third-party imports) — self-contained
+- Is stdlib-only except for `pyyaml` (the project-wide YAML dep, used by the
+  governance ledger and other `aspis` commands) — no *new* third-party deps
 
 ### Component 8 — L2 P0: Governance subagent (L2)
 
