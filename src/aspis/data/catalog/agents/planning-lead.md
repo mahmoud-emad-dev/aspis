@@ -47,11 +47,12 @@ skills:
   - feature-planning
   - architecture-planning
   - task-decomposition
-  # Recommended (4) — high-leverage additions per spec §4
+  # Recommended (5) — high-leverage additions per spec §4
   - deterministic-first
   - scope-control
   - mode-decision
   - constitution-checks
+  - dependency-audit
 export_scope: full
 runtimes: [opencode, claude]
 ---
