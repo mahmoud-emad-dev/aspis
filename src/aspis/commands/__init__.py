@@ -11,12 +11,15 @@ from __future__ import annotations
 from aspis.commands import (
     artifact,
     bootstrap,
+    byte_parity,
     commit,
     commits,
     context,
     doctor,
+    export_cmd,
     findings,
     gitignore,
+    governance,
     init,
     mode,
     models,
@@ -24,12 +27,15 @@ from aspis.commands import (
     status,
     testledger,
     uninstall,
+    validate_runtime,
 )
 
 #: Command modules, in the order their verbs appear in ``aspis --help``.
 COMMAND_MODULES = (
     init,
     bootstrap,
+    byte_parity,
+    export_cmd,
     status,
     mode,
     models,
@@ -42,5 +48,7 @@ COMMAND_MODULES = (
     context,
     findings,
     doctor,
+    governance,
     uninstall,
+    validate_runtime,
 )
