@@ -29,6 +29,7 @@ permissions:
   websearch: deny
   edit: deny
   write: deny
+runtimes: []
 ---
 
 # Committer

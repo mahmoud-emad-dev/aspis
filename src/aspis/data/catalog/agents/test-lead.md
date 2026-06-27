@@ -32,6 +32,7 @@ delegates:
 skills:
   - test-generation
   - test-execution
+runtimes: []
 ---
 
 # Test Lead
