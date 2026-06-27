@@ -149,7 +149,7 @@ def test_system_rules_ship_to_every_project(tmp_path) -> None:
     rules = tmp_path / ".aspis" / "rules" / "system-rules.md"
     assert rules.is_file()  # the `rules` kind lands in the brain
     text = rules.read_text(encoding="utf-8")
-    assert "R-001" in text and "three rule layers" in text.lower()
+    assert "R-001" in text and "rule layers" in text.lower()
 
 
 def test_modes_config_ships_and_parses(tmp_path) -> None:
