@@ -130,8 +130,8 @@ territory), novel runtime adapter work, and root-cause system-repair diagnostics
 | `read`, `grep`, `glob` | allow | System inspection |
 | `edit`, `write` | allow | System assets (agents, skills, config, hooks, runtime) |
 | `bash` | named allowlist (see below) — **not `*`** | Validation, repair, authoring via aspis tools; dangerous ops migrate to subagents |
-| `webfetch` | allow | Fetching current runtime docs |
-| `websearch` | allow | Runtime documentation and validation |
+| `webfetch` | allow | Fetching a known runtime/tooling doc by URL |
+| `websearch` | **deny** | No open-ended web search — that injection surface belongs to research-lead alone (matches catalog) |
 | `git commit*` | **deny** | Only committer commits (R-004) |
 | `git push*` | **deny** | Human-gated (R-008) |
 
@@ -429,7 +429,7 @@ M1. Self-improvement loop · M2. Dashboard/cockpit · M3. Trace spine · M4. Mul
 | 7 | 10 missing skills (governance-approval, catalog-validator, etc.) | Build in priority order |
 | 8 | 12 missing templates (agent, skill, command, workflow, hook, etc.) | Build as needed |
 | 9 | Claude render drops permission block — cross-runtime asymmetry | Must fix adapter |
-| 10 | Live `websearch: allow` vs catalog `websearch: deny` drifts | Reconcile |
+| 10 | ~~Live `websearch: allow` vs catalog `websearch: deny`~~ | **Resolved** — both `deny`; §5 + FR-007 aligned; `webfetch` stays `allow` |
 | 11 | Model tier: live `standard` vs catalog intent `deep` | Reconcile |
 | 12 | Trace spine (Part 3): designed, not built | Deferred to roadmap |
 | 13 | Dashboard (Part 5): designed, not built | Deferred to roadmap |
