@@ -1,9 +1,9 @@
 {
-  "id": "F-017",
-  "slug": "complete-agent-system",
-  "title": "Complete the Agent System",
-  "path": ".aspis/features/F-017-complete-agent-system",
-  "branch": "feature/F-017-complete-agent-system",
+  "id": "F-018",
+  "slug": "complete-asset-set",
+  "title": "Complete the Asset Set & Harden",
+  "path": ".aspis/features/F-018-complete-asset-set",
+  "branch": "main",
   "mode": "production",
   "phase": "build"
 }
