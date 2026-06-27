@@ -27,7 +27,9 @@ skills:
   - context-ladder
   - knowledge-research
   - knowledge-packaging
-runtimes: []
+  - cache-management
+  - harvest-protocol
+runtimes: [opencode, claude]
 ---
 
 > Derived from Research/ref/research-lead.md
@@ -186,3 +188,19 @@ Source: <URL> | Retrieved: <YYYY-MM-DD>
 | Find and verify current, authoritative knowledge | `knowledge-research` |
 | Turn findings into a reusable reference asset | `knowledge-packaging` |
 | Ground the question in current project context | `context-ladder` |
+| Check cache before any new research; stale → re-validate | `cache-management` |
+| Bring external knowledge into the catalog via R-008-gated path | `harvest-protocol` |
+
+## Dynamic-readiness
+Right-sizes process per `.aspis/context/DYNAMIC_READINESS.md`:
+- Mode — research-lead always operates at full rigor (knowledge correctness is
+  load-bearing for every other lead). No compression for vibe/mvp.
+- Task kind/scope from the research request → determines whether I run a quick
+  search (1 source, inline answer) or deep research (full 4-step + RESEARCH_NOTE).
+- Model tier (`standard` from my frontmatter; `deep` for security advisories,
+  CVEs, or contested multi-source claims) → sets how many sources I cross-check
+  and how deeply I validate. Stronger model = broader source coverage, same
+  verification quality.
+Default: the leanest correct path — check cache first, scope the question,
+  research only what's needed, validate against ≥1 source, package for reuse.
+  No web fetch that a cache hit could answer.

@@ -48,8 +48,11 @@ skills:
   - project-question-answering
   - project-guidance
   - project-health
+  - mode-decision
+  - recontextualization
+  - session-continuation
 export_scope: full
-runtimes: []
+runtimes: [opencode, claude]
 ---
 
 > Derived from Research/ref/project-lead.md
@@ -177,3 +180,14 @@ fix, small-task) and surfaced as the `/plan`, `/build`, `/review`, `/system`, an
 may also pick or confirm the **build mode** for a request — infer it from risk and
 scope, falling back to the project default in `.aspis/config/project.yaml` — and pass
 it in the handoff so planning sizes the work correctly.
+
+## Dynamic-readiness
+Right-sizes process per `.aspis/context/DYNAMIC_READINESS.md`:
+- Mode (`production`/`mvp`/`vibe`) from the active feature → sets my rigor ceiling.
+- Task kind/scope from the request classification → determines whether I run the
+  full delegation chain or answer/route directly.
+- Model tier (`standard` from my frontmatter; user may elevate to `deep`) → sets
+  how much context I load and how many intermediate steps I take. Stronger model =
+  fewer context-loading cycles, same decision quality.
+Default: the leanest correct path for the scope — classify, load minimum context,
+delegate to the single owning lead, recontextualize the return. No extra hops.

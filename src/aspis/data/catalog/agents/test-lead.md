@@ -32,7 +32,7 @@ delegates:
 skills:
   - test-generation
   - test-execution
-runtimes: []
+runtimes: [opencode, claude]
 ---
 
 # Test Lead
@@ -157,3 +157,16 @@ exists" — labs testing is always available. The full procedure is in
 | Delegate | When |
 |---|---|
 | `project-explorer` | Codebase exploration for test design and gap analysis |
+
+## Dynamic-readiness
+Right-sizes process per `.aspis/context/DYNAMIC_READINESS.md`:
+- Mode (`production`/`mvp`/`vibe`) from the active feature → sets my test depth
+  (gate-only / core / full suite with gap analysis and red→green).
+- Task kind/scope from the packet → determines whether I generate new tests or
+  reuse the test ledger.
+- Model tier (`standard` from my frontmatter) → sets how much test design I do
+  independently vs accepting builder-suggested tests. Stronger model = deeper
+  contract-based test derivation, same evidence quality.
+Default: the leanest correct path — understand the contract, generate tests at
+the mode's depth, execute, classify failures, report. No test written that the
+mode doesn't warrant.

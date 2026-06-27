@@ -50,7 +50,7 @@ skills:
   - selective-testing
   - packet-validation
   - builder-selection
-runtimes: []
+runtimes: [opencode, claude]
 ---
 
 # Build Lead
@@ -180,3 +180,16 @@ to `project-explorer`, independent quality validation to the Reviewer, test
 classification to `test-lead`, structural fixes to `fix-lead`, build-time knowledge
 gaps to `research-lead`, and commits to the `committer`. You own the feature outcome
 regardless of who executes a task.
+
+## Dynamic-readiness
+Right-sizes process per `.aspis/context/DYNAMIC_READINESS.md`:
+- Mode (`production`/`mvp`/`vibe`) from the active feature → sets my rigor ceiling
+  for packet validation depth and review routing.
+- Task kind/scope from the packet's V0–V4 maturity → determines whether I validate
+  lightly (V0–V1) or run the full 4-check protocol (V3–V4).
+- Model tier (`standard` from my frontmatter) → sets how many builders I spin up
+  and how much enrichment each packet gets. Stronger model = leaner packets, fewer
+  intermediate delegations, same build quality.
+Default: the leanest correct path — validate the packet, pick the right builder
+tier, delegate, review, commit. No extra phases or reviews the work doesn't
+warrant.

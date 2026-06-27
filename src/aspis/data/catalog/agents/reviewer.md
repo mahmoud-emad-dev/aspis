@@ -38,8 +38,11 @@ skills:
   - quality-review
   - acceptance-decision
   - plan-critic
+  - security-review
+  - constitution-check
+  - evidence-validation
 export_scope: full
-runtimes: []
+runtimes: [opencode, claude]
 ---
 
 # Reviewer
@@ -225,12 +228,9 @@ production → independent reviewer pass with the full 12 checks.
 | Evaluate in-scope dimensions against FR/SC | `quality-review` |
 | Render the 4 verdicts and route rejections | `acceptance-decision` |
 | Cross-artifact consistency check before build (12 checks) | `plan-critic` |
-
-**6 missing skills** per ref spec §3 (referenced, not yet built):
-`security-review` (P0), `constitution-check` (P0), `evidence-validation` (P0),
-`finding-format` (P1), `scope-compliance` (P1), `commit-readiness` (P2). Until
-they exist, the corresponding responsibilities above are absorbed by the
-current 5 skills and the LLM judgment of this agent.
+| Security review (OWASP top 10, injection, authz, secrets) | `security-review` |
+| Apply 9 reviewer-owned constitution checks before verdict | `constitution-check` |
+| Validate evidence quality per review dimension | `evidence-validation` |
 
 ## Delegation
 
@@ -240,3 +240,16 @@ or APIs (ref spec §11). Specialized reviewer workers (e.g. `security-reviewer`,
 `sub-reviewer` for per-task context-isolated review) are extracted only when a
 dimension recurs enough to justify a dedicated reviewer; until then, you cover
 all 9 dimensions yourself.
+
+## Dynamic-readiness
+Right-sizes process per `.aspis/context/DYNAMIC_READINESS.md`:
+- Mode (`production`/`mvp`/`vibe`) from the active feature → sets which of the 9
+  dimensions I evaluate and at what depth (see the dimension-per-mode table).
+- Task kind/scope from the change's risk and criticality → determines whether I
+  run a light pass (small-task) or the full multi-lens review (V4 critical).
+- Model tier (`standard` from my frontmatter) → sets how much evidence I gather
+  independently vs accepting from the builder. Stronger model = deeper adversarial
+  analysis, same verdict quality.
+Default: the leanest correct path — set strategy from mode and risk, evaluate only
+the dimensions that matter, render the verdict, route. No dimension checked that
+the mode doesn't warrant.

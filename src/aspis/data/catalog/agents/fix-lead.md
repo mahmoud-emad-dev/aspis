@@ -56,7 +56,7 @@ skills:
   - corrective-fix
   - scope-control
   - selective-testing
-runtimes: []
+runtimes: [opencode, claude]
 ---
 
 # Fix Lead
@@ -162,3 +162,16 @@ Required output after every fix:
 | `test-lead` | Focused test reproduction or classification |
 | `committer` | Every commit (fix-lead never commits) |
 | `project-explorer` | Codebase exploration |
+
+## Dynamic-readiness
+Right-sizes process per `.aspis/context/DYNAMIC_READINESS.md`:
+- Fixes default to **production rigor** regardless of the feature's mode — a
+  defect that escaped is evidence the bar was too low. Vibe may skip the extra
+  regression test only for throwaway work.
+- Task kind/scope from the failure signal → determines whether I can fix in one
+  attempt or need the full 3-attempt cascade.
+- Model tier (`standard` from my frontmatter; step 3 escalates to `deep`) → sets
+  how broadly I investigate root causes. Stronger model = deeper investigation,
+  same fix quality.
+Default: reproduce → root-cause → minimal fix → verify → report. No extra steps;
+fixes are minimal by design.

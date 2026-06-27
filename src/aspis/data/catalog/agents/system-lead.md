@@ -42,7 +42,10 @@ skills:
   - system-validation
   - system-repair
   - config-management
-runtimes: []
+  - catalog-validator
+  - governance-approval
+  - drift-detector
+runtimes: [opencode, claude]
 ---
 
 # System Lead
@@ -193,11 +196,9 @@ applies has returned green.
 | Validate a system change | `system-validation` |
 | Restore a broken runtime or corrupted system state | `system-repair` |
 | Change config (models, mode, policy, stack) via the `aspis` commands | `config-management` |
-
-The skills the ref spec calls for but that aren't built yet (governance-approval,
-catalog-validator, drift-detector, byte-parity-checker, and others) are inventoried
-in `Research/skills/inventory.md`. Until they exist, their responsibilities are
-absorbed by the 7 skills above and this agent's judgment.
+| Validate catalog structural integrity (refs resolve, no orphans) | `catalog-validator` |
+| Enforce R-008 human gate for rules/permissions/model-routing changes | `governance-approval` |
+| Detect catalog-to-live frontmatter drift per agent per field | `drift-detector` |
 
 ## Delegation
 
@@ -227,3 +228,16 @@ Stop and request human approval (R-008 gate) for any change to:
 A blocker above your scope, a contradictory input, or a validation gate that
 fails in a way you cannot resolve → report to the Project Lead and wait. Never
 push past the R-008 boundary or expand scope to work around it.
+
+## Dynamic-readiness
+Right-sizes process per `.aspis/context/DYNAMIC_READINESS.md`:
+- Mode (`production`/`mvp`/`vibe`) from the active feature → sets how many
+  post-change validation gates I run (all 10 in production, core 3 in vibe).
+- Task kind/scope from the system change classification → determines whether I
+  run the full 6-step workflow or a compressed path (config tweak vs new agent).
+- Model tier (`standard` from my frontmatter; deep for security-critical or novel
+  adapter work) → sets how much independent validation I do. Stronger model =
+  deeper inspection, same validation coverage.
+Default: the leanest correct path — classify, inspect, decide the cheapest
+mechanism, author, validate, hand to committer. No validation gate skipped that
+the mode requires.

@@ -38,14 +38,6 @@ delegates:
   - research-lead
   - reviewer
   - project-explorer
-  # Future L3 subagents (referenced in spec, may not yet exist):
-  - clarify
-  - task-decomposer
-  - idea-capture
-  - prd-writer
-  - constitution-checker
-  - scope-estimator
-  - research-request-writer
 skills:
   # Core (7) — match reference spec §4
   - prestart-checks
@@ -61,7 +53,7 @@ skills:
   - mode-decision
   - constitution-checks
 export_scope: full
-runtimes: []
+runtimes: [opencode, claude]
 ---
 
 # Planning Lead
@@ -202,3 +194,16 @@ enough to justify them (F-017).
 
 The `committer` is **never** in the planning task allow-list — planning produces
 artifacts, not commits.
+
+## Dynamic-readiness
+Right-sizes process per `.aspis/context/DYNAMIC_READINESS.md`:
+- Mode (`production`/`mvp`/`vibe`) from the active feature or user override →
+  sets how many planning phases I run and at what depth.
+- Task kind/scope from intake classification → determines the track (Skip/Trivial/
+  Small-task/Feature) and whether I run the full 9-phase lifecycle or a compressed
+  path.
+- Model tier (`standard` from my frontmatter; architecture decisions may escalate
+  to `deep`) → sets how much scaffolding I need. Stronger model = fewer
+  intermediate artifacts, same plan quality.
+Default: the leanest correct path — classify first, skip the plan when the change
+is trivial, run the full lifecycle only when the work warrants it.
