@@ -48,9 +48,6 @@ _COUNT_TOLERANCE = 0.10
 #: the loop on accidental root-relative paths.
 _MAX_WALK_UP = 10
 
-#: A folder header in the code map (``## path/to/folder``).
-_DIR_HEADER_RE = re.compile(r"^##\s+(?P<dir>.+?)\s*$")
-
 #: A file skeleton header in the code map. The builder's render output
 #: is ``### `path/to/file.py`  (NNN lines)`` — exactly two spaces
 #: between the closing backtick and the parenthesised count.
@@ -103,10 +100,10 @@ def _load_registry(index_dir: Path) -> dict[str, dict]:
 def _parse_code_map(code_map_path: Path) -> list[tuple[Path, int]]:
     """Extract ``(file_path, recorded_line_count)`` pairs from the code map.
 
-    The code map groups files by their parent folder. The parser tracks
-    the most recent ``## folder`` header and uses it as the prefix for
-    subsequent ``### `file` (N lines)`` headers. A folder of ``.`` (root
-    files) contributes no prefix — the file's path is taken as-is.
+    The builder (``build_code_map.render``) writes the **full** repo-relative
+    path inside every ``### `path`  (N lines)`` entry; the ``## folder`` header
+    is cosmetic grouping only and is never a path prefix. So each entry's path
+    is taken verbatim.
 
     The regexes only match the builder's exact output, so a stray
     human-written ``## Section`` or ``### Heading`` in the file is
@@ -114,21 +111,12 @@ def _parse_code_map(code_map_path: Path) -> list[tuple[Path, int]]:
     artifact.
     """
     pairs: list[tuple[Path, int]] = []
-    current_dir = ""
     for line in code_map_path.read_text(encoding="utf-8").splitlines():
-        dir_match = _DIR_HEADER_RE.match(line)
-        if dir_match:
-            current_dir = dir_match.group("dir").strip()
-            continue
         file_match = _FILE_HEADER_RE.match(line)
         if file_match:
             rel = file_match.group("path")
             count = int(file_match.group("count"))
-            if current_dir in ("", "."):
-                full = Path(rel)
-            else:
-                full = Path(current_dir) / rel
-            pairs.append((full, count))
+            pairs.append((Path(rel), count))
     return pairs
 
 
@@ -189,7 +177,7 @@ def register(subparsers: argparse._SubParsersAction) -> None:
         "validate-index",
         help=(
             "Validate .aspis/index/: every FILE_REGISTRY entry exists on disk "
-            "and every CODE_MAP line count is within 10% of actual."
+            "and every CODE_MAP line count is within 10%% of actual."
         ),
     )
     _add_arguments(parser)
