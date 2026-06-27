@@ -1,5 +1,6 @@
 # Planning-Lead — Complete Agent Specification
 
+> **Status: LOCKED** (T-07 final pass — F-016 Phase 3/US1)
 > **F-016 reference file.** Target design — the abstract system role. This is what
 > planning-lead IS meant to be. Synthesized from 8 parallel thinking agents
 > (research-lead ×6, test-lead ×2), 12 research files, 2 reviewer audits, the

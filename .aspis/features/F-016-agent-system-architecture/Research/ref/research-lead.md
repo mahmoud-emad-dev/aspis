@@ -1,5 +1,6 @@
 # Research-Lead — Complete Agent Specification
 
+> **Status: LOCKED** (T-13 final pass — F-016 Phase 3/US1)
 > **F-016 reference file.** Target design — the abstract system role. Synthesized from
 > 4 parallel thinking agents (research-lead ×3, test-lead ×1), the live agent (69 lines),
 > local draft (120 lines), system architecture, capability routing, and 2 live skills.
@@ -202,7 +203,7 @@ what's known and what's blocked. A guessed answer is worse than an honest "unkno
 
 ---
 
-## 11 · Full Use Case Catalog
+## 10 · Full Use Case Catalog
 
 ### A. By Caller (6 callers, 40+ use cases)
 
@@ -251,7 +252,7 @@ what's known and what's blocked. A guessed answer is worse than an honest "unkno
 
 ---
 
-## 12 · Adversarial Findings (15 risks)
+## 11 · Adversarial Findings (15 risks)
 
 | # | Risk | Severity |
 |---|---|---|
@@ -273,7 +274,7 @@ what's known and what's blocked. A guessed answer is worse than an honest "unkno
 
 ---
 
-## 13 · Skills, Tools & Subagents Inventory
+## 12 · Skills, Tools & Subagents Inventory
 
 ### Skills (5 target: 3 existing + 2 new)
 
@@ -337,7 +338,7 @@ what's known and what's blocked. A guessed answer is worse than an honest "unkno
 
 ---
 
-## 14 · Acceptance Criteria
+## 13 · Acceptance Criteria
 
 - [ ] 4-step procedure documented (scope → research → validate → package)
 - [ ] Cache-first discipline enforced before any research

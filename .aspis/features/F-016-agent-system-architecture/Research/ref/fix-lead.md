@@ -1,5 +1,6 @@
 # Fix-Lead — Complete Agent Specification
 
+> **Status: LOCKED** (T-11 final pass — F-016 Phase 3/US1)
 > **F-016 reference file.** Target design — the abstract system role. Synthesized from
 > 2 parallel thinking agents (research-lead ×1, test-lead ×1), the live agent (81 lines),
 > local draft (124 lines), fix workflow (30 lines), and system architecture.

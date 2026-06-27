@@ -1,5 +1,6 @@
 # Test-Lead — Complete Agent Specification
 
+> **Status: LOCKED** (T-12 final pass — F-016 Phase 3/US1)
 > **F-016 reference file.** Target design — the abstract system role. Synthesized from
 > 2 parallel thinking agents, the live agent (63 lines), local draft (114 lines),
 > test-generation and test-execution skills, and system architecture.

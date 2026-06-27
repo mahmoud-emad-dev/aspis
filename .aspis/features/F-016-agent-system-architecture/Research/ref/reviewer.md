@@ -1,5 +1,6 @@
 # Reviewer — Complete Agent Specification
 
+> **Status: LOCKED** (T-09 final pass — F-016 Phase 3/US1)
 > **F-016 reference file.** Target design — the abstract system role. Synthesized from
 > 4 parallel thinking agents (research-lead ×3, test-lead ×1), the live agent (98 lines),
 > local draft (137 lines), review workflow (30 lines), 4 skill specs, industry patterns

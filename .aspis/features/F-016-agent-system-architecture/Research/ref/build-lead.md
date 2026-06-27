@@ -1,5 +1,6 @@
 # Build-Lead — Complete Agent Specification
 
+> **Status: LOCKED** (T-08 final pass — F-016 Phase 3/US1)
 > **F-016 reference file.** Target design — the abstract system role. Synthesized from
 > 5 parallel thinking agents (research-lead ×3, test-lead ×2), the live agent (123
 > lines), local draft (133 lines), build workflow (43 lines), architecture

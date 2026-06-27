@@ -1,5 +1,6 @@
 # System-Lead — Complete Agent Specification
 
+> **Status: LOCKED** (T-10 final pass — F-016 Phase 3/US1)
 > **F-016 reference file.** Target design — the abstract system role. Synthesized from
 > 5 parallel thinking agents (research-lead ×4, test-lead ×1), the live agent (108
 > lines), local draft (134 lines), 12 research files, OLD ASPS deep comparison, and

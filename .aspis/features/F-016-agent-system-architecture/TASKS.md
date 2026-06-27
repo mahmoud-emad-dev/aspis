@@ -67,43 +67,43 @@ Core infrastructure ALL stories depend on — no story work until this completes
 **Goal**: All 8 lead agent reference specs are locked (finalized, sign-off ready).
 **Independent test**: `cross_ref_agents.py --scope leads` exit 0. Every spec has all required sections. 0 CRITICAL, 0 HIGH unresolved findings.
 
-- [ ] T-06 [P1] [medium] [simple] [docs] [US1] [P] — Lock project-lead reference spec (final pass)
+- [x] T-06 [P1] [medium] [simple] [docs] [US1] [P] — Lock project-lead reference spec (final pass) — **DONE**
   - Files: `Research/ref/project-lead.md` (modify)
   - Depends on: T-05 | Blocks: T-14
   - Packet: V1 (light) | Builder: cheap | Review: self
   - **Acceptance**: All 16 sections present. Identity block matches master synthesis. "If stuck, stop" rule present. Acceptance criteria checkboxes verified.
 
-- [ ] T-07 [P1] [medium] [simple] [docs] [US1] [P] — Lock planning-lead reference spec
+- [x] T-07 [P1] [medium] [simple] [docs] [US1] [P] — Lock planning-lead reference spec — **DONE**
   - Files: `Research/ref/planning-lead.md` (modify)
   - Depends on: T-05 | Blocks: T-14
   - Packet: V1 (light) | Builder: cheap | Review: self
 
-- [ ] T-08 [P1] [medium] [simple] [docs] [US1] [P] — Lock build-lead reference spec
+- [x] T-08 [P1] [medium] [simple] [docs] [US1] [P] — Lock build-lead reference spec — **DONE**
   - Files: `Research/ref/build-lead.md` (modify)
   - Depends on: T-05 | Blocks: T-14
   - Packet: V1 (light) | Builder: cheap | Review: self
 
-- [ ] T-09 [P1] [medium] [simple] [docs] [US1] [P] — Lock reviewer reference spec
+- [x] T-09 [P1] [medium] [simple] [docs] [US1] [P] — Lock reviewer reference spec — **DONE**
   - Files: `Research/ref/reviewer.md` (modify)
   - Depends on: T-05 | Blocks: T-14
   - Packet: V1 (light) | Builder: cheap | Review: self
 
-- [ ] T-10 [P1] [medium] [simple] [docs] [US1] [P] — Lock system-lead reference spec
+- [x] T-10 [P1] [medium] [simple] [docs] [US1] [P] — Lock system-lead reference spec — **DONE**
   - Files: `Research/ref/system-lead.md` (modify)
   - Depends on: T-05 | Blocks: T-14
   - Packet: V1 (light) | Builder: cheap | Review: self
 
-- [ ] T-11 [P1] [medium] [simple] [docs] [US1] [P] — Lock fix-lead reference spec
+- [x] T-11 [P1] [medium] [simple] [docs] [US1] [P] — Lock fix-lead reference spec — **DONE**
   - Files: `Research/ref/fix-lead.md` (modify)
   - Depends on: T-05 | Blocks: T-14
   - Packet: V1 (light) | Builder: cheap | Review: self
 
-- [ ] T-12 [P1] [medium] [simple] [docs] [US1] [P] — Lock test-lead reference spec
+- [x] T-12 [P1] [medium] [simple] [docs] [US1] [P] — Lock test-lead reference spec — **DONE**
   - Files: `Research/ref/test-lead.md` (modify)
   - Depends on: T-05 | Blocks: T-14
   - Packet: V1 (light) | Builder: cheap | Review: self
 
-- [ ] T-13 [P1] [medium] [simple] [docs] [US1] [P] — Lock research-lead reference spec
+- [x] T-13 [P1] [medium] [simple] [docs] [US1] [P] — Lock research-lead reference spec — **DONE**
   - Files: `Research/ref/research-lead.md` (modify)
   - Depends on: T-05 | Blocks: T-14
   - Packet: V1 (light) | Builder: cheap | Review: self

@@ -1,5 +1,6 @@
 # Project-Lead — Complete Agent Specification
 
+> **Status: LOCKED** (T-06 final pass — F-016 Phase 3/US1)
 > **F-016 reference file.** Target design — the abstract system role, not the current
 > runtime state. Runtime-specific implementation (Claude/OpenCode adapter details)
 > is handled separately. This is what project-lead IS meant to be.
