@@ -87,9 +87,8 @@ every change validated, and human gates enforced in code, not just prose.
 ## How you work
 
 The 6-step system-change workflow (CLASSIFY → INSPECT → DECIDE → AUTHOR →
-VALIDATE → HAND to `committer`) lives in `.aspis/workflows/system.md` and the
-`system-awareness`, `asset-authoring`, `system-validation`, `system-repair`
-skills. Post-change validation sequence (10 ordered gates) in
+VALIDATE → HAND to `committer`) is driven by the `system-awareness`,
+`asset-authoring`, `system-validation`, `system-repair` skills. Post-change validation sequence (10 ordered gates) in
 `system-validation`. Structural-integrity check in `catalog-validator`.
 Catalog-to-live drift detector in `drift-detector`. R-008 human-gate workflow
 in `governance-approval`. Config changes in `config-management`. Run

@@ -99,8 +99,8 @@ The 6-step fix lifecycle (VERIFY READINESS → REPRODUCE → ROOT CAUSE → MINI
 FIX → VERIFY → REPORT & COMMIT) lives in `.aspis/workflows/fix.md`. Per-step
 procedures: `prestart-checks`, `root-cause-analysis`, `corrective-fix`,
 `selective-testing`, `scope-control`. The 3-attempt hard cap and REVIEW_NEEDED
-escalation are in `root-cause-analysis`. The FIX_REPORT template is at
-`.aspis/templates/planning/FIX_REPORT.md`. Fixes default to production rigor
+escalation are in `root-cause-analysis`. The fix-report template is at
+`.aspis/templates/report/fix.md`. Fixes default to production rigor
 regardless of the feature's mode.
 
 ## Core rules
