@@ -16,6 +16,8 @@ permissions:
   bash:
     "*": deny
     "aspis preflight*": allow
+    "aspis context*": allow # one-call fresh L1 hot context (context-ladder)
+    "aspis findings*": allow # inspect / resolve guard findings (prestart-checks)
     "pytest*": allow
     "uv run pytest*": allow
     "ruff check*": allow

@@ -18,9 +18,9 @@ git status --porcelain     # empty output = clean
 ## If the tree is dirty
 
 1. Identify the uncommitted work (`git status --short` lists staged/untracked).
-2. If it is finished, reviewed work, hand it to the committer to commit with
-   `aspis commit` (the `commit-message` skill). If it is unrelated, stash it
-   deliberately — never edit on top of it.
+2. If it is finished, reviewed work, hand it to the committer to commit (the
+   `commit-message` skill). If it is unrelated, stash it deliberately — never
+   edit on top of it.
 3. Re-check; only start editing once `git status --porcelain` is empty.
 
 ## Note on generated brain files

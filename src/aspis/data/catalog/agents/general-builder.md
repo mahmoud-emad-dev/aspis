@@ -23,6 +23,7 @@ permissions:
     "git diff*": allow
     "git log*": allow
     "aspis preflight*": allow
+    "aspis findings*": allow # inspect open guard findings before building (prestart-checks)
     "git commit*": deny
     "git push*": deny
   edit:

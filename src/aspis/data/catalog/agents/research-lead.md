@@ -17,6 +17,7 @@ permissions:
     "*": deny
   bash:
     "*": deny
+    "aspis context*": allow # one-call fresh L1 hot context (context-ladder)
     "python .aspis/scripts/context/*": allow
     "python3 .aspis/scripts/context/*": allow
   webfetch: allow
