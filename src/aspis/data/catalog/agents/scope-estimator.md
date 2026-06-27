@@ -1,5 +1,6 @@
 ---
 name: scope-estimator
+description: Estimates story points and scope from a spec — calls the L1 scope_estimate script, returns estimated effort, file-count proxy, and confidence level.
 mode: subagent
 model: cheap
 temperature: 0.0
@@ -10,6 +11,11 @@ primary: false
 summary: Estimates story points and scope from a spec — calls the L1 scope_estimate script, returns estimated effort, file-count proxy, and confidence level.
 tools: [read, grep, glob, bash]
 export_scope: full
+permissions:
+  bash: {git commit: deny, git push: deny, 'python .aspis/scripts/planning/scope_estimate.py*': allow, '*': deny}
+  webfetch: deny
+  websearch: deny
+  file_write: deny
 deny_floor: {bash: {git commit: deny, git push: deny, 'python .aspis/scripts/planning/scope_estimate.py*': allow, '*': deny}, webfetch: deny, websearch: deny, file_write: deny}
 ---
 

@@ -1,5 +1,6 @@
 ---
 name: idea-capture
+description: Captures raw feature ideas into a structured intake card with scope hints — returns INTAKE.md with goal, problem, value, constraints, scope, risks, and suggested mode.
 mode: subagent
 model: cheap
 temperature: 0.0
@@ -10,6 +11,11 @@ primary: false
 summary: Captures raw feature ideas into a structured intake card with scope hints — returns INTAKE.md with goal, problem, value, constraints, scope, risks, and suggested mode.
 tools: [read, grep, glob]
 export_scope: full
+permissions:
+  bash: {git commit: deny, git push: deny, '*': deny}
+  webfetch: deny
+  websearch: deny
+  file_write: deny
 deny_floor: {bash: {git commit: deny, git push: deny, '*': deny}, webfetch: deny, websearch: deny, file_write: deny}
 ---
 

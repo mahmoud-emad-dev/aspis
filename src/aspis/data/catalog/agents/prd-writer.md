@@ -1,5 +1,6 @@
 ---
 name: prd-writer
+description: Expands a structured idea card into a Product Requirements Document — returns SPEC.md with FRs, SCs, user stories, and scope boundaries.
 mode: subagent
 model: standard
 temperature: 0.0
@@ -10,6 +11,11 @@ primary: false
 summary: Expands a structured idea card into a Product Requirements Document — returns SPEC.md with FRs, SCs, user stories, and scope boundaries.
 tools: [read, grep, glob]
 export_scope: full
+permissions:
+  bash: {git commit: deny, git push: deny, '*': deny}
+  webfetch: deny
+  websearch: deny
+  file_write: deny
 deny_floor: {bash: {git commit: deny, git push: deny, '*': deny}, webfetch: deny, websearch: deny, file_write: deny}
 ---
 

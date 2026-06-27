@@ -1,5 +1,6 @@
 ---
 name: dependency-analyzer
+description: Analyzes and visualizes task dependencies — calls the L1 dependency_graph script, returns a dependency graph with critical path identification and circular dependency warnings.
 mode: subagent
 model: cheap
 temperature: 0.0
@@ -10,6 +11,11 @@ primary: false
 summary: Analyzes and visualizes task dependencies — calls the L1 dependency_graph script, returns a dependency graph with critical path identification and circular dependency warnings.
 tools: [read, grep, glob, bash]
 export_scope: full
+permissions:
+  bash: {git commit: deny, git push: deny, 'python .aspis/scripts/planning/dependency_graph.py*': allow, '*': deny}
+  webfetch: deny
+  websearch: deny
+  file_write: deny
 deny_floor: {bash: {git commit: deny, git push: deny, 'python .aspis/scripts/planning/dependency_graph.py*': allow, '*': deny}, webfetch: deny, websearch: deny, file_write: deny}
 ---
 

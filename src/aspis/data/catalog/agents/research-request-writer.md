@@ -1,5 +1,6 @@
 ---
 name: research-request-writer
+description: Formulates knowledge gaps into structured RESEARCH_REQUEST packets for the research-lead — one question, must_cover, sources, urgency per request.
 mode: subagent
 model: cheap
 temperature: 0.0
@@ -10,6 +11,11 @@ primary: false
 summary: Formulates knowledge gaps into structured RESEARCH_REQUEST packets for the research-lead — one question, must_cover, sources, urgency per request.
 tools: [read, grep, glob]
 export_scope: full
+permissions:
+  bash: {git commit: deny, git push: deny, '*': deny}
+  webfetch: deny
+  websearch: deny
+  file_write: deny
 deny_floor: {bash: {git commit: deny, git push: deny, '*': deny}, webfetch: deny, websearch: deny, file_write: deny}
 ---
 

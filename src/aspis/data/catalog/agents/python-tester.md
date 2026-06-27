@@ -1,10 +1,24 @@
 ---
 name: python-tester
+description: Stack-specific test executor for Python — runs pytest, unittest, and coverage.py; understands mock/fixture patterns, parametrization, and conftest.py conventions.
 mode: subagent
 model: cheap
+temperature: 0.0
+export_scope: full
 delegates: []
-runtimes: [opencode, claude-code]
+tools:
+  - read
+  - grep
+  - glob
+  - edit
+  - write
+  - bash
+permissions:
+  bash: {git commit: deny, git push: deny, "uv run pytest*": allow, "pytest*": allow, "python*": allow, '*': deny}
+  webfetch: deny
+  websearch: deny
 skills: [test-execution]
+runtimes: [opencode, claude-code]
 primary: false
 summary: Stack-specific test executor for Python — runs pytest, unittest, and coverage.py; understands mock/fixture patterns, parametrization, and conftest.py conventions.
 deny_floor: {bash: {"git commit": deny, "git push": deny, '*': deny}, webfetch: deny, websearch: deny, file_write: allow}
