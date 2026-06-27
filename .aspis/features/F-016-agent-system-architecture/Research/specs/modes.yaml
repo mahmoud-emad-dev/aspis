@@ -1,0 +1,79 @@
+# modes.yaml — Specification
+
+> F-016 systemic spec. Defines the structure and per-mode values of `.aspis/config/modes.yaml`.
+
+## Purpose
+Modes are the rigor dial for the ASPIS core loop. A mode sets a **ceiling** (maximum rigor for that run), not a floor. Higher modes inherit everything from lower modes.
+
+## Modes
+
+### vibe
+Quick exploration, prototyping, spikes. Fastest path to an answer.
+- spec: bullets
+- architecture: skip
+- task_size: large
+- plan_review: skip
+- build_review: light
+- test_depth: gate
+- docs: none
+- promotable: false
+
+### mvp
+Working features with quality. The default for normal development.
+- spec: stories
+- architecture: note
+- task_size: medium
+- plan_review: self
+- build_review: standard
+- test_depth: core
+- docs: minimal
+- promotable: true
+
+### production
+Full rigor for shipping features. Every gate enforced.
+- spec: full
+- architecture: full
+- task_size: small
+- plan_review: independent
+- build_review: full
+- test_depth: full
+- docs: complete
+- promotable: N/A
+
+## Knob definitions
+
+| Knob | Values | Description |
+|---|---|---|
+| spec | bullets / stories / full | Specification depth in SPEC.md |
+| architecture | skip / note / full | Architecture section depth in PLAN.md |
+| task_size | large / medium / small | Task granularity in TASKS.md |
+| plan_review | skip / self / independent | Who reviews the plan |
+| build_review | light / standard / full | Who reviews build output |
+| test_depth | gate / core / full | How many tests to run |
+| docs | none / minimal / complete | Documentation requirements |
+| promotable | false / true / N/A | Can this mode's output be promoted to the next mode? |
+
+## Mode resolution order
+1. Agent's declared mode in frontmatter (lowest priority)
+2. CLI override `--mode <mode>` (medium priority)
+3. Environment variable `ASPIS_MODE=<mode>` (highest priority)
+4. Effective mode = highest of all three sources, capped at production
+
+## Ceiling semantics
+- A mode is a **ceiling**, not a floor
+- An agent declared as `production` can run at `mvp` rigor if overridden
+- An agent declared as `mvp` CANNOT run at `production` rigor (ceiling caps it)
+- The effective mode is min(declared, override) — the lower of the two controls
+
+## File location
+`.aspis/config/modes.yaml` — per-project config, overrides the catalog default at `src/aspis/data/catalog/config/policy/modes.yaml`.
+
+## Acceptance criteria
+- [ ] All 3 modes defined with values for all 8 knobs
+- [ ] Mode hierarchy is clear (vibe < mvp < production)
+- [ ] Every knob has a complete set of possible values documented
+- [ ] Override precedence is specified
+- [ ] Ceiling semantics are documented with examples
+- [ ] File location is specified
+- [ ] Consistent with planning-lead reference spec §3 mode system
+- [ ] Consistent with CORE_LOOP.md mode overlay
