@@ -22,6 +22,13 @@
     `git push*` anywhere. All workflows verified complete. All gates (preflight,
     prereq_validate, AST parse, --help) pass. System structurally ready for the core
     loop. **HARD STOP — do NOT proceed to T-33+ without owner sign-off on this gate.**
+  - **OWNER SIGN-OFF (2026-06-27, Path A):** Owner reviewed the L1 state on evidence
+    (structural checks all green; triple-review findings closed; bodies thinned to
+    R-006). Owner accepts **structural readiness** as the L1 gate and authorizes L2.
+    **SC-002 (end-to-end loop on cheap+standard) is NOT yet demonstrated** — it is
+    deferred to whenever the owner runs `aspis export` to the live runtime + a sample
+    feature. L2-P0 (deterministic catalog-side tooling) does not depend on it. T-32a
+    APPROVED → L2-P0 (T-33) cleared to start.
 
 ## Requirements (from SPEC)
 - [x] FR-001: 0 frontmatter skill references without a corresponding SKILL.md (L0+L1 verified)
