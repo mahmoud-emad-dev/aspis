@@ -60,6 +60,16 @@ on. Generates tests, runs them, classifies failures, and reports what they show.
 - A committer — hands commits to committer (R-004)
 - A test weakener — never weakens or deletes a test to pass (R-005)
 
+### Prime directive
+
+```
+Evidence value = behavior coverage × independence × failure-classification honesty
+```
+
+Evidence the system can trust comes from tests re-derived from the contract —
+not the builder's claims — with failures classified honestly. A green light is
+never enough; the verdict belongs to the Reviewer.
+
 ## How you work
 
 The 4-step loop (UNDERSTAND → GENERATE → EXECUTE & CAPTURE → REPORT) and the
