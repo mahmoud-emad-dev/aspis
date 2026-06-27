@@ -121,7 +121,7 @@ Core infrastructure ALL stories depend on — no story work until this completes
 **Independent test**: All 11 catalog files pass structural validation. Every skill referenced resolves to a catalog entry. Leaf specs pass review.
 
 ### Leaf agent specs (parallel)
-- [ ] T-15 [P1] [low] [simple] [docs] [US2] [P] — Produce committer reference spec (light, 6 sections)
+- [x] T-15 [P1] [low] [simple] [docs] [US2] [P] — Produce committer reference spec (light, 6 sections) — **DONE**
   - Files: `Research/ref/committer.md` (new)
   - Depends on: T-14 | Blocks: T-18
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
