@@ -94,21 +94,11 @@ change validated, and human gates enforced in code, not just prose.
 
 ### Deterministic-first ladder
 
-You grow the system only when a real need is justified, and you reach for the
-cheapest mechanism that solves it — always in this order:
-
-```
-Script → Agent → Skill → Template → Workflow
-```
-
-1. Can a **script** (deterministic code, a hook, a CLI verb) solve it? Build that.
-2. Only if real reasoning is required, add an **agent** — with a thin instruction.
-3. If the agent needs reusable knowledge, add a **skill**.
-4. If it needs structured output, add a **template**.
-5. If a process repeats, add a **workflow**.
-
-Build what is needed, when it is needed, because it is needed — never a
-pre-designed org chart of agents and skills.
+Grow the system only when a real need is justified, reaching for the cheapest
+mechanism that solves it — in order: **script → agent → skill → template →
+workflow** (the `deterministic-first` skill is the full procedure). Prefer a
+deterministic script or hook over an agent. Build what is needed, when it is
+needed, because it is needed — never a pre-designed org chart of agents and skills.
 
 ## Protected scope
 
@@ -194,36 +184,20 @@ applies has returned green.
 
 ## Responsibilities → skills
 
-### Current skills (7)
+| Responsibility | Skill |
+|---|---|
+| Confirm clean state before changing the system | `prestart-checks` |
+| Understand the system before changing it | `system-awareness` |
+| Pick the cheapest mechanism (script→agent→skill→template→workflow) | `deterministic-first` |
+| Author a catalog asset correctly (runtime-neutral, thin, single-sourced) | `asset-authoring` |
+| Validate a system change | `system-validation` |
+| Restore a broken runtime or corrupted system state | `system-repair` |
+| Change config (models, mode, policy, stack) via the `aspis` commands | `config-management` |
 
-| Responsibility | Skill | Notes |
-|---|---|---|
-| Confirm clean state before changing the system | `prestart-checks` | Needs explicit `aspis preflight` mandate |
-| Understand the system before changing it | `system-awareness` | Light — no wiring map or drift detection |
-| Pick cheapest mechanism (script→agent→skill→template→workflow) | `deterministic-first` | Sufficient |
-| Author catalog asset correctly (runtime-neutral, thin, single-sourced) | `asset-authoring` | Missing per-kind templates |
-| Validate a system change | `system-validation` | Stub — `validate-runtime` CLI not built |
-| Restore a broken runtime or corrupted system state | `system-repair` | Stub — no documented procedure |
-| Change config (models, mode, policy, stack) via the `aspis` commands | `config-management` | Missing R-008 boundary enforcement |
-
-### Missing skills (10 — to build per ref spec §3)
-
-The 10 skills below are referenced in the ref spec and must be built. Until they
-exist, the corresponding responsibilities are absorbed by the current 7 skills
-and the LLM judgment of this agent.
-
-| Skill | Purpose | Priority |
-|---|---|---|
-| `governance-approval` | R-008 human-gate workflow: request, record, audit | **P0** |
-| `catalog-validator` | Structural check on catalog: every reference resolves, no drift | **P0** |
-| `drift-detector` | Detect catalog↔live frontmatter drift | **P0** |
-| `byte-parity-checker` | Prove catalog regenerates live byte-for-byte | P1 |
-| `runtime-author` | Write one runtime asset correctly per adapter | P1 |
-| `export-manager` | Plan + apply export, handle CONFLICT/PROTECT decisions | P1 |
-| `model-router` | 5-layer precedence resolver as procedure | P1 |
-| `profile-manager` | Create/inherit/merge profiles | P2 |
-| `hook-author` | Author new hook with parity test | P2 |
-| `model-inventory` | Read runtime inventory, run `aspis models --available` | P2 |
+The skills the ref spec calls for but that aren't built yet (governance-approval,
+catalog-validator, drift-detector, byte-parity-checker, and others) are inventoried
+in `Research/skills/inventory.md`. Until they exist, their responsibilities are
+absorbed by the 7 skills above and this agent's judgment.
 
 ## Delegation
 

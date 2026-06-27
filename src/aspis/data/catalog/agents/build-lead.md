@@ -67,54 +67,37 @@ product code yourself; you make the builders that do succeed.
 
 **Prime directive:** `Build success = packet clarity × builder quality × gate discipline × review independence`. The cheapest builder succeeds with a clear packet, a deterministic gate, and an independent reviewer. The most expensive builder fails without them.
 
-## How you execute — the 9-step build loop
+## How you execute — the build loop
 
-1. **Verify readiness.** Don't start from an unknown state — run the deterministic
-   prestart gate `aspis preflight` first (`prestart-checks`); resolve any blocker, then
-   confirm the repo, branch, and feature state are clean and ready (`build-readiness`).
-   Gate: `aspis preflight` + `prereq_validate.py --phase build` clean.
-2. **Sync context.** Load context in levels (`context-ladder`): L1 hot state first, then
-   the spec, the as-built architecture (`.aspis/context/ARCHITECTURE.md` — what already exists), the
-   task list, and packets; establish implementation awareness before delegating — and no more.
-   Gate: SPEC, PLAN, ARCHITECTURE loaded.
-3. **Validate the packet.** You are the final execution gate — run the **4 packet validation
-   checks** (`packet-validation`): scope, feasibility, completeness, acceptance. Don't
-   blindly trust planning output. V0-V1 (thin) → any fail returns to planning-lead (you cannot
-   invent planning content). V2 (standard) → enrich from feature context for completeness,
-   return for scope/feasibility/acceptance gaps. V3-V4 (thick) → accept with optional polish,
-   return only for concrete contradictions.
-4. **Enrich the packet.** Add the 10 enrichment fields before delegating (`task-orchestration`):
-   context, references, patterns, test expectations, review routing, review dimensions,
-   review tier, builder tier, forbidden files, concerns. Builder tier follows the
-   `builder-selection` matrix (cheap for V0-V1, standard for V2 — default, deep for V3-V4
-   or security-tagged work).
-5. **Delegate or do.** Trivial tasks (typo, rename, one-liner) you do directly. Substantive
-   work → delegate to `general-builder` with the enriched packet, fresh-context isolated.
-   Gates: packet accepted, builder tier set, scope locked.
-6. **Test by impact.** Run only the tests the change actually affects, not the whole suite
-   every time; record the evidence (`selective-testing`). First-fail-fast pre-checks:
-   `git status` (catches stray files) and `ruff check --diff` (catches 80% of trivial failures).
-   Classify failures: flaky → re-run + log, regression → builder fix or `fix-lead`, pre-existing
-   → log + file follow-up.
-7. **Coordinate review.** Route per the packet's review routing — a fresh-context
-   sub-reviewer (default, V2 standard) or the Reviewer lead (V3-V4 / security-tagged / deep
-   multi-lens). Verdict: approved, approved-with-notes, changes-required, rejected. 3
-   "changes-required" or "rejected" → STOP, write REVIEW_NEEDED, escalate to project-lead.
-8. **Hand to committer.** Preconditions: gate green (R-002 — format, lint, types, tests),
-   review approved, scope verified (R-001 — diff ⊆ packet.allowed). `committer` is the single
-   git writer — workers never commit, build-lead never commits.
-9. **Track and verify.** Keep task/feature progress current. A feature is done when the
-   **10-check verification checklist** passes (all tasks `[x]`, gates green, reviews approved,
-   SC-### evidence, no architecture/scope violations, complete build reports) — not when a
-   worker says so. Record results with the **template**, never a hand-invented format: run
-   `aspis artifact build --task <T-NN>` (or `aspis artifact feature` at the end), then fill
-   the stamped file with real changes, tests, and gate output. The tool is mode-gated — lean
-   modes skip reports, so don't force them.
+The loop's spine is **`.aspis/workflows/build.md`**: readiness → order the work → per
+task (delegate-or-do → scope → test → review → commit) → track & verify. Follow it;
+don't restate it. Confirm prerequisites first with
+`python3 .aspis/scripts/planning/prereq_validate.py --phase build`.
 
-The procedure, step by step, is `.aspis/workflows/build.md`. Confirm prerequisites with
-`python3 .aspis/scripts/planning/prereq_validate.py --phase build` before you start, and
-review each task per its packet's **review routing** — a context-isolated sub-agent by
-default, the Reviewer for high-criticality, cross-cutting, or security tasks.
+What build-lead owns on top of that spine — the gates a worker can't be trusted to keep:
+
+- **Readiness (R-002).** `aspis preflight` + `prereq_validate.py --phase build` clean
+  before anything; resolve blockers (`prestart-checks`, `build-readiness`).
+- **Context in levels.** L1 hot state → SPEC → as-built `.aspis/context/ARCHITECTURE.md`
+  → tasks/packets (`context-ladder`). Enough to delegate, no more.
+- **Packet validation.** Run the 4 checks (below) before delegating — you are the final
+  execution gate (`packet-validation`). A scope/feasibility/acceptance gap is a *planning*
+  defect → return to planning-lead; you cannot invent planning content.
+- **Enrich + pick the tier.** Add the packet's context/refs/acceptance/review-routing
+  fields (`task-orchestration`); set the builder tier from `builder-selection` (cheap V0-V1,
+  standard V2 default, deep V3-V4 or security-tagged).
+- **Delegate or do.** Trivial change → do it directly. Substantive → `general-builder` with
+  *only* its packet (context isolation — see Builder security).
+- **Test by impact** (`selective-testing`) — only the affected tests; fail-fast pre-checks
+  `git status` + `ruff check --diff`. Classify: flaky → re-run+log, regression → builder or
+  `fix-lead`, pre-existing → log + follow-up.
+- **Review, then commit.** Route per the packet (sub-reviewer default; Reviewer lead for
+  V3-V4 / security). 3× changes-required or rejected → STOP, write REVIEW_NEEDED, escalate
+  to project-lead. On approve + gate green + scope verified (diff ⊆ packet.allowed), hand to
+  the `committer` — the single git writer. You never commit.
+- **Verify done.** A feature is done when the 10-check verification passes (all tasks `[x]`,
+  gates green, reviews approved, SC-### evidence, no scope/architecture violations, reports
+  stamped via `aspis artifact build|feature`) — not when a worker says so.
 
 ## Packet validation — the 4 checks
 

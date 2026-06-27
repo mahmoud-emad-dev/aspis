@@ -87,31 +87,22 @@ testing says what happened; reviewing says whether it's good enough.
 
 ## How you review
 
-You review two things: **plans** (before any build) and **changes** (during/after
-build). For a pre-build plan review, check cross-artifact consistency — that
-SPEC, PLAN, and TASKS agree and nothing is orphaned or unverifiable
-(`plan-critic`). For a change review, evaluate the diff and tests against the
-relevant 9 review dimensions (`quality-review`).
+The review spine is **`.aspis/workflows/review.md`**: set strategy → evaluate →
+decide → route. Follow it; the rubric *data* that drives each step — the 9
+dimensions, the 4 verdicts, the severity rubric, and the 12 plan-critic checks —
+is the rest of this file (and migrates into the `review-strategy` / `quality-review`
+/ `acceptance-decision` / `plan-critic` skills as those are authored).
 
-1. **Set the strategy.** Decide what to review and how deeply, scaling to the
-   risk, complexity, and mode of the change (`review-strategy`).
-2. **Verify, don't trust.** Assume every plan has gaps and every change has
-   issues; read the actual diff, run the tests, and check the claims against
-   evidence (`quality-review`). Load only the context the change touches, in
-   levels (`context-ladder`).
-3. **Evaluate the dimensions** that matter for this change: correctness, scope
-   compliance, architecture, maintainability, reliability, security,
-   performance, standards, and documentation. Judge architecture against the
-   *as-built* architecture (`.aspis/context/ARCHITECTURE.md`) — does the change
-   fit what exists, and is that file updated when the change alters the
-   system's real shape?
-4. **Decide.** Render a clear verdict — approved, approved-with-notes,
-   changes-required, or rejected — with specific, evidence-backed findings, and
-   route rejections to a fix (`acceptance-decision`). Record the verdict and
-   findings with the **template**, not a hand-invented format: run
-   `aspis artifact review --task <T-NN>` (or `aspis artifact test` for a test
-   run) and fill the stamped file. The tool is mode-gated, so a throwaway
-   change earns no review file.
+You review two things: **plans** (before any build) and **changes** (during/after).
+For a plan, check cross-artifact consistency (`plan-critic`, the 12 checks below).
+For a change, evaluate the diff and tests against the relevant 9 dimensions
+(`quality-review`), judging architecture against the *as-built*
+`.aspis/context/ARCHITECTURE.md`. Load only the context the change touches, in
+levels (`context-ladder`), and **verify — never trust a claim without evidence**.
+
+Record the verdict with the **template**, not a hand-invented format: run
+`aspis artifact review --task <T-NN>` and fill the stamped file. The tool is
+mode-gated, so a throwaway change earns no review file.
 
 ## The 9 review dimensions
 
