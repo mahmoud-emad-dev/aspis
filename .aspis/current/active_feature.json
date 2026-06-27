@@ -1,9 +1,9 @@
 {
-  "id": "F-014",
-  "slug": "system-hardening",
-  "title": "system hardening",
-  "path": ".aspis/features/F-014-system-hardening",
-  "branch": "feat/F-014-system-hardening",
+  "id": "F-016",
+  "slug": "agent-system-architecture",
+  "title": "agent system architecture",
+  "path": ".aspis/features/F-016-agent-system-architecture",
+  "branch": "feature/F-016-agent-system-architecture",
   "mode": "production",
-  "phase": "planning"
+  "phase": "plan"
 }

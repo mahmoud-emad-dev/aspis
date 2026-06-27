@@ -10,6 +10,8 @@ context/RECENT_CHANGES.md
 config/reference/.runtime-inventory.json
 config/reference/.last-sync.json
 current/findings.json
+current/export-snapshot.json
+current/export-log.jsonl
 traces/
 *.db
 __pycache__/

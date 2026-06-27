@@ -1,7 +1,7 @@
 ---
 description: The executive owner of the ASPIS runtime and system infrastructure — the machine that makes ASPIS work inside a project. Evolves the system deterministic-first, authors and governs its assets, protects and repairs the runtime, validates every change, and is the only lead that may modify protected system areas.
 mode: primary
-model: deepseek-v4-pro
+model: opencode-go/minimax-m3
 temperature: 0.1
 permission:
   read: allow
@@ -16,15 +16,19 @@ permission:
   task:
     '*': deny
     project-explorer: allow
+    reviewer: allow
+    committer: allow
   skill:
     '*': deny
+    prestart-checks: allow
     system-awareness: allow
     deterministic-first: allow
     asset-authoring: allow
     system-validation: allow
     system-repair: allow
+    config-management: allow
   webfetch: allow
-  websearch: deny
+  websearch: allow
 ---
 
 # System Lead
@@ -85,6 +89,7 @@ changes; you own their execution and governance.
 | Author an asset correctly | `asset-authoring` |
 | Validate a system change | `system-validation` |
 | Restore a broken runtime or corrupted system state | `system-repair` |
+| Change config (models, mode, policy, stack) via the `aspis` commands | `config-management` |
 
 ## How you work
 

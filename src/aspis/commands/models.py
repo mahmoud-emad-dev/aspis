@@ -55,6 +55,11 @@ def register(subparsers: argparse._SubParsersAction) -> None:
         help="Re-render the live runtime agents from agent-models.yaml + project.yaml "
         "(makes your edits active). Combine with --sync to refresh then apply.",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="With --apply: overwrite all agents, ignoring protection (escape hatch).",
+    )
     parser.set_defaults(func=_run)
 
 
@@ -66,7 +71,7 @@ def _run(args: argparse.Namespace) -> int:
         if rc or not args.apply:
             return rc
     if args.apply:
-        return _apply(root)
+        return _apply(root, force=bool(args.force))
     return _show(root, inventory, available=args.available)
 
 
@@ -196,20 +201,25 @@ def _sync(root: Path, inventory: dict) -> int:
 # --- aspis models --apply ----------------------------------------------------
 
 
-def _apply(root: Path) -> int:
-    """Re-render the live runtime agents so edits to agent-models.yaml/project.yaml take effect.
+def _apply(root: Path, *, force: bool = False) -> int:
+    """Re-render live runtime agents so edits to agent-models.yaml/project.yaml take effect.
 
     The model is baked into each runtime agent file at export time; ``--sync`` only refreshes
-    the editable ``agent-models.yaml``. This re-runs the same render path with ``force`` over
-    the agents that are *already live* — so a model change becomes active without a re-init.
+    the editable ``agent-models.yaml``. This re-runs the same render path over the agents
+    that are *already live* -- so a model change becomes active without a re-init.
     Only existing agent files are touched: self-cleaned transient agents are not resurrected,
     and skills/scripts/root files (e.g. a bootstrap-stripped AGENTS.md) are left untouched.
+
+    By default (``--apply`` without ``--force``) the hash-protection engine decides per
+    agent: pristine agents whose model routing changed are UPDATEd, user-edited agents are
+    PROTECTed (skipped), and agents changed by both sides are CONFLICTed (skipped, reported).
+    ``--force`` bypasses protection and overwrites every live agent (the legacy behavior).
     """
     from aspis.export import ExportPlan, plan_export, write_export
     from aspis.profiles import load_profile
 
     if not (root / BRAIN_DIR).is_dir():
-        print("not an ASPIS project (no .aspis/) — run `aspis init` first.")
+        print("not an ASPIS project (no .aspis/) -- run `aspis init` first.")
         return 1
 
     profile = load_profile(resources.data_dir() / "profiles" / "base.yaml")
@@ -224,12 +234,20 @@ def _apply(root: Path) -> int:
         if action.op == "render-agent" and (root / action.target).exists()
     ]
     if not live:
-        print("no live runtime agents to apply to — run `aspis init` first.")
+        print("no live runtime agents to apply to -- run `aspis init` first.")
         return 1
 
-    write_export(ExportPlan(actions=live, catalog_root=None), root, force=True, write=True)
+    performed = write_export(
+        ExportPlan(actions=live, catalog_root=None), root,
+        force=force, apply=not force, write=True,
+    )
     runtimes = ", ".join(sorted({a.runtime for a in live}))
-    print(f"applied: re-rendered {len(live)} agent file(s) ({runtimes}) — model choices are live.")
+    _skip_kinds = {"ADD", "UNCHANGED", "UNKNOWN", "UPDATE", "PROTECT", "CONFLICT"}
+    skipped = [p for p in performed if p.split(":")[0].strip() in _skip_kinds]
+    written_count = len(performed) - len(skipped)
+    print(f"applied: {written_count} re-rendered, {len(skipped)} skipped ({runtimes}).")
+    for s in skipped:
+        print(f"  {s}")
     return 0
 
 

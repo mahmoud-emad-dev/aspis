@@ -15,5 +15,5 @@ scaffold:
   - .aspis/workflows # the track workflows
 on_demand:
   - .aspis/features # one dir per feature — created by feature_scaffold on start-feature
-  - .aspis/current # active-feature pointer — created with the first feature
+  - .aspis/current # active-feature pointer + export state — created by write_export / first feature
   - .aspis/research # research-lead notes; general here, per-feature under features/<id>/research

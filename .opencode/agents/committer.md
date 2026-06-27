@@ -1,7 +1,7 @@
 ---
 description: The only agent permitted to create git commits. Receives reviewed, gate-green work, confirms exactly the intended files are staged, writes a clean conventional message, and commits. Centralizes commit quality; never pushes and never edits files.
 mode: subagent
-model: deepseek-v4-flash
+model: opencode-go/deepseek-v4-flash
 permission:
   read: allow
   grep: allow
@@ -11,9 +11,15 @@ permission:
     git status*: allow
     git diff*: allow
     git log*: allow
+    aspis commit*: allow
     git add*: allow
     git commit*: allow
     git push*: deny
+  skill:
+    '*': deny
+    commit-message: allow
+    commit-splitting: allow
+    clean-tree-precondition: allow
   webfetch: deny
   websearch: deny
 ---
@@ -42,7 +48,16 @@ verify and commit it. You never write product code and never push.
 
    Omit `--task` for a feature-wide commit; pass `--no-scope` for a repo-lifecycle
    commit (init/bootstrap/release). A multi-task commit auto-carries a `Tasks:` trailer.
-3. **Read the hook output.** The pre-commit and commit-msg hooks run automatically. If
+3. **Fallback only if `aspis` is genuinely unavailable.** If — and only if — the `aspis`
+   command is not found (not merely a convention warning), fall back to raw git, and keep
+   it identical in quality to the tool:
+   - stage **only the exact named paths** (`git add <path> …`) — never a directory and
+     never `git add -A`/`.` (that over-stages unrelated work);
+   - write the message to the **same `commit-convention.yaml`** form (scope, imperative
+     subject, bullets) — no AI/tool attribution;
+   - leave **no temp file behind** (no `COMMIT_MSG_TMP.txt`); pass `-m` or clean up after `-F`.
+   Then **report that the fallback was used and why**, so the missing-`aspis` install gets fixed.
+4. **Read the hook output.** The pre-commit and commit-msg hooks run automatically. If
    they block (or warn about something real — scope, secret, protected path, message),
    stop and report rather than forcing the commit. Never push.
 

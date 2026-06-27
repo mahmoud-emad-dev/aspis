@@ -33,6 +33,11 @@ def init_core(ctx: Context) -> None:
     """Export catalog assets, scaffold the brain, and write the root files."""
     write = bool(ctx.options.get("write"))
     force = bool(ctx.options.get("force"))
+    apply = bool(ctx.options.get("apply"))
+    strict = bool(ctx.options.get("strict"))
+    scope = ctx.options.get("scope")
+    force_conflicts = bool(ctx.options.get("force_conflicts"))
+    reset_snapshot = bool(ctx.options.get("reset_snapshot"))
 
     profile = _load_profile(ctx.options.get("profile") or "base")
     if ctx.options.get("runtimes"):
@@ -44,7 +49,11 @@ def init_core(ctx: Context) -> None:
 
     # 1) Export catalog assets selected by the profile.
     plan = plan_export(resources.catalog_dir(), profile)
-    for line in write_export(plan, ctx.root, force=force, write=write):
+    for line in write_export(
+        plan, ctx.root, force=force, write=write,
+        apply=apply, strict=strict, scope=scope,
+        force_conflicts=force_conflicts, reset_snapshot=reset_snapshot,
+    ):
         ctx.log(line)
     for missing in plan.missing:
         ctx.log(f"missing reference (skipped): {missing}")

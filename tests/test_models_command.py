@@ -17,6 +17,7 @@ def _ns(tmp_path, **kw):
     kw.setdefault("available", False)
     kw.setdefault("sync", False)
     kw.setdefault("apply", False)
+    kw.setdefault("force", False)
     return argparse.Namespace(path=str(tmp_path), **kw)
 
 
@@ -164,3 +165,85 @@ def test_models_available_lists_the_menu_by_provider(monkeypatch, capsys, tmp_pa
 
     assert "available (copy any into agent-models.yaml):" in out
     assert "opencode-go: deepseek-v4-pro, minimax-m3" in out
+
+
+# --------------------------------------------------------------------------- #
+# F-015 Unit 3: models --apply hash-protection behavior
+# --------------------------------------------------------------------------- #
+
+
+def test_apply_protects_user_edited_agent(monkeypatch, tmp_path) -> None:
+    """`models --apply` protects a user-edited agent (PROTECT, not overwritten)."""
+    from aspis.engine import build_engine
+    from aspis.operations import register_all
+
+    _isolate(monkeypatch, tmp_path)
+    monkeypatch.setattr(models_cmd, "build_inventory", lambda root, write=False: {})
+
+    engine = build_engine()
+    register_all(engine)
+    engine.run("init", tmp_path, write=True, no_git=True)
+
+    agent = tmp_path / ".opencode" / "agents" / "committer.md"
+    original = agent.read_text(encoding="utf-8")
+    agent.write_text(original + "\n<!-- user edit -->\n", encoding="utf-8")
+
+    rc = models_cmd._run(_ns(tmp_path, apply=True))
+
+    assert rc == 0
+    # PROTECT: the user edit is preserved, not overwritten.
+    assert "<!-- user edit -->" in agent.read_text(encoding="utf-8")
+
+
+def test_apply_conflicts_on_both_changed_agent(monkeypatch, tmp_path) -> None:
+    """`models --apply` reports CONFLICT when both user and catalog changed an agent."""
+    from aspis.engine import build_engine
+    from aspis.operations import register_all
+
+    _isolate(monkeypatch, tmp_path)
+    monkeypatch.setattr(models_cmd, "build_inventory", lambda root, write=False: {})
+
+    engine = build_engine()
+    register_all(engine)
+    engine.run("init", tmp_path, write=True, no_git=True)
+
+    agent = tmp_path / ".opencode" / "agents" / "committer.md"
+    original = agent.read_text(encoding="utf-8")
+    agent.write_text(original + "\n<!-- user edit -->\n", encoding="utf-8")
+
+    # Simultaneously change the model routing (catalog-side change).
+    cfg = tmp_path / ".aspis" / "config" / "project.yaml"
+    cfg.write_text(
+        "runtimes:\n  opencode:\n    agents:\n      committer: opencode/zzz-test-pin\n",
+        encoding="utf-8",
+    )
+
+    rc = models_cmd._run(_ns(tmp_path, apply=True))
+
+    assert rc == 0
+    # CONFLICT: user edit preserved, new model NOT applied.
+    assert "<!-- user edit -->" in agent.read_text(encoding="utf-8")
+    assert "opencode/zzz-test-pin" not in agent.read_text(encoding="utf-8")
+
+
+def test_apply_force_overwrites_user_edited_agent(monkeypatch, tmp_path) -> None:
+    """`models --apply --force` overwrites user-edited agents (escape hatch)."""
+    from aspis.engine import build_engine
+    from aspis.operations import register_all
+
+    _isolate(monkeypatch, tmp_path)
+    monkeypatch.setattr(models_cmd, "build_inventory", lambda root, write=False: {})
+
+    engine = build_engine()
+    register_all(engine)
+    engine.run("init", tmp_path, write=True, no_git=True)
+
+    agent = tmp_path / ".opencode" / "agents" / "committer.md"
+    original = agent.read_text(encoding="utf-8")
+    agent.write_text(original + "\n<!-- user edit -->\n", encoding="utf-8")
+
+    rc = models_cmd._run(_ns(tmp_path, apply=True, force=True))
+
+    assert rc == 0
+    # Force overwrites: user edit is gone.
+    assert "<!-- user edit -->" not in agent.read_text(encoding="utf-8")
