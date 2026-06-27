@@ -1,9 +1,9 @@
 {
-  "id": "F-016",
-  "slug": "agent-system-architecture",
-  "title": "agent system architecture",
-  "path": ".aspis/features/F-016-agent-system-architecture",
-  "branch": "feature/F-016-agent-system-architecture",
+  "id": "F-017",
+  "slug": "complete-agent-system",
+  "title": "Complete the Agent System",
+  "path": ".aspis/features/F-017-complete-agent-system",
+  "branch": "feature/F-017-complete-agent-system",
   "mode": "production",
-  "phase": "plan"
+  "phase": "build"
 }
