@@ -20,11 +20,11 @@
 | 1 | project-lead | Lead (L1) | 16 |
 | 2 | planning-lead | Lead (L1) | 17 |
 | 3 | build-lead | Lead (L1) | 16 |
-| 4 | reviewer | Support (L2) | 16 |
-| 5 | system-lead | Support (L2) | 16 |
-| 6 | fix-lead | Support (L2) | 16 |
+| 4 | reviewer | Support (L2) | 13 |
+| 5 | system-lead | Support (L2) | 14 |
+| 6 | fix-lead | Support (L2) | 12 |
 | 7 | test-lead | Support (L2) | 12 |
-| 8 | research-lead | Support (L2) | 14 |
+| 8 | research-lead | Support (L2) | 13 |
 | 9 | committer | Leaf (L3) | 6 |
 | 10 | general-builder | Leaf (L3) | 6 |
 | 11 | project-explorer | Leaf (L3) | 6 |

@@ -147,73 +147,73 @@ Core infrastructure ALL stories depend on — no story work until this completes
 
 ### Catalog file updates (parallel per agent, serialized per batch)
 
-- [ ] T-19 [P1] [medium] [moderate] [config] [US2] — Update project-lead catalog file to match reference spec
+- [x] T-19 [P1] [medium] [moderate] [config] [US2] — Update project-lead catalog file to match reference spec
   - Files: `src/aspis/data/catalog/agents/project-lead.md` (modify)
   - Depends on: T-18 | Blocks: T-30
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
   - **Changes**: Frontmatter: mode=primary, model=standard, delegates aligned (remove committer if present), skills verified. Body: identity block matches spec. Add `> Derived from Research/ref/project-lead.md` header.
 
-- [ ] T-20 [P1] [medium] [moderate] [config] [US2] [P] — Update planning-lead catalog file
+- [x] T-20 [P1] [medium] [moderate] [config] [US2] [P] — Update planning-lead catalog file
   - Files: `src/aspis/data/catalog/agents/planning-lead.md` (modify)
   - Depends on: T-18 | Blocks: T-30
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
   - **Changes**: Frontmatter: mode=subagent (until promoted), model=standard, delegates aligned (remove committer), skills verified. Body: planning lifecycle phases, mode system, task packet versions.
 
-- [ ] T-21 [P1] [medium] [moderate] [config] [US2] [P] — Update build-lead catalog file
+- [x] T-21 [P1] [medium] [moderate] [config] [US2] [P] — Update build-lead catalog file
   - Files: `src/aspis/data/catalog/agents/build-lead.md` (modify)
   - Depends on: T-18 | Blocks: T-30
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
 
-- [ ] T-22 [P1] [medium] [moderate] [config] [US2] [P] — Update reviewer catalog file
+- [x] T-22 [P1] [medium] [moderate] [config] [US2] [P] — Update reviewer catalog file
   - Files: `src/aspis/data/catalog/agents/reviewer.md` (modify)
   - Depends on: T-18 | Blocks: T-30
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
   - **Changes**: edit/write: deny (R-004 read-only). Add 9 review dimensions. Add 4-verdict system with severity rubric.
 
-- [ ] T-23 [P1] [medium] [moderate] [config] [US2] [P] — Update system-lead catalog file
+- [x] T-23 [P1] [medium] [moderate] [config] [US2] [P] — Update system-lead catalog file
   - Files: `src/aspis/data/catalog/agents/system-lead.md` (modify)
   - Depends on: T-18 | Blocks: T-30
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
   - **Changes**: Protected scope boundaries explicit. Deterministic-first ladder. Post-change validation sequence. websearch: deny (align with catalog intent).
 
-- [ ] T-24 [P1] [medium] [moderate] [config] [US2] [P] — Update fix-lead catalog file
+- [x] T-24 [P1] [medium] [moderate] [config] [US2] [P] — Update fix-lead catalog file
   - Files: `src/aspis/data/catalog/agents/fix-lead.md` (modify)
   - Depends on: T-18 | Blocks: T-30
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
 
-- [ ] T-25 [P1] [medium] [moderate] [config] [US2] [P] — Update test-lead catalog file
+- [x] T-25 [P1] [medium] [moderate] [config] [US2] [P] — Update test-lead catalog file
   - Files: `src/aspis/data/catalog/agents/test-lead.md` (modify)
   - Depends on: T-18 | Blocks: T-30
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
 
-- [ ] T-26 [P1] [medium] [moderate] [config] [US2] [P] — Update research-lead catalog file
+- [x] T-26 [P1] [medium] [moderate] [config] [US2] [P] — Update research-lead catalog file
   - Files: `src/aspis/data/catalog/agents/research-lead.md` (modify)
   - Depends on: T-18 | Blocks: T-30
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
   - **Changes**: Cache-first discipline. Tightest permission surface. edit: deny. bash: context scripts only.
 
-- [ ] T-27 [P1] [medium] [moderate] [config] [US2] [P] — Update committer catalog file
+- [x] T-27 [P1] [medium] [moderate] [config] [US2] [P] — Update committer catalog file
   - Files: `src/aspis/data/catalog/agents/committer.md` (modify)
   - Depends on: T-18 | Blocks: T-30
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
 
-- [ ] T-28 [P1] [medium] [moderate] [config] [US2] [P] — Update general-builder catalog file
+- [x] T-28 [P1] [medium] [moderate] [config] [US2] [P] — Update general-builder catalog file
   - Files: `src/aspis/data/catalog/agents/general-builder.md` (modify)
   - Depends on: T-18 | Blocks: T-30
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
 
-- [ ] T-29 [P1] [medium] [moderate] [config] [US2] [P] — Update project-explorer catalog file
+- [x] T-29 [P1] [medium] [moderate] [config] [US2] [P] — Update project-explorer catalog file
   - Files: `src/aspis/data/catalog/agents/project-explorer.md` (modify)
   - Depends on: T-18 | Blocks: T-30
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
 
-- [ ] T-30 [P0] [high] [complex] [test] [US2] — Catalog structural validation: all 11 files pass schema check
+- [x] T-30 [P0] [high] [complex] [test] [US2] — Catalog structural validation: all 11 files pass schema check
   - Files: All 11 `src/aspis/data/catalog/agents/*.md`
   - Depends on: T-19..T-29 | Blocks: T-31, Phase 5
   - Packet: V3 (deep) | Builder: standard | Review: reviewer
   - **Gate**: Manual schema check (or `aspis validate-runtime` if built). Every frontmatter has: name, description, mode, model, tools, permissions, delegates, skills, runtimes, export_scope. Every referenced skill exists in catalog. Every delegate exists. No committer in non-committer task lists.
 
-- [ ] T-31 [P1] [medium] [moderate] [docs] [US2] — Produce missing skills inventory
+- [x] T-31 [P1] [medium] [moderate] [docs] [US2] — Produce missing skills inventory
   - Files: `Research/skills/inventory.md` (new)
   - Depends on: T-30 | Blocks: none
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
@@ -225,37 +225,37 @@ Core infrastructure ALL stories depend on — no story work until this completes
 **Goal**: All systemic infrastructure gaps are specified.
 **Independent test**: Every systemic spec passes cross-reference against the agent specs that depend on it.
 
-- [ ] T-32 [P1] [high] [complex] [feature] [US3] [P] — Produce governance subagent spec
+- [x] T-32 [P1] [high] [complex] [feature] [US3] [P] — Produce governance subagent spec
   - Files: `Research/ref/governance.md` (new)
   - Depends on: T-30 | Blocks: T-38
   - Packet: V3 (deep) | Builder: standard | Review: reviewer (security focus)
   - **Goal**: Spec defining the governance subagent — the ONLY agent permitted to edit `rules/**` and `profiles/defaults.yaml`. Must define: protected paths list (from `hooks.yaml`), R-008 human-approval workflow (request → record → audit), approval ledger format, intervention handler for blocking in-flight writes to protected paths. Deterministic script, not LLM agent (per system-lead §12 decision).
 
-- [ ] T-33 [P1] [high] [moderate] [feature] [US3] [P] — Produce modes.yaml spec
+- [x] T-33 [P1] [high] [moderate] [feature] [US3] [P] — Produce modes.yaml spec
   - Files: `Research/specs/modes.yaml` (new spec document, not the actual YAML file)
   - Depends on: T-30 | Blocks: T-38
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
   - **Goal**: Complete spec for `.aspis/config/modes.yaml`. Every knob defined with per-mode values: spec (bullets/stories/full), architecture (skip/note/full), task_size (large/medium/small), plan_review (skip/self/independent), build_review (light/standard/full), test_depth (gate/core/full), docs (none/minimal/complete), promotable (false/true/N/A). Consistent with planning-lead reference spec §3 and current `CORE_LOOP.md`.
 
-- [ ] T-34 [P1] [high] [moderate] [feature] [US3] [P] — Produce enforcement mode spec
+- [x] T-34 [P1] [high] [moderate] [feature] [US3] [P] — Produce enforcement mode spec
   - Files: `Research/specs/enforcement.md` (new)
   - Depends on: T-30 | Blocks: T-38
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
   - **Goal**: Spec defining enforcement boundaries: `block` for runtime tools (Edit/Write), `warn` for pre-commit hooks. CI override via `ASPIS_ENFORCEMENT=block`. Auto-fix behavior per mode. Transition plan from current warn-only to block. Consistent with D-010 (hooks non-blocking by default) — this is the flip decision.
 
-- [ ] T-35 [P1] [medium] [moderate] [feature] [US3] [P] — Produce planning scripts deployment spec
+- [x] T-35 [P1] [medium] [moderate] [feature] [US3] [P] — Produce planning scripts deployment spec
   - Files: `Research/specs/planning-scripts.md` (new)
   - Depends on: T-30 | Blocks: T-38
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
   - **Goal**: Spec for deploying 3 scripts from catalog to `.aspis/scripts/planning/`: `feature_scaffold.py` (P1 scaffold), `task_compile.py` (P6 tasks), `prereq_validate.py` (P8 gate). Each entry: catalog source path, destination path, trigger (when called), validation (how to confirm deployed correctly), and the agent that calls it.
 
-- [ ] T-36 [P1] [medium] [moderate] [feature] [US3] [P] — Produce missing CLI verbs spec
+- [x] T-36 [P1] [medium] [moderate] [feature] [US3] [P] — Produce missing CLI verbs spec
   - Files: `Research/specs/cli-verbs.md` (new)
   - Depends on: T-30 | Blocks: T-38
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
   - **Goal**: Spec for 6 missing CLI verbs: `validate-runtime` (structural frontmatter check), `validate-index` (registry consistency), `byte-parity` (catalog↔runtime parity), `drift` (frontmatter field drift detection), `export` (catalog→runtime export with protection engine), `governance` (R-008 approval workflow). Each entry: purpose, priority (P0/P1), interface signature, expected output.
 
-- [ ] T-37 [P1] [medium] [moderate] [feature] [US3] [P] — Produce cross-runtime parity spec
+- [x] T-37 [P1] [medium] [moderate] [feature] [US3] [P] — Produce cross-runtime parity spec
   - Files: `Research/specs/cross-runtime.md` (new)
   - Depends on: T-30 | Blocks: T-38
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
@@ -266,24 +266,24 @@ Core infrastructure ALL stories depend on — no story work until this completes
 ## Phase 6 — Polish
 Cross-cutting cleanup and final acceptance.
 
-- [ ] T-38 [P0] [high] [complex] [review] — Final acceptance review: all artifacts pass independent reviewer audit
+- [x] T-38 [P0] [high] [complex] [review] — Final acceptance review: all artifacts pass independent reviewer audit
   - Files: All files in scope — `Research/ref/*.md` (11), `Research/specs/*.md` (6), `Research/skills/inventory.md`, `src/aspis/data/catalog/agents/*.md` (11), `SPEC.md`, `PLAN.md`, `TASKS.md`
   - Depends on: T-32..T-37, all prior checkpoints | Blocks: T-40
   - Packet: V3 (deep) | Builder: deep | Review: reviewer (full multi-lens, all 9 dimensions)
   - **Gate**: 0 CRITICAL, 0 HIGH unresolved findings. All SC-001 through SC-012 verified with evidence.
 
-- [ ] T-39 [P2] [low] [simple] [docs] [P] — Update SPEC.md Clarifications section with any decisions made during build
+- [x] T-39 [P2] [low] [simple] [docs] [P] — Update SPEC.md Clarifications section with any decisions made during build
   - Files: `SPEC.md` (modify)
   - Depends on: T-38 | Blocks: none
   - Packet: V0 (inline) | Builder: cheap | Review: self
 
-- [ ] T-40 [P0] [medium] [moderate] [test] — Final cross-reference validation pass
+- [x] T-40 [P0] [medium] [moderate] [test] — Final cross-reference validation pass
   - Files: `cross_ref_agents.py`, all 11 `Research/ref/*.md`, `Research/specs/*.md`
   - Depends on: T-38 | Blocks: none
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
   - **Gate**: `python .aspis/scripts/planning/cross_ref_agents.py --scope all --include-systemic` exit 0. All SC-### verified.
 
-- [ ] T-41 [P1] [low] [simple] [docs] — Produce BUILD_REPORT and handoff package for committer
+- [x] T-41 [P1] [low] [simple] [docs] — Produce BUILD_REPORT and handoff package for committer
   - Files: `BUILD_REPORT.md` (new)
   - Depends on: T-40 | Blocks: none
   - Packet: V1 (light) | Builder: cheap | Review: self
