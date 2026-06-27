@@ -108,7 +108,7 @@ Core infrastructure ALL stories depend on — no story work until this completes
   - Depends on: T-05 | Blocks: T-14
   - Packet: V1 (light) | Builder: cheap | Review: self
 
-- [ ] T-14 [P1] [medium] [moderate] [test] [US1] — Re-run cross-reference validation on all 11 specs (8 leads + 3 placeholder leaf stubs)
+- [x] T-14 [P1] [medium] [moderate] [test] [US1] — Re-run cross-reference validation on all 11 specs (8 leads + 3 placeholder leaf stubs) — **DONE** (`83abc72`)
   - Files: `cross_ref_agents.py`, all 8 locked `Research/ref/*.md`
   - Depends on: T-06..T-13 | Blocks: Phase 4
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
