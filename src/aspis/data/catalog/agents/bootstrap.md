@@ -26,6 +26,8 @@ permissions:
 skills:
   - prestart-checks
   - project-onboarding
+delegates: []
+runtimes: []
 ---
 
 # Bootstrap
