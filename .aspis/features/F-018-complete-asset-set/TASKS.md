@@ -12,7 +12,7 @@
 
 ### L0.A — Discovery (1)
 
-- [ ] T-001a [P0] [high] [moderate] [verify] — Discovery sweep: run pytest, capture ALL failures, write evidence report
+- [x] T-001a [P0] [high] [moderate] [verify] — Discovery sweep: run pytest, capture ALL failures, write evidence report
   - Files: `L0_DISCOVERY_REPORT.md` (new, in feature dir)
   - Action: Run `pytest` or `python -m pytest --no-header -q 2>&1`. If subprocess capture blocks on this env, fallback to `python -m pytest --no-header -q 2>&1 | Select-String FAILED` (or grep equivalent). Capture EVERY failure with file:line, stack trace, and failure class.
   - At minimum: all non-subprocess tests must pass. Subprocess-blocked tests documented with `BLOCKED: env` and rationale.
@@ -22,7 +22,7 @@
 
 ### L0.B — Evidence-driven fix (only confirmed failures)
 
-- [ ] T-001b [P0] [high] [moderate] [fix] — Fix real test failures (evidence-driven from T-001a report)
+- [x] T-001b [P0] [high] [moderate] [fix] — Fix real test failures (evidence-driven from T-001a report)
   - Files: `tests/**` (modify), `src/aspis/**` (fix if root cause in source)
   - Fix only failure classes CONFIRMED by T-001a report. Each class fixed with root-cause evidence:
     - Windows subprocess failures (only if confirmed — `encoding='utf-8'`, `shell=False`, pathlib)
@@ -37,7 +37,7 @@
 
 ### L0.C — Gate
 
-- [ ] T-002 [P0] [high] [simple] [verify] — L0 exit gate: full pytest + ruff sweep
+- [x] T-002 [P0] [high] [simple] [verify] — L0 exit gate: full pytest + ruff sweep
   - Files: `L0_GATE_REPORT.txt` (new, capture in feature dir)
   - Run: `pytest` exit 0 (or all non-subprocess pass + blocked items documented).
   - Run: `ruff format --check .` exit 0; `ruff check .` exit 0.
@@ -53,66 +53,66 @@
 
 ### L1.A — Planning scripts (6)
 
-- [ ] T-003 [P1] [medium] [moderate] [feature] — Build and deploy `scope_estimate.py`
+- [x] T-003 [P1] [medium] [moderate] [feature] — Build and deploy `scope_estimate.py`
   - Files: `src/aspis/data/catalog/scripts/planning/scope_estimate.py` (new), `.aspis/scripts/planning/scope_estimate.py` (deploy)
   - Depends on: T-002 [hard] | Blocks: L1 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-004 [P1] [medium] [moderate] [feature] — Build and deploy `constitution_check.py`
+- [x] T-004 [P1] [medium] [moderate] [feature] — Build and deploy `constitution_check.py`
   - Files: `src/aspis/data/catalog/scripts/planning/constitution_check.py` (new), `.aspis/scripts/planning/constitution_check.py` (deploy)
   - Depends on: T-002 [hard] | Blocks: L1 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-005 [P1] [medium] [moderate] [feature] — Build and deploy `plan_quality_check.py`
+- [x] T-005 [P1] [medium] [moderate] [feature] — Build and deploy `plan_quality_check.py`
   - Files: `src/aspis/data/catalog/scripts/planning/plan_quality_check.py` (new), `.aspis/scripts/planning/plan_quality_check.py` (deploy)
   - Depends on: T-002 [hard] | Blocks: L1 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-006 [P1] [medium] [moderate] [feature] — Build and deploy `mode_validator.py`
+- [x] T-006 [P1] [medium] [moderate] [feature] — Build and deploy `mode_validator.py`
   - Files: `src/aspis/data/catalog/scripts/planning/mode_validator.py` (new), `.aspis/scripts/planning/mode_validator.py` (deploy)
   - Depends on: T-002 [hard] | Blocks: L1 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-007 [P1] [medium] [moderate] [feature] — Build and deploy `task_size_check.py`
+- [x] T-007 [P1] [medium] [moderate] [feature] — Build and deploy `task_size_check.py`
   - Files: `src/aspis/data/catalog/scripts/planning/task_size_check.py` (new), `.aspis/scripts/planning/task_size_check.py` (deploy)
   - Depends on: T-002 [hard] | Blocks: L1 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-008 [P2] [medium] [moderate] [feature] — Build and deploy `dependency_graph.py`
+- [x] T-008 [P2] [medium] [moderate] [feature] — Build and deploy `dependency_graph.py`
   - Files: `src/aspis/data/catalog/scripts/planning/dependency_graph.py` (new), `.aspis/scripts/planning/dependency_graph.py` (deploy)
   - Depends on: T-002 [hard] | Blocks: L1 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
 ### L1.B — Research scripts (5)
 
-- [ ] T-009 [P1] [medium] [moderate] [feature] — Build and deploy `search_cache.py`
+- [x] T-009 [P1] [medium] [moderate] [feature] — Build and deploy `search_cache.py`
   - Files: `src/aspis/data/catalog/scripts/research/search_cache.py` (new), `.aspis/scripts/research/search_cache.py` (deploy)
   - Depends on: T-002 [hard] | Blocks: L1 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-010 [P1] [medium] [moderate] [feature] — Build and deploy `check_staleness.py`
+- [x] T-010 [P1] [medium] [moderate] [feature] — Build and deploy `check_staleness.py`
   - Files: `src/aspis/data/catalog/scripts/research/check_staleness.py` (new), `.aspis/scripts/research/check_staleness.py` (deploy)
   - Depends on: T-002 [hard] | Blocks: L1 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-011 [P1] [medium] [moderate] [feature] — Build and deploy `rank_source.py`
+- [x] T-011 [P1] [medium] [moderate] [feature] — Build and deploy `rank_source.py`
   - Files: `src/aspis/data/catalog/scripts/research/rank_source.py` (new), `.aspis/scripts/research/rank_source.py` (deploy)
   - Depends on: T-002 [hard] | Blocks: L1 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-012 [P2] [medium] [moderate] [feature] — Build and deploy `compare_versions.py`
+- [x] T-012 [P2] [medium] [moderate] [feature] — Build and deploy `compare_versions.py`
   - Files: `src/aspis/data/catalog/scripts/research/compare_versions.py` (new), `.aspis/scripts/research/compare_versions.py` (deploy)
   - Depends on: T-002 [hard] | Blocks: L1 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-013 [P2] [medium] [moderate] [feature] — Build and deploy `cross_ref.py`
+- [x] T-013 [P2] [medium] [moderate] [feature] — Build and deploy `cross_ref.py`
   - Files: `src/aspis/data/catalog/scripts/research/cross_ref.py` (new), `.aspis/scripts/research/cross_ref.py` (deploy)
   - Depends on: T-002 [hard] | Blocks: L1 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
 ### L1.C — Governance script (1)
 
-- [ ] T-014 [P0] [medium] [moderate] [feature] — Build and deploy `validate-approvals.py`
+- [x] T-014 [P0] [medium] [moderate] [feature] — Build and deploy `validate-approvals.py`
   - Files: `src/aspis/data/catalog/scripts/system/validate-approvals.py` (new), `.aspis/scripts/system/validate-approvals.py` (deploy)
   - Purpose: R-008 ledger enforcement — checks `.aspis/approvals/` for missing/expired approvals on protected-path writes
   - Stdlib-only, deterministic. Input: ledger path + config. Output: per-approval pass/warn/fail → stdout.
@@ -122,7 +122,7 @@
 
 ### L1.D — Debris cleanup (1)
 
-- [ ] T-015 [P0] [medium] [simple] [fix] — Remove `_tmp_f017_*.py` debris from `.aspis/scripts/planning/`
+- [x] T-015 [P0] [medium] [simple] [fix] — Remove `_tmp_f017_*.py` debris from `.aspis/scripts/planning/`
   - Files: `.aspis/scripts/planning/_tmp_f017_*.py` (delete if any exist)
   - R-006 violation: these are build detritus, not catalog assets. They pollute byte-parity checks.
   - If no debris found: document "CLEAN — no debris" and pass.
@@ -132,7 +132,7 @@
 
 ### L1.E — Gate (1)
 
-- [ ] T-016 [P0] [high] [simple] [verify] — L1 exit gate: byte-parity + AST + smoke for all 12 scripts
+- [x] T-016 [P0] [high] [simple] [verify] — L1 exit gate: byte-parity + AST + smoke for all 12 scripts
   - Files: none (verification only; fix any failures)
   - Verify: each deployed script byte-identical to catalog source; AST parse passes for all 12; `--help` exits 0 for all 12; debris confirmed clean.
   - Depends on: T-003..T-015 [hard] | Blocks: L2 entry [hard]
@@ -144,21 +144,21 @@
 ## Layer 2 — Remaining skill + templates + workflow (4 tasks)
 *Blocked by: L1 green.*
 
-- [ ] T-017 [P2] [medium] [moderate] [feature] — Author `dependency-audit` skill
+- [x] T-017 [P2] [medium] [moderate] [feature] — Author `dependency-audit` skill
   - Files: `src/aspis/data/catalog/skills/dependency-audit/SKILL.md` (new)
   - Reference: planning-lead frontmatter (add `dependency-audit` to skills list)
   - Depends on: T-016 [hard] | Blocks: L2 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
   - Acceptance: valid SKILL.md with 5 sections; planning-lead frontmatter references it
 
-- [ ] T-018 [P1] [medium] [moderate] [feature] — Author 7 missing templates
+- [x] T-018 [P1] [medium] [moderate] [feature] — Author 7 missing templates
   - Files: `src/aspis/data/catalog/templates/planning/CLARIFICATION_LOG.md` (new), `RESEARCH_REQUEST.md` (new), `PLAN_OF_PLAN.md` (new), `DEPENDENCIES.md` (new), `SCOPE_ESTIMATE.md` (new), `MODE_DECISION.md` (new)
   - Note: TEST_REPORT already exists at `src/aspis/data/catalog/templates/review/test.md`. Extend or adopt that existing file rather than creating a duplicate at `templates/report/TEST_REPORT.md`.
   - Depends on: T-016 [hard] | Blocks: L2 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope (per-template review granularity)
   - Acceptance: all 6 new templates exist with correct frontmatter + structured body; TEST_REPORT path reconciled (extend existing or create with no duplicate)
 
-- [ ] T-019 [P0] [high] [complex] [feature] — Author project-lead operating-protocol workflow
+- [x] T-019 [P0] [high] [complex] [feature] — Author project-lead operating-protocol workflow
   - Files: `.aspis/workflows/project-lead-operating-protocol.md` (new)
   - Reference: project-lead body "How you work" section (add workflow pointer)
   - Target: ≥60 numbered steps via 8 sections × ~8 steps each (see PLAN.md L2.3 for outline)
@@ -166,7 +166,7 @@
   - Packet: V3 (deep) | Builder: standard | Review: reviewer, correctness+scope+architecture
   - Acceptance: ≥60 numbered steps; covers all 5 phases + 13 stop-and-ask + recontextualization + per-delegate profiles + human-gate + 10 flows
 
-- [ ] T-020 [P0] [high] [simple] [verify] — L2 exit gate: validate-runtime + completeness
+- [x] T-020 [P0] [high] [simple] [verify] — L2 exit gate: validate-runtime + completeness
   - Files: none (verification only)
   - Depends on: T-017, T-018, T-019 [hard] | Blocks: L3 entry [hard]
   - Packet: V1 (light) | Builder: build-lead (direct) | Review: self
@@ -179,112 +179,112 @@
 
 ### L3.A — System-lead subagents (7)
 
-- [ ] T-021 [P1] [medium] [moderate] [feature] — Build `runtime-validator` subagent
+- [x] T-021 [P1] [medium] [moderate] [feature] — Build `runtime-validator` subagent
   - Files: `src/aspis/data/catalog/agents/runtime-validator.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-022 [P1] [medium] [moderate] [feature] — Build `drift-auditor` subagent
+- [x] T-022 [P1] [medium] [moderate] [feature] — Build `drift-auditor` subagent
   - Files: `src/aspis/data/catalog/agents/drift-auditor.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-023 [P1] [medium] [moderate] [feature] — Build `permission-auditor` subagent
+- [x] T-023 [P1] [medium] [moderate] [feature] — Build `permission-auditor` subagent
   - Files: `src/aspis/data/catalog/agents/permission-auditor.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-024 [P2] [medium] [moderate] [feature] — Build `export-verifier` subagent
+- [x] T-024 [P2] [medium] [moderate] [feature] — Build `export-verifier` subagent
   - Files: `src/aspis/data/catalog/agents/export-verifier.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-025 [P2] [medium] [moderate] [feature] — Build `catalog-synchronizer` subagent
+- [x] T-025 [P2] [medium] [moderate] [feature] — Build `catalog-synchronizer` subagent
   - Files: `src/aspis/data/catalog/agents/catalog-synchronizer.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-026 [P2] [medium] [moderate] [feature] — Build `opencode-author` subagent
+- [x] T-026 [P2] [medium] [moderate] [feature] — Build `opencode-author` subagent
   - Files: `src/aspis/data/catalog/agents/opencode-author.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-027 [P2] [medium] [moderate] [feature] — Build `claude-author` subagent
+- [x] T-027 [P2] [medium] [moderate] [feature] — Build `claude-author` subagent
   - Files: `src/aspis/data/catalog/agents/claude-author.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
 ### L3.B — Planning-lead subagents (8)
 
-- [ ] T-028 [P0] [medium] [moderate] [feature] — Build `clarify` subagent
+- [x] T-028 [P0] [medium] [moderate] [feature] — Build `clarify` subagent
   - Files: `src/aspis/data/catalog/agents/clarify.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-029 [P0] [medium] [moderate] [feature] — Build `task-decomposer` subagent
+- [x] T-029 [P0] [medium] [moderate] [feature] — Build `task-decomposer` subagent
   - Files: `src/aspis/data/catalog/agents/task-decomposer.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-030 [P1] [medium] [moderate] [feature] — Build `constitution-checker` subagent
+- [x] T-030 [P1] [medium] [moderate] [feature] — Build `constitution-checker` subagent
   - Files: `src/aspis/data/catalog/agents/constitution-checker.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
   - Priority note: demoted from gap P0 to plan P1 — consumes L0-L2 outputs, no upstream dependencies; can ship in P1 batch
 
-- [ ] T-031 [P0] [medium] [moderate] [feature] — Build `idea-capture` subagent
+- [x] T-031 [P0] [medium] [moderate] [feature] — Build `idea-capture` subagent
   - Files: `src/aspis/data/catalog/agents/idea-capture.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-032 [P0] [medium] [moderate] [feature] — Build `prd-writer` subagent
+- [x] T-032 [P0] [medium] [moderate] [feature] — Build `prd-writer` subagent
   - Files: `src/aspis/data/catalog/agents/prd-writer.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-033 [P1] [medium] [moderate] [feature] — Build `scope-estimator` subagent
+- [x] T-033 [P1] [medium] [moderate] [feature] — Build `scope-estimator` subagent
   - Files: `src/aspis/data/catalog/agents/scope-estimator.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-034 [P1] [medium] [moderate] [feature] — Build `research-request-writer` subagent
+- [x] T-034 [P1] [medium] [moderate] [feature] — Build `research-request-writer` subagent
   - Files: `src/aspis/data/catalog/agents/research-request-writer.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-035 [P2] [medium] [moderate] [feature] — Build `dependency-analyzer` subagent
+- [x] T-035 [P2] [medium] [moderate] [feature] — Build `dependency-analyzer` subagent
   - Files: `src/aspis/data/catalog/agents/dependency-analyzer.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
 ### L3.C — Test-lead stack-specific testers (6)
 
-- [ ] T-036 [P1] [medium] [moderate] [feature] — Build `python-tester` subagent
+- [x] T-036 [P1] [medium] [moderate] [feature] — Build `python-tester` subagent
   - Files: `src/aspis/data/catalog/agents/python-tester.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-037 [P2] [medium] [moderate] [feature] — Build `api-tester` subagent
+- [x] T-037 [P2] [medium] [moderate] [feature] — Build `api-tester` subagent
   - Files: `src/aspis/data/catalog/agents/api-tester.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-038 [P2] [medium] [moderate] [feature] — Build `db-tester` subagent
+- [x] T-038 [P2] [medium] [moderate] [feature] — Build `db-tester` subagent
   - Files: `src/aspis/data/catalog/agents/db-tester.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-039 [P2] [medium] [moderate] [feature] — Build `ui-tester` subagent
+- [x] T-039 [P2] [medium] [moderate] [feature] — Build `ui-tester` subagent
   - Files: `src/aspis/data/catalog/agents/ui-tester.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-040 [P2] [medium] [moderate] [feature] — Build `cli-tester` subagent
+- [x] T-040 [P2] [medium] [moderate] [feature] — Build `cli-tester` subagent
   - Files: `src/aspis/data/catalog/agents/cli-tester.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
 
-- [ ] T-041 [P2] [medium] [moderate] [feature] — Build `security-tester` subagent
+- [x] T-041 [P2] [medium] [moderate] [feature] — Build `security-tester` subagent
   - Files: `src/aspis/data/catalog/agents/security-tester.md` (new)
   - Depends on: T-020 [hard] | Blocks: L3 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
@@ -292,7 +292,7 @@
 
 ### L3.D — Catalog wiring (1)
 
-- [ ] T-042 [P0] [medium] [complex] [feature] — Wire all 21 new subagents into owning leads' delegates + prose
+- [x] T-042 [P0] [medium] [complex] [feature] — Wire all 21 new subagents into owning leads' delegates + prose
   - Files: `src/aspis/data/catalog/agents/system-lead.md` (modify +7 delegates frontmatter + ## Delegation prose), `src/aspis/data/catalog/agents/planning-lead.md` (modify +8 delegates frontmatter + ## Delegation prose), `src/aspis/data/catalog/agents/test-lead.md` (modify +6 delegates frontmatter + ## Delegation prose)
   - Must update BOTH frontmatter `delegates:` AND the `## Delegation` prose section in each lead body (list each delegate with purpose and scope)
   - Depends on: T-021..T-041 [hard] | Blocks: L3 gate [hard]
@@ -301,7 +301,7 @@
 
 ### L3.E — Gate (1)
 
-- [ ] T-043 [P0] [high] [simple] [verify] — L3 exit gate: validate-runtime for all 33 agents
+- [x] T-043 [P0] [high] [simple] [verify] — L3 exit gate: validate-runtime for all 33 agents
   - Files: none (verification only; fix any failures)
   - Depends on: T-042 [hard] | Blocks: L4 entry [hard]
   - Packet: V1 (light) | Builder: build-lead (direct) | Review: self
@@ -314,14 +314,14 @@
 
 ### L4.A — PreToolUse hook (3)
 
-- [ ] T-044 [P0] [high] [moderate] [feature] — Author PreToolUse hook modules
+- [x] T-044 [P0] [high] [moderate] [feature] — Author PreToolUse hook modules
   - Files: `.aspis/scripts/hooks/` (new: scope check, secret scan, protected-path validation modules)
   - Each module: deterministic, stdlib-only, callable from Claude PreToolUse hook framework
   - Depends on: T-043 [hard] | Blocks: T-045 [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+security
   - Acceptance: all hook modules exist and pass AST parse; each module has documented purpose
 
-- [ ] T-045 [P0] [high] [simple] [governance] — File R-008 governance request for `.claude/settings.json` PreToolUse hook
+- [x] T-045 [P0] [high] [simple] [governance] — File R-008 governance request for `.claude/settings.json` PreToolUse hook
   - Action: Use governance subagent `request` verb to file approval request for adding PreToolUse hook to `.claude/settings.json`
   - The proposed edit: hook entry referencing `.aspis/scripts/hooks/` modules, `enforcement: warn`, auto-fix enabled, non-blocking
   - Depends on: T-044 [hard] | Blocks: T-046 [hard] (blocks on owner approval)
@@ -329,7 +329,7 @@
   - Acceptance: governance request filed with evidence; approval pending owner action
   - **Note:** This is a permissions-change surface (R-008 gate). The settings.json edit is NOT applied until owner approves via governance subagent `approve` verb.
 
-- [ ] T-046 [P0] [high] [simple] [feature] — Apply `.claude/settings.json` PreToolUse hook (on owner approval)
+- [~] T-046 [P0] [high] [simple] [feature] — Apply `.claude/settings.json` PreToolUse hook (on owner approval)
   - Files: `.claude/settings.json` (modify — add PreToolUse hook entry)
   - Gate: owner must have approved the R-008 governance request from T-045 before this task executes
   - Configuration: `enforcement: warn`, auto-fix enabled, hook references resolve to existing `.aspis/scripts/hooks/` modules
@@ -340,7 +340,7 @@
 
 ### L4.B — Edge cases (1)
 
-- [ ] T-047 [P1] [medium] [moderate] [feature] — Add edge-case sections to bodies that lack them
+- [x] T-047 [P1] [medium] [moderate] [feature] — Add edge-case sections to bodies that lack them
   - Files: `src/aspis/data/catalog/agents/committer.md` (modify), `general-builder.md` (modify), `project-explorer.md` (modify), `bootstrap.md` (modify — codify exception in AGENT_BODY_STANDARD.md first per L4-2 finding) + all 21 new subagent bodies (ensure ≥2 edge cases each)
   - Depends on: T-043 [hard] | Blocks: L4 gate [hard]
   - Packet: V2 (standard) | Builder: standard | Review: reviewer, correctness+scope
@@ -348,7 +348,7 @@
 
 ### L4.C — Cross-runtime parity (1)
 
-- [ ] T-048 [P1] [medium] [simple] [verify] — Verify cross-runtime parity (Claude permission block preservation)
+- [x] T-048 [P1] [medium] [simple] [verify] — Verify cross-runtime parity (Claude permission block preservation)
   - Files: none (verification only; fix adapter if gap found)
   - First: check whether the defect exists — F-017 final-completeness.md L121 says FR-010 PASSED in commit 36ab7b5
   - Run: `aspis byte-parity --runtime claude --agent all`
@@ -358,13 +358,13 @@
 
 ### L4.D — Gate sweep (2)
 
-- [ ] T-049 [P0] [high] [simple] [verify] — L4 full gate sweep
+- [x] T-049 [P0] [high] [simple] [verify] — L4 full gate sweep
   - Files: none (verification only; fix any failures)
   - Depends on: T-046, T-047, T-048 [hard] | Blocks: T-050 [hard]
   - Packet: V1 (light) | Builder: build-lead (direct) | Review: self
   - Acceptance: `pytest` exit 0; `validate-runtime --runtime all` exit 0; `byte-parity --dry-run` CLEAN; `validate-index` exit 0; `aspis export --dry-run` exit 0; `aspis doctor` exit 0
 
-- [ ] T-050 [P0] [high] [simple] [verify] — Stamp BUILD_REPORT + final acceptance
+- [x] T-050 [P0] [high] [simple] [verify] — Stamp BUILD_REPORT + final acceptance
   - Files: `.aspis/features/F-018-complete-asset-set/BUILD_REPORT.md` (new)
   - Depends on: T-049 [hard] | Blocks: none (final)
   - Packet: V1 (light) | Builder: build-lead (direct) | Review: reviewer, correctness
