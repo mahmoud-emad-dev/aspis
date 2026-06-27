@@ -127,13 +127,13 @@ Core infrastructure ALL stories depend on — no story work until this completes
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
   - **Sections**: Identity, Responsibilities→Skills, Permission Surface, Model Tier, Use Cases, Acceptance Criteria. R-004 one-writer enforced. `git commit*` is the only bash write.
 
-- [ ] T-16 [P1] [low] [simple] [docs] [US2] [P] — Produce general-builder reference spec (light, 6 sections)
+- [x] T-16 [P1] [low] [simple] [docs] [US2] [P] — Produce general-builder reference spec (light, 6 sections) — **DONE**
   - Files: `Research/ref/general-builder.md` (new)
   - Depends on: T-14 | Blocks: T-18
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
   - **Sections**: Identity, Responsibilities→Skills, Permission Surface, Model Tier, Use Cases, Acceptance Criteria. Context-isolated. One packet, one report, exit.
 
-- [ ] T-17 [P1] [low] [simple] [docs] [US2] [P] — Produce project-explorer reference spec (light, 6 sections)
+- [x] T-17 [P1] [low] [simple] [docs] [US2] [P] — Produce project-explorer reference spec (light, 6 sections) — **DONE**
   - Files: `Research/ref/project-explorer.md` (new)
   - Depends on: T-14 | Blocks: T-18
   - Packet: V2 (standard) | Builder: standard | Review: build-lead
