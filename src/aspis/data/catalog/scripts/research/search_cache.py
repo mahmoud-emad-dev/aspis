@@ -28,7 +28,6 @@ import sys
 import time
 from pathlib import Path
 
-
 DEFAULT_CACHE_PATH = ".aspis/cache/search-cache.json"
 
 
@@ -159,7 +158,9 @@ def main(argv: list[str] | None = None) -> int:
 
         if entry:
             if args.json:
-                print(json.dumps({"hit": True, "result": entry["result"], "query": entry["query"]}, indent=2))
+                print(json.dumps(
+                    {"hit": True, "result": entry["result"], "query": entry["query"]}, indent=2
+                ))
             else:
                 print(f"HIT: {entry['query']}")
                 print(f"  Result: {entry['result']}")

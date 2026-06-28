@@ -57,7 +57,7 @@ def compare_prerelease(a_pre: str, b_pre: str) -> int:
     a_parts = a_pre.split(".")
     b_parts = b_pre.split(".")
 
-    for a_part, b_part in zip(a_parts, b_parts):
+    for a_part, b_part in zip(a_parts, b_parts, strict=False):
         a_is_int = a_part.isdigit()
         b_is_int = b_part.isdigit()
         if a_is_int and b_is_int:
@@ -182,7 +182,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Error: {result['error']}")
         return 1
 
-    print(f"Valid:    A={'[OK]' if result['valid_a'] else '[FAIL]'}, B={'[OK]' if result['valid_b'] else '[FAIL]'}")
+    valid_a = "[OK]" if result["valid_a"] else "[FAIL]"
+    valid_b = "[OK]" if result["valid_b"] else "[FAIL]"
+    print(f"Valid:    A={valid_a}, B={valid_b}")
     print(f"Newer:    {result['newer']}")
     print(f"Diff:     {result['diff_type']}")
     if result["diff"]["major"]:

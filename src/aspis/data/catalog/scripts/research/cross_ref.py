@@ -27,7 +27,6 @@ import re
 import sys
 from pathlib import Path
 
-
 # Reference patterns in agent body text
 REF_PATTERNS = {
     "skill": re.compile(r"(?i)(?:skills?|skill):\s*\[?([^\],\n]+)\]?"),
@@ -102,19 +101,14 @@ def resolve_references(
             for ref in ref_set:
                 if ref_type == "skill":
                     resolved = ref in known_skills
-                    source_set = known_skills
                 elif ref_type == "workflow":
                     resolved = ref in known_workflows
-                    source_set = known_workflows
                 elif ref_type == "delegate":
                     resolved = ref in known_agents
-                    source_set = known_agents
                 elif ref_type == "runtime":
                     resolved = ref in KNOWN_RUNTIMES or ref in known_agents
-                    source_set = KNOWN_RUNTIMES
                 else:
                     resolved = False
-                    source_set = set()
 
                 results.append({
                     "agent": agent_name,
@@ -128,7 +122,7 @@ def resolve_references(
     all_refd_skills = set()
     all_refd_workflows = set()
     all_refd_agents = set()
-    for agent_name, refs in agent_refs.items():
+    for refs in agent_refs.values():
         all_refd_skills.update(refs.get("skill", set()))
         all_refd_workflows.update(refs.get("workflow", set()))
         all_refd_agents.update(refs.get("delegate", set()))
@@ -228,7 +222,10 @@ def main(argv: list[str] | None = None) -> int:
     resolved = [r for r in results if r["status"] == "resolved"]
 
     print(f"Catalog: {catalog_dir}")
-    print(f"Agents: {len(agent_files)} | Skills: {len(known_skills)} | Workflows: {len(known_workflows)}")
+    print(
+        f"Agents: {len(agent_files)} | Skills: {len(known_skills)} | "
+        f"Workflows: {len(known_workflows)}"
+    )
     print(f"References: {len(resolved)} resolved, {len(broken)} broken, {len(orphans)} orphan")
     print()
 

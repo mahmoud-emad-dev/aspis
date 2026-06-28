@@ -3,7 +3,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 SCRIPT_PATH = Path("src/aspis/data/catalog/scripts/planning/plan_quality_check.py")
 
 
@@ -65,7 +64,10 @@ def test_dir_mode(tmp_path):
     """--dir mode finds SPEC.md and TASKS.md."""
     feat_dir = tmp_path / "feature"
     _write_file(feat_dir / "SPEC.md", "# Spec\n- **FR-L0-001**: Test\n")
-    _write_file(feat_dir / "TASKS.md", "# Tasks\n- [ ] T-001 [P0] — Test FR-L0-001\n  - Packet: V1 | Builder: standard\n")
+    _write_file(
+        feat_dir / "TASKS.md",
+        "# Tasks\n- [ ] T-001 [P0] — Test FR-L0-001\n  - Packet: V1 | Builder: standard\n",
+    )
     result = subprocess.run(
         [sys.executable, str(SCRIPT_PATH), "--dir", str(feat_dir)],
         capture_output=True, text=True, encoding="utf-8", errors="replace"

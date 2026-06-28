@@ -121,7 +121,9 @@ RULES = [
         "id": 12,
         "name": "Portable by Default",
         "description": "Windows + Linux, UTF-8, pathlib over string paths",
-        "check_patterns": [r"(?i)utf-8|pathlib|Path\(|cross.?platform|Windows.*Linux|Linux.*Windows"],
+        "check_patterns": [
+            r"(?i)utf-8|pathlib|Path\(|cross.?platform|Windows.*Linux|Linux.*Windows"
+        ],
         "anti_patterns": [r"\\\\|os\.path\.join|'utf-8'|encode\(.*\)|decode\(.*\)"],
     },
 ]

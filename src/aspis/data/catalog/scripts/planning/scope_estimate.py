@@ -24,7 +24,6 @@ import re
 import sys
 from pathlib import Path
 
-
 # Story-point scale (Fibonacci)
 STORY_POINTS = [1, 2, 3, 5, 8, 13]
 
@@ -64,7 +63,9 @@ def parse_spec(path: Path) -> dict:
     # Estimate file count from scope section mentions
     file_count = len(re.findall(r"Files?:.*`[^`]+`", text))
     # Also count "new" mentions near file paths
-    new_files = len(re.findall(r"\(new\)|\(new file\)|create.*\.py|create.*\.md", text, re.IGNORECASE))
+    new_files = len(
+        re.findall(r"\(new\)|\(new file\)|create.*\.py|create.*\.md", text, re.IGNORECASE)
+    )
 
     return {
         "fr_count": fr_count,
@@ -102,11 +103,6 @@ def estimate_story_points(parsed: dict) -> tuple[int, int, str]:
     else:
         low = 13
         high = 13
-
-    if low == high:
-        span = str(low)
-    else:
-        span = f"{low}-{high}"
 
     # Risk level
     if cx >= 8:
@@ -170,7 +166,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"FR count:         {parsed['fr_count']}")
             print(f"SC count:         {parsed['sc_count']}")
             print(f"Complexity score: {parsed['complexity_score']}")
-            print(f"Markers:          {', '.join(parsed['markers']) if parsed['markers'] else 'none'}")
+            markers = ", ".join(parsed["markers"]) if parsed["markers"] else "none"
+            print(f"Markers:          {markers}")
             print(f"Estimated files:  {parsed['file_count']} (new: {parsed['new_files']})")
             print(f"Story points:     {low}-{high}" if low != high else f"Story points:     {low}")
             print(f"Risk level:       {risk}")

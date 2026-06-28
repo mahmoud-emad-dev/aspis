@@ -93,7 +93,10 @@ def parse_tasks(path: Path) -> list[dict]:
             builder = builder_match.group(1)
 
         # Find description (first line after task ID)
-        desc_match = re.search(r"T-\d+[a-z]?\s+.*?\[.*?\]\s*\[.*?\]\s*\[.*?\]\s*\[.*?\]\s*—\s*(.+?)(?:\n|$)", block[:300])
+        desc_match = re.search(
+            r"T-\d+[a-z]?\s+.*?\[.*?\]\s*\[.*?\]\s*\[.*?\]\s*\[.*?\]\s*—\s*(.+?)(?:\n|$)",
+            block[:300],
+        )
         desc = desc_match.group(1).strip() if desc_match else tid
 
         tasks.append({
@@ -128,7 +131,9 @@ def check_sizes(tasks: list[dict], mode: str) -> dict:
     if v4 > thresholds["max_v4"]:
         warnings.append(f"V4 tasks ({v4}) exceed mode limit ({thresholds['max_v4']})")
     if weighted > thresholds["max_weighted"]:
-        warnings.append(f"Weighted total ({weighted}) exceeds mode ceiling ({thresholds['max_weighted']})")
+        warnings.append(
+            f"Weighted total ({weighted}) exceeds mode ceiling ({thresholds['max_weighted']})"
+        )
 
     over_threshold = len(warnings) > 0
 
@@ -169,7 +174,8 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     if args.mode not in MODE_THRESHOLDS:
-        print(f"error: unknown mode '{args.mode}'. Valid: {', '.join(MODE_THRESHOLDS)}", file=sys.stderr)
+        valid = ", ".join(MODE_THRESHOLDS)
+        print(f"error: unknown mode '{args.mode}'. Valid: {valid}", file=sys.stderr)
         return 1
 
     try:

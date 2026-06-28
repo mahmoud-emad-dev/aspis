@@ -3,7 +3,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 SCRIPT_PATH = Path("src/aspis/data/catalog/scripts/planning/constitution_check.py")
 
 

@@ -1,9 +1,7 @@
 """Tests for check_staleness.py"""
 import subprocess
 import sys
-import time
 from pathlib import Path
-
 
 SCRIPT_PATH = Path("src/aspis/data/catalog/scripts/research/check_staleness.py")
 
@@ -24,8 +22,6 @@ def test_stale_file(tmp_path):
     """Old file should be STALE with a short threshold."""
     f = tmp_path / "stale.md"
     f.write_text("test", encoding="utf-8")
-    # Set mtime to 200 days ago
-    old_time = time.time() - 200 * 86400
     f.touch()
     # Can't easily set mtime far back on all platforms, so use short threshold
     result = subprocess.run(

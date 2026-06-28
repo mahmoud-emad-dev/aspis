@@ -3,7 +3,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 SCRIPT_PATH = Path("src/aspis/data/catalog/scripts/research/cross_ref.py")
 
 
@@ -32,7 +31,8 @@ runtimes: [opencode]
         capture_output=True, text=True, encoding="utf-8", errors="replace"
     )
     # Should complete without exception
-    assert "References:" in result.stdout or "Agents:" in result.stdout or "total_refs" in result.stdout.lower()
+    out = result.stdout
+    assert "References:" in out or "Agents:" in out or "total_refs" in out.lower()
 
 
 def test_broken_ref(tmp_path):

@@ -170,7 +170,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("spec_path", nargs="?", default=None, help="path to SPEC.md")
     parser.add_argument("tasks_path", nargs="?", default=None, help="path to TASKS.md")
-    parser.add_argument("--dir", default=None, help="feature directory (auto-finds SPEC.md + TASKS.md)")
+    parser.add_argument(
+        "--dir", default=None, help="feature directory (auto-finds SPEC.md + TASKS.md)"
+    )
     parser.add_argument("--json", action="store_true", help="output as JSON")
     args = parser.parse_args(argv if argv is not None else sys.argv[1:])
 
@@ -201,14 +203,13 @@ def main(argv: list[str] | None = None) -> int:
 
     # Extract IDs
     fr_ids = extract_fr_ids(spec_text)
-    sc_ids = extract_sc_ids(spec_text)
     task_ids = extract_task_ids(tasks_text)
     task_refs = extract_task_refs(tasks_text)
     deps = extract_dependencies(tasks_text)
 
     # S-01: FR->task traceability
     frs_with_tasks = set()
-    for tid, refs in task_refs.items():
+    for refs in task_refs.values():
         frs_with_tasks.update(refs & fr_ids)
     untasked_frs = fr_ids - frs_with_tasks
     fr_traceability = len(frs_with_tasks) / max(len(fr_ids), 1)
@@ -298,7 +299,8 @@ def main(argv: list[str] | None = None) -> int:
     print()
 
     print("  Criteria:")
-    print(f"  {'S-01 FR->task traceability':<35} {int(fr_traceability * 100):>3}%  ({len(frs_with_tasks)}/{len(fr_ids)} FRs traced)")
+    traced = f"{len(frs_with_tasks)}/{len(fr_ids)} FRs traced"
+    print(f"  {'S-01 FR->task traceability':<35} {int(fr_traceability * 100):>3}%  ({traced})")
     if untasked_frs:
         print(f"    Untasked FRs: {', '.join(sorted(untasked_frs))}")
 
@@ -312,7 +314,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"  {'S-03 Gate existence':<35} {status_s03:>5}  ({gate_statuses})")
 
     status_s04 = "PASS" if not missing_deps else "WARN"
-    print(f"  {'S-04 Dependency completeness':<35} {status_s04:>5}  ({int(dep_completeness * 100)}%)")
+    dep_pct = int(dep_completeness * 100)
+    print(f"  {'S-04 Dependency completeness':<35} {status_s04:>5}  ({dep_pct}%)")
     if missing_deps:
         print(f"    Missing deps: {', '.join(sorted(missing_deps))}")
 

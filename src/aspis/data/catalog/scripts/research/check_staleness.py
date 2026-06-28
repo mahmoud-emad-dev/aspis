@@ -48,7 +48,9 @@ STALENESS_WINDOWS = {
 }
 
 
-def check_staleness(file_path: Path, ref_type: str = "default", custom_threshold: int | None = None) -> dict:
+def check_staleness(
+    file_path: Path, ref_type: str = "default", custom_threshold: int | None = None
+) -> dict:
     """Check file staleness. Returns verdict dict."""
     if not file_path.exists():
         return {
@@ -58,7 +60,10 @@ def check_staleness(file_path: Path, ref_type: str = "default", custom_threshold
             "threshold_days": None,
         }
 
-    threshold = custom_threshold if custom_threshold is not None else STALENESS_WINDOWS.get(ref_type, 90)
+    threshold = (
+        custom_threshold if custom_threshold is not None
+        else STALENESS_WINDOWS.get(ref_type, 90)
+    )
     mtime = file_path.stat().st_mtime
     now = time.time()
     age_seconds = now - mtime

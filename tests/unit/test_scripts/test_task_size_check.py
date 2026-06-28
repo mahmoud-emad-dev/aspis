@@ -3,7 +3,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 SCRIPT_PATH = Path("src/aspis/data/catalog/scripts/planning/task_size_check.py")
 
 
@@ -37,7 +36,7 @@ def test_over_threshold(tmp_path):
     task_lines = []
     for i in range(1, 25):
         task_lines.append(f"- [ ] T-{i:03d} [P1] [medium] [moderate] [feature] — Task {i}")
-        task_lines.append(f"  - Packet: V3 (deep) | Builder: standard")
+        task_lines.append("  - Packet: V3 (deep) | Builder: standard")
     _write_tasks(tasks, "# Tasks\n" + "\n".join(task_lines))
     result = subprocess.run(
         [sys.executable, str(SCRIPT_PATH), str(tasks), "--mode", "vibe"],

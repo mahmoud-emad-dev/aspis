@@ -34,8 +34,7 @@ import argparse
 import json
 import math
 import sys
-from datetime import datetime, timezone
-
+from datetime import UTC, datetime
 
 TIER_THRESHOLDS = [
     (10, "T1", "Official vendor documentation"),
@@ -85,7 +84,7 @@ def parse_date(date_str: str) -> datetime | None:
 
 def rank_sources(sources: list[dict]) -> list[dict]:
     """Rank sources by composite score. Returns sorted list with scores added."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     ranked = []
 
     for src in sources:
@@ -99,7 +98,7 @@ def rank_sources(sources: list[dict]) -> list[dict]:
             dt = parse_date(date_str)
             if dt:
                 if dt.tzinfo is None:
-                    dt = dt.replace(tzinfo=timezone.utc)
+                    dt = dt.replace(tzinfo=UTC)
                 freshness_days = (now - dt).total_seconds() / 86400.0
             else:
                 freshness_days = 365.0  # assume old if unparseable
@@ -167,7 +166,10 @@ def main(argv: list[str] | None = None) -> int:
     print("-" * 80)
     for i, src in enumerate(ranked, 1):
         url = src.get("url", src.get("source", "unknown"))[:50]
-        print(f"{i:<5} {src['tier']:<4} {src['composite_score']:<8} {src['freshness_days']}d {'':<4} {url}")
+        print(
+            f"{i:<5} {src['tier']:<4} {src['composite_score']:<8} "
+            f"{src['freshness_days']}d {'':<4} {url}"
+        )
 
     return 0
 

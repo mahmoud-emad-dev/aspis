@@ -60,7 +60,7 @@ def try_yaml_load(path: Path) -> dict | None:
     # Try PyYAML first
     try:
         import yaml
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return yaml.safe_load(f)
     except ImportError:
         pass

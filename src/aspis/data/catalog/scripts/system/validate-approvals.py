@@ -34,7 +34,6 @@ import sys
 import time
 from pathlib import Path
 
-
 # Default known approvers (project-specific, overridable via config)
 KNOWN_APPROVERS = {"owner", "project-lead", "system-lead"}
 
@@ -116,7 +115,9 @@ def find_ledger(root: Path) -> Path | None:
     return None
 
 
-def validate_approvals(ledger_data: dict | list, known_approvers: set[str], protected_paths: list[str]) -> list[dict]:
+def validate_approvals(
+    ledger_data: dict | list, known_approvers: set[str], protected_paths: list[str]
+) -> list[dict]:
     """Validate each approval entry. Returns list of result dicts."""
     results = []
 
@@ -129,7 +130,10 @@ def validate_approvals(ledger_data: dict | list, known_approvers: set[str], prot
         return [{"approval_id": "N/A", "verdict": "FAIL", "reason": "Invalid ledger format"}]
 
     if not entries:
-        return [{"approval_id": "N/A", "verdict": "WARN", "reason": "Ledger is empty — no approvals on file"}]
+        return [
+            {"approval_id": "N/A", "verdict": "WARN",
+             "reason": "Ledger is empty — no approvals on file"}
+        ]
 
     seen_paths = {}
     now = time.time()
@@ -155,7 +159,8 @@ def validate_approvals(ledger_data: dict | list, known_approvers: set[str], prot
         if not approver:
             issues.append("Missing approver")
         elif approver not in known_approvers:
-            issues.append(f"Unknown approver '{approver}' (known: {', '.join(sorted(known_approvers))})")
+            known = ", ".join(sorted(known_approvers))
+            issues.append(f"Unknown approver '{approver}' (known: {known})")
 
         # Check 2: Protected path
         if not path:
@@ -273,7 +278,10 @@ def main(argv: list[str] | None = None) -> int:
         print("-" * 100)
         for r in results:
             issues_str = "; ".join(r["issues"]) if r["issues"] else "[OK]"
-            print(f"{r['approval_id']:<20} {r['approver']:<16} {r['path']:<30} {r['verdict']:<6} {issues_str[:45]}")
+            print(
+                f"{r['approval_id']:<20} {r['approver']:<16} {r['path']:<30} "
+                f"{r['verdict']:<6} {issues_str[:45]}"
+            )
 
         passes = sum(1 for r in results if r["verdict"] == "PASS")
         warns = sum(1 for r in results if r["verdict"] == "WARN")
