@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from aspis.catalog import parse_agent
+from aspis.catalog import parse_agent, split_frontmatter
 from aspis.transform import render_agent, render_command
 
 AGENT = """---
@@ -26,6 +26,14 @@ agent: project-lead
 
 Build the feature.
 """
+
+
+def test_split_frontmatter_handles_a_file_with_no_block() -> None:
+    # No leading --- block → empty frontmatter and the body returned as-is,
+    # never an error (so plain markdown is still a valid asset body).
+    fm, body = split_frontmatter("just a body, no frontmatter")
+    assert fm == {}
+    assert body == "just a body, no frontmatter"
 
 
 def test_parse_agent_reads_abstraction() -> None:

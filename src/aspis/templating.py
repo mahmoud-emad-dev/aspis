@@ -6,6 +6,8 @@ scaffold, root files, exported assets) behaves identically. Only ``{identifier}`
 tokens are touched; unknown ones are left as-is (so a template can carry slots
 filled at a later stage, e.g. bootstrap), and any other braces pass through
 untouched.
+
+Used by: the brain scaffold + root-file writers and exported-asset rendering.
 """
 
 from __future__ import annotations

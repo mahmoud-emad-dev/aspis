@@ -1,10 +1,23 @@
 """Catalog asset format + parsing.
 
-Catalog assets are runtime-neutral markdown with a small YAML frontmatter (the
-"abstraction") and a body. Parsing lives here so the whole engine agrees on what
-an agent or command looks like; per-runtime rendering lives in the runtime
-adapters. The real asset files are authored later (catalog feature) — this
-module only defines and reads the format.
+Purpose:
+    Define the runtime-neutral catalog format — markdown with a small YAML
+    frontmatter (the "abstraction") plus a body — and parse it into typed
+    dataclasses, so the whole engine agrees on what an agent or command is.
+
+Responsibilities:
+    - Define the CatalogAgent / CatalogCommand contracts (the superset every
+      runtime renders from).
+    - Split a file into (frontmatter, body) and parse each asset type.
+
+Does Not:
+    - Render for any runtime — that is the adapter's job (aspis.runtimes).
+    - Enforce the required-field contract beyond what parsing needs; that is
+      aspis.commands.validate_runtime's job.
+
+Used By:
+    aspis.transform, aspis.commands.drift, aspis.commands.validate_runtime,
+    and every consumer that reads a catalog agent or command.
 """
 
 from __future__ import annotations

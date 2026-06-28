@@ -4,6 +4,8 @@ Thin dispatcher: parse a catalog asset, then hand it to the chosen runtime's
 adapter. The transformer holds no runtime-specific logic — that lives in the
 adapter modules — so new runtimes plug in via the registry without changing
 this file.
+
+Used by: aspis.export (the render-agent / render-command write ops).
 """
 
 from __future__ import annotations
