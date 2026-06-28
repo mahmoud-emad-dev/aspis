@@ -28,7 +28,6 @@ from typing import Any
 from aspis.catalog import split_frontmatter
 from aspis.resources import catalog_dir
 
-
 #: Frontmatter fields the catalog is the source of truth for. Order is
 #: preserved in drift reports so the diff reads top-to-bottom like the
 #: agent file itself. ``runtimes`` is checked at the file-presence level,
@@ -179,12 +178,12 @@ def _check_agent(
     if not live_frontmatter:
         return [f"{agent_name}@{runtime} has no parseable frontmatter"]
 
-    if runtime == "opencode":
-        projection = _project_opencode(live_frontmatter)
-    elif runtime == "claude":
-        projection = _project_claude(live_frontmatter)
-    else:
+    # Dispatch by runtime via a table, not an ``if runtime ==`` chain
+    # (constitution #4/#9). F-020 can move each projection onto its adapter.
+    projector = {"opencode": _project_opencode, "claude": _project_claude}.get(runtime)
+    if projector is None:
         return [f"{agent_name}@{runtime} unknown runtime"]
+    projection = projector(live_frontmatter)
 
     drifts: list[str] = []
     for field in _COMPARE_FIELDS:

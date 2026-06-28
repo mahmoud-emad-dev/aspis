@@ -37,14 +37,21 @@ from pathlib import Path
 # Default known approvers (project-specific, overridable via config)
 KNOWN_APPROVERS = {"owner", "project-lead", "system-lead"}
 
-# Protected paths that require approval
+# Protected paths that require approval.
+#
+# MUST mirror the canonical set in ``aspis.commands.governance.PROTECTED_PATHS``
+# (whose own source is governance.md §3). This script prefix-matches, so the
+# glob patterns there are expressed here as directory/file prefixes. Until F-019
+# extracts a shared data source both sides load, keep these two lists in step.
 PROTECTED_PATHS = [
-    ".claude/settings.json",
-    ".claude/agents/",
-    ".opencode/config/",
+    "rules/",
     ".aspis/rules/",
-    ".aspis/scripts/hooks/",
     ".aspis/config/",
+    "profiles/defaults.yaml",
+    ".opencode/agents/",
+    ".claude/agents/",
+    ".claude/settings.json",
+    ".aspis/current/active_feature.json",
 ]
 
 DEFAULT_LEDGER_PATH = ".aspis/state/approval-ledger.yaml"

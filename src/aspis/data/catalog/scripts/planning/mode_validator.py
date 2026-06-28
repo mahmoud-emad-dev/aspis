@@ -33,6 +33,8 @@ import json
 import sys
 from pathlib import Path
 
+# Fallback only — the authoritative mode names come from modes.yaml (see
+# discover_known_modes); this set is used when that file cannot be read.
 KNOWN_MODES = {"vibe", "mvp", "production"}
 
 # Mode-appropriate gates
@@ -100,12 +102,23 @@ def find_config(root: Path) -> Path | None:
     return None
 
 
-def validate_mode(mode: str) -> tuple[str, str, dict]:
+def discover_known_modes(root: Path) -> set[str]:
+    """Return the valid mode names from ``modes.yaml`` (the single source of
+    truth), falling back to ``KNOWN_MODES`` if that file cannot be read."""
+    modes_path = root / ".aspis" / "config" / "policy" / "modes.yaml"
+    data = try_yaml_load(modes_path) if modes_path.exists() else None
+    if isinstance(data, dict) and isinstance(data.get("modes"), dict) and data["modes"]:
+        return set(data["modes"])
+    return set(KNOWN_MODES)
+
+
+def validate_mode(mode: str, known_modes: set[str] | None = None) -> tuple[str, str, dict]:
     """Validate mode and return (verdict, reasoning, gate_info)."""
-    if mode not in KNOWN_MODES:
+    known = known_modes or KNOWN_MODES
+    if mode not in known:
         return (
             "FAIL",
-            f"Unknown mode '{mode}'. Valid modes: {', '.join(sorted(KNOWN_MODES))}",
+            f"Unknown mode '{mode}'. Valid modes: {', '.join(sorted(known))}",
             {},
         )
 
@@ -165,7 +178,7 @@ def main(argv: list[str] | None = None) -> int:
     else:
         reasoning_extra = f" (from {config_path})" if config_path else ""
 
-    verdict, reasoning, gates = validate_mode(mode)
+    verdict, reasoning, gates = validate_mode(mode, discover_known_modes(root))
 
     if args.json:
         output = {
