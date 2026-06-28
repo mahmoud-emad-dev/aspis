@@ -27,13 +27,14 @@ def test_valid_approval_json(tmp_path):
     """Valid JSON ledger should pass."""
     ledger = tmp_path / "ledger.json"
     _write_file(ledger, json.dumps({
-        "approvals": [
+        "entries": [
             {
-                "id": "APPROVE-001",
+                "id": "APRV-001",
+                "timestamp": "2025-01-01T00:00:00Z",
                 "approver": "owner",
-                "path": ".claude/settings.json",
-                "status": "approved",
-                "expires": "2099-12-31",
+                "scope": {"paths": [".claude/settings.json"], "reason": "test"},
+                "expiry": "2099-12-31",
+                "status": "active",
             }
         ]
     }))
@@ -49,13 +50,14 @@ def test_unknown_approver_json(tmp_path):
     """Unknown approver → FAIL."""
     ledger = tmp_path / "ledger.json"
     _write_file(ledger, json.dumps({
-        "approvals": [
+        "entries": [
             {
-                "id": "APPROVE-002",
+                "id": "APRV-002",
+                "timestamp": "2025-01-01T00:00:00Z",
                 "approver": "hacker",
-                "path": ".claude/settings.json",
-                "status": "approved",
-                "expires": "2099-12-31",
+                "scope": {"paths": [".claude/settings.json"], "reason": "test"},
+                "expiry": "2099-12-31",
+                "status": "active",
             }
         ]
     }))
@@ -70,13 +72,14 @@ def test_json_output(tmp_path):
     """JSON output."""
     ledger = tmp_path / "ledger.json"
     _write_file(ledger, json.dumps({
-        "approvals": [
+        "entries": [
             {
-                "id": "APPROVE-003",
+                "id": "APRV-003",
+                "timestamp": "2025-01-01T00:00:00Z",
                 "approver": "owner",
-                "path": ".claude/settings.json",
-                "status": "approved",
-                "expires": "2099-12-31",
+                "scope": {"paths": [".claude/settings.json"], "reason": "test"},
+                "expiry": "2099-12-31",
+                "status": "active",
             }
         ]
     }))

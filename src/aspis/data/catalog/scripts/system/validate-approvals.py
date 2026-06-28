@@ -32,6 +32,7 @@ import argparse
 import json
 import sys
 import time
+from datetime import datetime
 from pathlib import Path
 
 # Default known approvers (project-specific, overridable via config)
@@ -40,7 +41,7 @@ KNOWN_APPROVERS = {"owner", "project-lead", "system-lead"}
 # Protected paths that require approval.
 #
 # MUST mirror the canonical set in ``aspis.commands.governance.PROTECTED_PATHS``
-# (whose own source is governance.md §3). This script prefix-matches, so the
+# (whose own source is system-rules.md R-008). This script prefix-matches, so the
 # glob patterns there are expressed here as directory/file prefixes. Until F-019
 # extracts a shared data source both sides load, keep these two lists in step.
 PROTECTED_PATHS = [
@@ -132,7 +133,7 @@ def validate_approvals(
     if isinstance(ledger_data, list):
         entries = ledger_data
     elif isinstance(ledger_data, dict):
-        entries = ledger_data.get("approvals", [])
+        entries = ledger_data.get("entries", [])
     else:
         return [{"approval_id": "N/A", "verdict": "FAIL", "reason": "Invalid ledger format"}]
 
@@ -156,8 +157,14 @@ def validate_approvals(
 
         approval_id = entry.get("id", entry.get("approval_id", f"entry-{i}"))
         approver = entry.get("approver", entry.get("approved_by", ""))
-        path = entry.get("path", entry.get("protected_path", ""))
-        expires_str = entry.get("expires", entry.get("expires_at", ""))
+        # governance.py stores paths under scope.paths (list); accept flat path for backward compat
+        scope = entry.get("scope") or {}
+        paths = scope.get("paths") or []
+        if not paths:
+            flat_path = entry.get("path", entry.get("protected_path", ""))
+            paths = [flat_path] if flat_path else []
+        path = paths[0] if paths else ""
+        expires_str = entry.get("expiry", entry.get("expires", entry.get("expires_at", "")))
         status = entry.get("status", entry.get("state", "pending"))
 
         issues = []
@@ -169,25 +176,26 @@ def validate_approvals(
             known = ", ".join(sorted(known_approvers))
             issues.append(f"Unknown approver '{approver}' (known: {known})")
 
-        # Check 2: Protected path
-        if not path:
+        # Check 2: Protected path(s)
+        if not paths:
             issues.append("Missing protected path")
         else:
-            is_protected = any(path.startswith(p) or p.startswith(path) for p in protected_paths)
-            if not is_protected:
-                issues.append(f"Path '{path}' is not a recognized protected path")
-
-            # Check duplicates
-            if path in seen_paths:
-                issues.append(f"Duplicate approval for path '{path}' (first: {seen_paths[path]})")
-            seen_paths[path] = approval_id
+            for p in paths:
+                is_protected = any(
+                    p.startswith(proto) or proto.startswith(p)
+                    for proto in protected_paths
+                )
+                if not is_protected:
+                    issues.append(f"Path '{p}' is not a recognized protected path")
+                if p in seen_paths:
+                    issues.append(f"Duplicate approval for path '{p}' (first: {seen_paths[p]})")
+                seen_paths[p] = approval_id
 
         # Check 3: Expiration
         if expires_str:
             expires_ts = None
             try:
                 # Try ISO format
-                from datetime import datetime
                 for fmt in ["%Y-%m-%d", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%SZ"]:
                     try:
                         expires_ts = datetime.strptime(str(expires_str), fmt).timestamp()
@@ -203,8 +211,10 @@ def validate_approvals(
             issues.append("No expiration date set — approval is perpetual (WARN)")
 
         # Check 4: Status
-        if status and status not in ("approved", "active", "granted"):
-            issues.append(f"Status is '{status}' (expected: approved/active/granted)")
+        if status == "revoked":
+            issues.append("Approval has been revoked")
+        elif status and status not in ("active", "approved", "granted"):
+            issues.append(f"Status is '{status}' (expected: active)")
 
         # Determine verdict
         if not issues:

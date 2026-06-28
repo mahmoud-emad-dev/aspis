@@ -18,7 +18,7 @@ Subcommands (all five plus one diagnostic):
 - ``ledger``   — read-only health summary: path, entry count, oldest/newest stamps.
 - ``check``    — diagnostic: would a write to ``--path`` be allowed right now?
 
-Exit codes follow governance.md §6: 0 = ok, 2 = validation error, 3 = not found
+Exit codes follow system-rules.md (R-008): 0 = ok, 2 = validation error, 3 = not found
 or already revoked, 4 = blocked by gate, 5 = path not protected.
 """
 
@@ -28,7 +28,7 @@ import argparse
 import os
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -48,7 +48,7 @@ LOCK_REL = Path(".aspis/state/approval-ledger.lock")
 LOCK_STALE_SECONDS = 60
 
 #: Canonical set of protected glob patterns. A path is protected iff it matches
-#: ANY pattern here. Source: governance.md §3 (single source of truth for R-008).
+#: ANY pattern here. Source: system-rules.md R-008 (single source of truth for the human-gate rule).
 PROTECTED_PATHS: list[str] = [
     "rules/**",
     ".aspis/rules/**",
@@ -148,7 +148,7 @@ def is_protected(path: str, patterns: list[str] | None = None) -> bool:
 
 def _now_utc() -> datetime:
     """Timezone-aware UTC ``datetime`` — used for ``expiry`` comparisons."""
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def _now_iso() -> str:
@@ -180,7 +180,7 @@ def _is_expired(entry: dict[str, Any], now: datetime) -> bool:
     if exp is None:
         return False
     if exp.tzinfo is None:
-        exp = exp.replace(tzinfo=timezone.utc)
+        exp = exp.replace(tzinfo=UTC)
     return exp <= now
 
 # ---------------------------------------------------------------------------
@@ -387,7 +387,7 @@ def _audit(args: argparse.Namespace) -> int:
             print(f"audit --since must be ISO 8601 (got {args.since!r})", file=sys.stderr)
             return 2
         if cutoff.tzinfo is None:
-            cutoff = cutoff.replace(tzinfo=timezone.utc)
+            cutoff = cutoff.replace(tzinfo=UTC)
         entries = [
             e for e in entries
             if (lambda ts: ts is not None and ts >= cutoff)(_parse_iso(str(e.get("timestamp", ""))))
@@ -399,7 +399,7 @@ def _audit(args: argparse.Namespace) -> int:
             print(f"audit --until must be ISO 8601 (got {args.until!r})", file=sys.stderr)
             return 2
         if cutoff.tzinfo is None:
-            cutoff = cutoff.replace(tzinfo=timezone.utc)
+            cutoff = cutoff.replace(tzinfo=UTC)
         entries = [
             e for e in entries
             if (lambda ts: ts is not None and ts <= cutoff)(_parse_iso(str(e.get("timestamp", ""))))
@@ -418,7 +418,7 @@ def _audit(args: argparse.Namespace) -> int:
             exp = _parse_iso(str(e.get("expiry") or ""))
             if exp is not None:
                 if exp.tzinfo is None:
-                    exp = exp.replace(tzinfo=timezone.utc)
+                    exp = exp.replace(tzinfo=UTC)
                 if exp < now:
                     return "expired"
             return "active"
@@ -475,7 +475,7 @@ def _revoke(args: argparse.Namespace) -> int:
                 if entry.get("status") == "revoked":
                     print(f"already revoked: {target_id}", file=sys.stderr)
                     return 3
-                # --approver optional: default to the original approver (spec §6).
+                # --approver optional: default to the original approver (system-rules.md R-008).
                 revoker = (
                     args.approver.strip()
                     if args.approver and args.approver.strip()
