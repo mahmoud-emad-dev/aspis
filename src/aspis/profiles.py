@@ -94,3 +94,11 @@ def merge(base: Profile, overlay: Profile) -> Profile:
         include_all=overlay.include_all,
         selected=selected,
     )
+
+
+def load_merged(name: str, profiles_dir: Path) -> Profile:
+    """Load *name* merged under the shared base profile (base alone when name=='base')."""
+    base = load_profile(profiles_dir / "base.yaml")
+    if name == "base":
+        return base
+    return merge(base, load_profile(profiles_dir / f"{name}.yaml"))

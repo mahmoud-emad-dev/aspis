@@ -12,21 +12,12 @@ import subprocess
 import sys
 
 from aspis import detect, resources
-from aspis.constants import BRAIN_DIR
+from aspis.constants import BRAIN_DIR, INIT_COMMIT_MESSAGE
 from aspis.export import plan_export, write_export
 from aspis.lifecycle import Context, Engine
-from aspis.profiles import Profile, load_profile, merge
+from aspis.profiles import Profile, load_merged
 from aspis.runtimes import get_adapter
 from aspis.templating import render
-
-
-def _load_profile(name: str) -> Profile:
-    """Load *name* merged under the shared base profile."""
-    profiles_dir = resources.data_dir() / "profiles"
-    base = load_profile(profiles_dir / "base.yaml")
-    if name == "base":
-        return base
-    return merge(base, load_profile(profiles_dir / f"{name}.yaml"))
 
 
 def init_core(ctx: Context) -> None:
@@ -39,7 +30,7 @@ def init_core(ctx: Context) -> None:
     force_conflicts = bool(ctx.options.get("force_conflicts"))
     reset_snapshot = bool(ctx.options.get("reset_snapshot"))
 
-    profile = _load_profile(ctx.options.get("profile") or "base")
+    profile = load_merged(ctx.options.get("profile") or "base", resources.data_dir() / "profiles")
     if ctx.options.get("runtimes"):
         profile = profile.model_copy(update={"runtimes": list(ctx.options["runtimes"])})
     project_name = ctx.options.get("name") or ctx.root.name
@@ -81,7 +72,7 @@ def _commit_scaffold(ctx: Context, *, write: bool) -> None:
 
     if not write or not gitops.has_git(ctx.root):
         return
-    if gitops.commit_owned(ctx.root, "chore: initialize ASPIS project"):
+    if gitops.commit_owned(ctx.root, INIT_COMMIT_MESSAGE):
         ctx.log("commit init scaffolding")
 
 

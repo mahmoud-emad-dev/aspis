@@ -31,7 +31,7 @@ from typing import TYPE_CHECKING
 from aspis.catalog import split_frontmatter
 from aspis.export import ExportAction, plan_export
 from aspis.inventory import load_inventory
-from aspis.profiles import load_profile
+from aspis.profiles import load_merged
 from aspis.project import is_project, load_effective_config
 from aspis.protect import DecisionKind, decide, sha256_text
 from aspis.resources import catalog_dir, data_dir
@@ -87,7 +87,7 @@ def _run(args: argparse.Namespace) -> int:
     # 1. Build the profile from the bundled base, mirroring models.py: keep
     #    only runtimes the project already has a directory for, so we never
     #    render into a runtime the project never asked for.
-    profile = load_profile(data_dir() / "profiles" / "base.yaml")
+    profile = load_merged("base", data_dir() / "profiles")
     present = [r for r in profile.runtimes if (root / get_adapter(r).runtime_dir).is_dir()]
     if present:
         profile = profile.model_copy(update={"runtimes": present})

@@ -22,3 +22,6 @@ HOOKS_DIR = "scripts/lifecycle"
 #: project is live, these become directly selectable — yielding exactly five
 #: primaries: project, system, planning, build, and review leads.
 PROMOTE_TO_PRIMARY = ("system-lead", "planning-lead", "build-lead", "reviewer")
+
+#: The commit message init/bootstrap use for the project's first (scaffolding) commit.
+INIT_COMMIT_MESSAGE = "chore: initialize ASPIS project"

@@ -23,7 +23,7 @@ from pathlib import Path
 from aspis import resources
 from aspis.constants import BRAIN_DIR
 from aspis.export import ProtectionError, plan_export, write_export
-from aspis.profiles import Profile, load_profile
+from aspis.profiles import Profile, load_merged
 from aspis.runtimes import get_adapter
 
 
@@ -73,11 +73,7 @@ def register(subparsers: argparse._SubParsersAction) -> None:
 
 def _resolve_profile(name: str, runtimes: list[str] | None) -> Profile:
     """Load *name* from the bundled profiles; narrow its runtimes if *runtimes* given."""
-    profile = load_profile(resources.data_dir() / "profiles" / "base.yaml")
-    if name != "base":
-        from aspis.profiles import merge
-
-        profile = merge(profile, load_profile(resources.data_dir() / "profiles" / f"{name}.yaml"))
+    profile = load_merged(name, resources.data_dir() / "profiles")
     if runtimes:
         profile = profile.model_copy(update={"runtimes": list(runtimes)})
     return profile

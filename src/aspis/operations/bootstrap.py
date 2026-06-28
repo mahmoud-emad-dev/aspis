@@ -25,7 +25,7 @@ from aspis import (
     promotion,
     runtime_inventory,
 )
-from aspis.constants import BRAIN_DIR
+from aspis.constants import BRAIN_DIR, INIT_COMMIT_MESSAGE
 from aspis.health import run_checks
 from aspis.lifecycle import Context, Engine
 from aspis.runtimes import runtime_dirs
@@ -266,7 +266,7 @@ def _autocommit_init(ctx: Context) -> None:
     """
     if not bool(ctx.options.get("write")) or not gitops.has_git(ctx.root):
         return
-    if gitops.commit_owned(ctx.root, "chore: initialize ASPIS project"):
+    if gitops.commit_owned(ctx.root, INIT_COMMIT_MESSAGE):
         ctx.log("commit init scaffolding (was uncommitted)")
 
 

@@ -6,8 +6,8 @@ import argparse
 from pathlib import Path
 
 from aspis.engine import build_engine
-from aspis.operations import register_all
 from aspis.export import ProtectionError
+from aspis.operations import register_all
 
 
 def register(subparsers: argparse._SubParsersAction) -> None:
@@ -40,7 +40,9 @@ def register(subparsers: argparse._SubParsersAction) -> None:
     parser.add_argument(
         "--apply",
         action="store_true",
-        help="Apply changes with protection (synonym for --write that also updates pristine files).",
+        help=(
+            "Apply changes with protection (synonym for --write that also updates pristine files)."
+        ),
     )
     parser.add_argument(
         "--strict",

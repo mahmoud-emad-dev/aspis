@@ -216,13 +216,13 @@ def _apply(root: Path, *, force: bool = False) -> int:
     ``--force`` bypasses protection and overwrites every live agent (the legacy behavior).
     """
     from aspis.export import ExportPlan, plan_export, write_export
-    from aspis.profiles import load_profile
+    from aspis.profiles import load_merged
 
     if not (root / BRAIN_DIR).is_dir():
         print("not an ASPIS project (no .aspis/) -- run `aspis init` first.")
         return 1
 
-    profile = load_profile(resources.data_dir() / "profiles" / "base.yaml")
+    profile = load_merged("base", resources.data_dir() / "profiles")
     present = [r for r in profile.runtimes if (root / get_adapter(r).runtime_dir).is_dir()]
     if present:
         profile = profile.model_copy(update={"runtimes": present})
