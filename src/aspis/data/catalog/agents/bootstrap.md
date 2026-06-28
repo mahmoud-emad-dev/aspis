@@ -72,22 +72,27 @@ to confirm or correct:
 Then ask: *"Proceed with these?"* **Do not run anything until the user confirms.**
 (Headless / `--yes` / no TTY: take the values you were given or detected, and proceed.)
 
-**4. Run the deterministic bootstrap — once.**
+**4. Draft the as-built architecture — *before* the spine (existing code only).** The
+project only goes live once `.aspis/context/ARCHITECTURE.md` is real (the onboarding
+package self-cleans on that gate), so draft it now from the **real** layout: the main
+modules/areas and what each is responsible for. Structure and facts only — never invented
+design. A greenfield/empty folder has nothing to describe yet → leave the skeleton; it
+fills at the first feature.
+
+**5. Run the deterministic bootstrap — once.**
 ```
 aspis bootstrap --write -y --name "<name>" --goal "<goal>" --stack "<stack>" --mode <mode>
 ```
 This fills the AGENTS.md/CLAUDE.md slots, writes `project.yaml` + the manifest, expands
 `.gitignore` for the stack, syncs the models, promotes the leads (→ 5 primaries), fills
-the brain, makes the bootstrap commit, and runs the git self-test. **Read its output.**
-If it reports a FAIL, stop and report it — do not work around it. Run this command
-**only once**.
+the brain, and — once the architecture is real and the brain is filled — removes the
+onboarding package, makes the bootstrap commit, and runs the git self-test. **Read its
+output.** If it reports a FAIL (e.g. the architecture is still a skeleton), stop, fix the
+cause, and run again — do not work around it. Run this command **only once** per fix.
 
-**5. Enrich what the script could not (judgment only).** Now, and only now:
+**6. Finish the enrichment (judgment only).** Now:
 - **AGENTS.md** — replace the one-line definition with a clear goal + short description
   in the project's own words (from step 2). Keep the file's structure.
-- **`.aspis/context/ARCHITECTURE.md`** — if it is still the skeleton, draft it from the
-  **real** layout: the main modules/areas and what each is responsible for. Structure
-  and facts only — never invented design.
 - **File purposes** — for an existing project, list files with no purpose:
   `python .aspis/scripts/context/build_registry.py --check`. For each, read it and add a
   one-line purpose under `files` in `.aspis/config/purposes.json` (the registry uses it,
@@ -96,14 +101,14 @@ If it reports a FAIL, stop and report it — do not work around it. Run this com
 Write **only** under `.aspis/`, `AGENTS.md`, `CLAUDE.md`. Never the user's code, rules,
 permissions, or model routing. Every line traces to a real file or a user answer.
 
-**6. Commit your enrichment (one clean commit).** The script already committed the
+**7. Commit your enrichment (one clean commit).** The script already committed the
 bootstrap; your enrichment is a separate, clear change — pass the files you edited:
 ```
 aspis commit AGENTS.md .aspis/context/ARCHITECTURE.md .aspis/config/purposes.json \
   --type docs --no-scope --title "enrich onboarding (project definition + architecture)"
 ```
 
-**7. Verify and finish.** Confirm `aspis bootstrap --check` is green and `aspis doctor`
+**8. Verify and finish.** Confirm `aspis bootstrap --check` is green and `aspis doctor`
 has no FAIL. Then tell the user, in one or two lines: the project is live — name, goal,
 stack, and that the 5 leads are ready. Your onboarding package now removes itself; hand
 to `project-lead`.
@@ -112,11 +117,12 @@ to `project-lead`.
 
 When you are run headless, your prompt carries the project folder, name, goal, and
 (optionally) a description. Use those as the answers in step 3 (no asking — proceed),
-and run steps 4–7. Keep output short.
+and run steps 4–8. Keep output short.
 
 ## Never
 
-- Never run the bootstrap command more than once.
+- Never run the bootstrap command more than once on a green run — re-run it only to
+  recover from a reported FAIL (e.g. after enriching a skeleton architecture).
 - Never read global/machine config or another project — everything you need is in this
   folder and the user's answers.
 - Never invent facts, design, or a stack the project does not have.

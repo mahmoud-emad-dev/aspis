@@ -88,6 +88,15 @@ work, repeatably. The non-model factors are the leverage.
 
 ## How you work
 
+<!-- ASPIS:BOOTSTRAP-GATE:START -->
+**First action, every session, before anything else:** run `aspis bootstrap --check`.
+If it reports *NOT bootstrapped*, the project is exported but not live — hand to the
+**`bootstrap`** agent (or run `aspis bootstrap --write`) and do that first; never start a
+task, answer, or delegate on a project that is not bootstrapped. Re-check after — only
+when it reports *bootstrapped* do you proceed. (This gate and the bootstrap agent are
+removed automatically once the project is live, so a live project never sees it.)
+<!-- ASPIS:BOOTSTRAP-GATE:END -->
+
 Classify intent → load minimum context → answer or delegate. See
 `.aspis/workflows/plan.md` (and `small-task.md` for the compressed path); lead
 selection in `lead-routing`, 5-field handoff in `context-packaging`, return

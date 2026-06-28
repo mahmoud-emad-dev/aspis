@@ -4,8 +4,12 @@
 # skills it cannot operate without. Specialist leads are added by their own
 # profiles as the catalog grows.
 name: base
+# Both supported runtimes ship by default; init narrows this to whatever is
+# actually installed on the machine (falling back to the full list when none
+# are detected, so the export stays portable).
 runtimes:
   - opencode
+  - claude
 agents:
   - agents/project-lead.md
   - agents/bootstrap.md

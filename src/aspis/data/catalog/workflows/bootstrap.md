@@ -22,10 +22,10 @@ project-lead → runs `aspis bootstrap --check`; if NOT live, routes to bootstra
 bootstrap    → loads project-onboarding skill, drives the run:
                  1. detect (stack, git, runtimes, emptiness)
                  2. confirm or skip (never blocks; --yes = non-interactive)
-                 3. aspis bootstrap --write   (deterministic spine)
-                 4. enrich the judgment files from detected facts (bounded)
-                 5. verify: doctor 0-FAIL, brain seeded, exactly 5 primaries
-                 6. record bootstrap.done; the package self-cleans
+                 3. draft ARCHITECTURE.md from the real layout (existing code; before the spine)
+                 4. aspis bootstrap --write   (deterministic spine; self-cleans once ready)
+                 5. finish enrichment: AGENTS.md definition + file purposes (bounded)
+                 6. verify: doctor 0-FAIL, brain seeded, architecture real, 5 primaries
 bootstrap    → hands a one-line readiness summary back to project-lead
 project-lead → continues with the user's original request
 ```
@@ -41,8 +41,8 @@ needs reasoning, and only from facts the detector produced.
 | Fill AGENTS.md / CLAUDE.md slots, write `project.yaml` + manifest | script (`bootstrap_core`) |
 | Seed the brain (FILE_REGISTRY, CODE_MAP, CURRENT_STATE) | script (`context/update.py`) |
 | Promote the 4 leads to primary (→ 5 total) | script (`promote_leads`) |
-| Infer a one-line goal when none was given; draft `ARCHITECTURE.md` | **agent** (`project-onboarding`) |
-| First + bootstrap commits, doctor gate, self-clean | script (pre/post stages) |
+| Draft `ARCHITECTURE.md` (before the spine); enrich AGENTS.md definition + file purposes | **agent** (`project-onboarding`) |
+| First + bootstrap commits, doctor + readiness gate, self-clean | script (pre/post stages) |
 
 ## Bounded autonomy (D-B6)
 
@@ -57,6 +57,8 @@ rules, permissions, or model routing.
 - `aspis doctor` shows no FAIL; the working tree is clean (auto-committed).
 - The brain is filled: `.aspis/index/FILE_REGISTRY.yaml`, `CODE_MAP.md`, and
   `.aspis/context/CURRENT_STATE.md` exist and are non-empty.
+- For an existing-code project, `.aspis/context/ARCHITECTURE.md` is real (past the
+  seeded skeleton); a greenfield project may leave it for the first feature.
 - Exactly five `mode: primary` agents (project-lead + planning-lead + build-lead +
   reviewer + system-lead).
 - `bootstrap.done` recorded; the bootstrap package (agent + skill + this workflow)

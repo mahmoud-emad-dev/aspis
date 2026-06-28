@@ -268,14 +268,47 @@ _REQUIRED_BRAIN = (
     Path("context") / "CURRENT_STATE.md",
 )
 
+#: Root entries ASPIS itself creates — anything else under the root is real user content.
+_SCAFFOLD_ENTRIES = {".git", ".gitignore", "AGENTS.md", "CLAUDE.md", BRAIN_DIR, *runtime_dirs()}
+
+#: The Overview placeholder the seeded ARCHITECTURE.md carries; the onboarding agent
+#: replaces it with a real overview, so its survival means the file is still the skeleton.
+_ARCH_SKELETON_MARK = "Filled at bootstrap / first feature."
+
+
+def _has_user_code(root: Path) -> bool:
+    """True when the project holds real content beyond the ASPIS scaffold.
+
+    A greenfield project (only the scaffold on disk) legitimately leaves the as-built
+    architecture as a skeleton — it grows at the first feature — so the architecture
+    readiness gate applies only when there is actual code to describe.
+    """
+    return any(child.name not in _SCAFFOLD_ENTRIES for child in root.iterdir())
+
+
+def _architecture_unenriched(root: Path) -> bool:
+    """True when ``.aspis/context/ARCHITECTURE.md`` is missing or still the seeded skeleton."""
+    arch = root / BRAIN_DIR / "context" / "ARCHITECTURE.md"
+    if not arch.is_file():
+        return True
+    return _ARCH_SKELETON_MARK in arch.read_text(encoding="utf-8")
+
 
 def _readiness(root: Path) -> list[str]:
-    """Required brain files that are missing or empty after the bootstrap fill."""
+    """What still blocks the project from being declared live after the bootstrap fill.
+
+    The required brain files (must exist and be non-empty) plus — for an existing-code
+    project — a real, non-skeleton as-built architecture, so the project never goes live
+    advertising an empty `ARCHITECTURE.md`. Greenfield projects are exempt (they fill it
+    at their first feature).
+    """
     missing = []
     for rel in _REQUIRED_BRAIN:
         path = root / BRAIN_DIR / rel
         if not path.is_file() or not path.read_text(encoding="utf-8").strip():
             missing.append(rel.as_posix())
+    if _has_user_code(root) and _architecture_unenriched(root):
+        missing.append("context/ARCHITECTURE.md (still skeleton — enrich it)")
     return missing
 
 

@@ -6,6 +6,11 @@ import json
 
 from aspis.engine import build_engine
 from aspis.operations import register_all
+from aspis.runtimes import runtime_dirs
+
+#: Onboarding package size = bootstrap agent + project-onboarding skill per runtime dir,
+#: plus the one shared workflow doc. Derived so it tracks the deployed runtime count.
+_PKG = len(runtime_dirs()) * 2 + 1
 
 
 def _engine():
@@ -80,7 +85,7 @@ def test_init_exports_the_bootstrap_package(tmp_path) -> None:
     assert (tmp_path / ".opencode" / "agents" / "bootstrap.md").is_file()
     assert (tmp_path / ".opencode" / "skills" / "project-onboarding").is_dir()
     assert (tmp_path / ".aspis" / "workflows" / "bootstrap.md").is_file()
-    assert len(bootstrap_package(tmp_path)) == 3
+    assert len(bootstrap_package(tmp_path)) == _PKG
 
 
 def test_bootstrap_self_cleans_the_package_and_stamps_version(tmp_path) -> None:
@@ -101,6 +106,26 @@ def test_bootstrap_self_cleans_the_package_and_stamps_version(tmp_path) -> None:
     assert data["bootstrap_engine_version"] == __version__
 
 
+def test_bootstrap_gates_skeleton_architecture_for_existing_code(tmp_path) -> None:
+    """An existing-code project stays not-ready until ARCHITECTURE is enriched past skeleton."""
+    from aspis.operations.bootstrap import bootstrap_package
+
+    # Real user content → existing-code project (not greenfield), so the architecture gate applies.
+    (tmp_path / "pyproject.toml").write_text("[project]\nname = 'x'\n", encoding="utf-8")
+    engine = _engine()
+    engine.run("init", tmp_path, write=True, no_git=True)
+    engine.run("bootstrap", tmp_path, write=True, yes=True, goal="t", stack="python")
+
+    # Skeleton architecture → not ready → onboarding package kept for the enrich+resume.
+    assert len(bootstrap_package(tmp_path)) == _PKG
+
+    # Enrich the architecture past the seeded skeleton, then resume → ready → self-cleans.
+    arch = tmp_path / ".aspis" / "context" / "ARCHITECTURE.md"
+    arch.write_text("# x\n\n## Overview\n\nA real as-built overview.\n", encoding="utf-8")
+    engine.run("bootstrap", tmp_path, write=True, yes=True, goal="t", stack="python")
+    assert bootstrap_package(tmp_path) == []
+
+
 def test_bootstrap_keeps_package_when_doctor_fails(tmp_path, monkeypatch) -> None:
     """If the health gate fails, the onboarding package is kept for a re-run."""
     from types import SimpleNamespace
@@ -113,7 +138,7 @@ def test_bootstrap_keeps_package_when_doctor_fails(tmp_path, monkeypatch) -> Non
     engine.run("init", tmp_path, write=True, no_git=True)
     engine.run("bootstrap", tmp_path, write=True, yes=True)
 
-    assert len(bootstrap_package(tmp_path)) == 3  # nothing was cleaned
+    assert len(bootstrap_package(tmp_path)) == _PKG  # nothing was cleaned
 
 
 def test_bootstrap_keeps_package_when_brain_not_ready(tmp_path, monkeypatch) -> None:
@@ -128,7 +153,7 @@ def test_bootstrap_keeps_package_when_brain_not_ready(tmp_path, monkeypatch) -> 
     engine.run("init", tmp_path, write=True, no_git=True)
     engine.run("bootstrap", tmp_path, write=True, yes=True)
 
-    assert len(bootstrap_package(tmp_path)) == 3  # not ready → package kept
+    assert len(bootstrap_package(tmp_path)) == _PKG  # not ready → package kept
 
 
 def test_bootstrap_strips_all_bootstrap_references(tmp_path) -> None:
@@ -169,7 +194,7 @@ def test_bootstrap_keeps_package_when_config_invalid(tmp_path, monkeypatch) -> N
     (tmp_path / ".aspis" / "config" / "modes.yaml").write_text("mode: : : bad\n", encoding="utf-8")
     engine.run("bootstrap", tmp_path, write=True, yes=True)
 
-    assert len(bootstrap_package(tmp_path)) == 3  # invalid config → package kept
+    assert len(bootstrap_package(tmp_path)) == _PKG  # invalid config → package kept
 
 
 def test_bootstrap_syncs_agent_models(tmp_path) -> None:
