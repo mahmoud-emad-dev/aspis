@@ -21,7 +21,7 @@ apply; justify any exception in Complexity below).
 - [ ] **R-001 Scope** — changes stay within the SPEC's in-scope paths.
 - [ ] **R-002 Gates** — the deterministic gate (format/lint/types/tests) is the bar.
 - [ ] **R-005 Tests-as-spec** — behaviour is pinned by tests, not prose.
-- [ ] **R-009 Human gate** — rules/architecture/security changes are flagged below.
+- [ ] **R-008 Human gate** — rules/architecture/security changes are flagged below.
 
 ## Components
 <Components, data flow, interfaces, and integration points.>
@@ -50,4 +50,4 @@ Fill ONLY if a gate-check row is violated and the complexity is justified.
 | <what> | <why> | <why not the simpler way> |
 
 ## Decisions needing approval
-- <Load-bearing architecture decision a human must sign off (R-009) — remove if none.>
+- <Load-bearing architecture decision a human must sign off (R-008) — remove if none.>
