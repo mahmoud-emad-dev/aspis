@@ -18,10 +18,7 @@ permissions:
   webfetch: deny
   websearch: deny
 skills: [test-execution]
-runtimes: [opencode, claude-code]
-primary: false
-summary: Stack-specific test executor for HTTP APIs — sends requests, validates status codes, response bodies, JSON Schema, and auth token handling.
-deny_floor: {bash: {"git commit": deny, "git push": deny, '*': deny}, webfetch: deny, websearch: deny, file_write: allow}
+runtimes: [opencode, claude]
 ---
 
 # API Tester

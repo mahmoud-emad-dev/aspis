@@ -5,10 +5,8 @@ mode: subagent
 model: cheap
 temperature: 0.0
 delegates: []
-runtimes: [opencode, claude-code]
+runtimes: [opencode, claude]
 skills: [requirement-clarification]
-primary: false
-summary: Asks structured clarifying questions when a feature request is ambiguous — returns a CLARIFICATION_REPORT with resolved assumptions and prioritized open questions.
 tools: [read, grep, glob]
 export_scope: full
 permissions:
@@ -16,7 +14,6 @@ permissions:
   webfetch: deny
   websearch: deny
   file_write: deny
-deny_floor: {bash: {git commit: deny, git push: deny, '*': deny}, webfetch: deny, websearch: deny, file_write: deny}
 ---
 
 # Clarify

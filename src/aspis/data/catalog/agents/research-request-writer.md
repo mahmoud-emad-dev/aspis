@@ -5,10 +5,8 @@ mode: subagent
 model: cheap
 temperature: 0.0
 delegates: []
-runtimes: [opencode, claude-code]
+runtimes: [opencode, claude]
 skills: [context-packaging]
-primary: false
-summary: Formulates knowledge gaps into structured RESEARCH_REQUEST packets for the research-lead — one question, must_cover, sources, urgency per request.
 tools: [read, grep, glob]
 export_scope: full
 permissions:
@@ -16,7 +14,6 @@ permissions:
   webfetch: deny
   websearch: deny
   file_write: deny
-deny_floor: {bash: {git commit: deny, git push: deny, '*': deny}, webfetch: deny, websearch: deny, file_write: deny}
 ---
 
 # Research Request Writer

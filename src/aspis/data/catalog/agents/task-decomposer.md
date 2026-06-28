@@ -5,10 +5,8 @@ mode: subagent
 model: standard
 temperature: 0.0
 delegates: []
-runtimes: [opencode, claude-code]
+runtimes: [opencode, claude]
 skills: [task-decomposition]
-primary: false
-summary: Breaks a feature spec into atomic, ordered tasks with dependency edges — produces TASKS.md and per-task packets.
 tools: [read, grep, glob, bash]
 export_scope: full
 permissions:
@@ -16,7 +14,6 @@ permissions:
   webfetch: deny
   websearch: deny
   file_write: deny
-deny_floor: {bash: {git commit: deny, git push: deny, 'python .aspis/scripts/planning/task_compile.py*': allow, 'python .aspis/scripts/planning/scope_estimate.py*': allow, 'python .aspis/scripts/planning/task_size_check.py*': allow, 'python .aspis/scripts/planning/dependency_graph.py*': allow, 'python .aspis/scripts/planning/prereq_validate.py*': allow, '*': deny}, webfetch: deny, websearch: deny, file_write: deny}
 ---
 
 # Task Decomposer

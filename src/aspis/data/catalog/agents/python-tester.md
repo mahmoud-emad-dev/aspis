@@ -18,10 +18,7 @@ permissions:
   webfetch: deny
   websearch: deny
 skills: [test-execution]
-runtimes: [opencode, claude-code]
-primary: false
-summary: Stack-specific test executor for Python — runs pytest, unittest, and coverage.py; understands mock/fixture patterns, parametrization, and conftest.py conventions.
-deny_floor: {bash: {"git commit": deny, "git push": deny, '*': deny}, webfetch: deny, websearch: deny, file_write: allow}
+runtimes: [opencode, claude]
 ---
 
 # Python Tester

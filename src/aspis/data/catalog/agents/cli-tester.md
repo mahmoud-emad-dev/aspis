@@ -18,10 +18,7 @@ permissions:
   webfetch: deny
   websearch: deny
 skills: [test-execution]
-runtimes: [opencode, claude-code]
-primary: false
-summary: Stack-specific test executor for CLIs — spawns subprocesses, asserts exit codes, captures stdout/stderr, and tests argument parsing.
-deny_floor: {bash: {"git commit": deny, "git push": deny, '*': deny}, webfetch: deny, websearch: deny, file_write: allow}
+runtimes: [opencode, claude]
 ---
 
 # CLI Tester

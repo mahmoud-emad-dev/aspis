@@ -18,10 +18,7 @@ permissions:
   webfetch: deny
   websearch: deny
 skills: [test-execution]
-runtimes: [opencode, claude-code]
-primary: false
-summary: Stack-specific test executor for security properties — runs OWASP-informed tests, fuzzes inputs, tests auth bypass patterns, and validates input sanitization. Distinct from the deferred security-reviewer.
-deny_floor: {bash: {"git commit": deny, "git push": deny, '*': deny}, webfetch: deny, websearch: deny, file_write: allow}
+runtimes: [opencode, claude]
 ---
 
 # Security Tester

@@ -18,10 +18,7 @@ permissions:
   webfetch: deny
   websearch: deny
 skills: [test-execution]
-runtimes: [opencode, claude-code]
-primary: false
-summary: Stack-specific test executor for UIs — drives browser automation, asserts DOM state, captures screenshots for visual regression.
-deny_floor: {bash: {"git commit": deny, "git push": deny, '*': deny}, webfetch: deny, websearch: deny, file_write: allow}
+runtimes: [opencode, claude]
 ---
 
 # UI Tester

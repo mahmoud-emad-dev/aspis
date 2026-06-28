@@ -5,10 +5,8 @@ mode: subagent
 model: cheap
 temperature: 0.0
 delegates: []
-runtimes: [opencode, claude-code]
+runtimes: [opencode, claude]
 skills: [dependency-audit]
-primary: false
-summary: Analyzes and visualizes task dependencies — calls the L1 dependency_graph script, returns a dependency graph with critical path identification and circular dependency warnings.
 tools: [read, grep, glob, bash]
 export_scope: full
 permissions:
@@ -16,7 +14,6 @@ permissions:
   webfetch: deny
   websearch: deny
   file_write: deny
-deny_floor: {bash: {git commit: deny, git push: deny, 'python .aspis/scripts/planning/*': allow, '*': deny}, webfetch: deny, websearch: deny, file_write: deny}
 ---
 
 # Dependency Analyzer

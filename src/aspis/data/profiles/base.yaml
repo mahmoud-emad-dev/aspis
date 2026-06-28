@@ -19,6 +19,30 @@ agents:
   - agents/general-builder.md
   - agents/committer.md
   - agents/project-explorer.md
+  # system-lead leaf subagents (L3)
+  - agents/runtime-validator.md
+  - agents/drift-auditor.md
+  - agents/permission-auditor.md
+  - agents/export-verifier.md
+  - agents/catalog-synchronizer.md
+  - agents/opencode-author.md
+  - agents/claude-author.md
+  # planning-lead leaf subagents (L3)
+  - agents/clarify.md
+  - agents/task-decomposer.md
+  - agents/constitution-checker.md
+  - agents/idea-capture.md
+  - agents/prd-writer.md
+  - agents/scope-estimator.md
+  - agents/research-request-writer.md
+  - agents/dependency-analyzer.md
+  # test-lead stack-specific testers (L3)
+  - agents/python-tester.md
+  - agents/api-tester.md
+  - agents/db-tester.md
+  - agents/ui-tester.md
+  - agents/cli-tester.md
+  - agents/security-tester.md
 skills:
   - skills/project-awareness
   - skills/project-onboarding
@@ -72,6 +96,11 @@ skills:
   - skills/catalog-validator
   - skills/drift-detector
   - skills/governance-approval
+  - skills/dependency-audit
+  - skills/byte-parity-checker
+  - skills/export-manager
+  - skills/runtime-author
+  - skills/scope-compliance
 commands:
   - commands/plan.md
   - commands/build.md
@@ -84,11 +113,18 @@ templates:
   - templates/planning/TASKS.md
   - templates/planning/TASK_PACKET.md
   - templates/planning/ACCEPTANCE.md
+  - templates/planning/CLARIFICATION_LOG.md
+  - templates/planning/RESEARCH_REQUEST.md
+  - templates/planning/PLAN_OF_PLAN.md
+  - templates/planning/DEPENDENCIES.md
+  - templates/planning/SCOPE_ESTIMATE.md
+  - templates/planning/MODE_DECISION.md
   - templates/report/build.md
   - templates/report/feature.md
   - templates/report/fix.md
   - templates/review/review.md
   - templates/review/test.md
+  - templates/review/TEST_REPORT.md
 rules:
   - rules/system-rules.md
   - rules/architecture-constitution.md
@@ -110,3 +146,4 @@ workflows:
   - workflows/review.md
   - workflows/fix.md
   - workflows/small-task.md
+  - workflows/project-lead-operating-protocol.md

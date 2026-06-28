@@ -5,10 +5,8 @@ mode: subagent
 model: standard
 temperature: 0.0
 delegates: []
-runtimes: [opencode, claude-code]
+runtimes: [opencode, claude]
 skills: [constitution-checks]
-primary: false
-summary: Audits a plan/spec against the 12 architecture constitution rules — calls the L1 script, returns pass/warn/fail per rule with evidence.
 tools: [read, grep, glob, bash]
 export_scope: full
 permissions:
@@ -16,7 +14,6 @@ permissions:
   webfetch: deny
   websearch: deny
   file_write: deny
-deny_floor: {bash: {git commit: deny, git push: deny, 'python .aspis/scripts/planning/*': allow, '*': deny}, webfetch: deny, websearch: deny, file_write: deny}
 ---
 
 # Constitution Checker
