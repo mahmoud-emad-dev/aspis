@@ -18,12 +18,13 @@ permissions:
     "pytest*": allow
     "uv run pytest*": allow
     "ruff check*": allow
-    "python .aspis/scripts/context/*": allow
+    "python*": allow            # any python invocation — building/testing/gating requires it
+    "uv run python*": allow     # uv-managed python for gate runs
     "git status*": allow
     "git diff*": allow
     "git log*": allow
     "aspis preflight*": allow
-    "aspis findings*": allow # inspect open guard findings before building (prestart-checks)
+    "aspis findings*": allow    # inspect open guard findings before building (prestart-checks)
     "git commit*": deny
     "git push*": deny
   edit:
