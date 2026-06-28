@@ -8,13 +8,13 @@ templates — no runtime-specific logic lives here.
 
 from __future__ import annotations
 
-import subprocess
 import sys
 
 from aspis import detect, resources
 from aspis.constants import BRAIN_DIR, INIT_COMMIT_MESSAGE
 from aspis.export import plan_export, write_export
 from aspis.lifecycle import Context, Engine
+from aspis.operations._proc import run_quiet
 from aspis.profiles import Profile, load_merged
 from aspis.runtimes import get_adapter
 from aspis.templating import render
@@ -177,7 +177,7 @@ def _git_init(ctx: Context, *, write: bool) -> None:
         return
     ctx.log("git init")
     if write:
-        subprocess.run(["git", "init", "-q"], cwd=str(ctx.root), capture_output=True, check=False)
+        run_quiet(["git", "init", "-q"], cwd=ctx.root)
 
 
 def _install_git_hooks(ctx: Context, *, write: bool) -> None:
@@ -187,12 +187,7 @@ def _install_git_hooks(ctx: Context, *, write: bool) -> None:
         return
     ctx.log("install git hooks (.git/hooks)")
     if write and installer.is_file():
-        subprocess.run(
-            [sys.executable, str(installer), str(ctx.root)],
-            cwd=str(ctx.root),
-            capture_output=True,
-            check=False,
-        )
+        run_quiet([sys.executable, str(installer), str(ctx.root)], cwd=ctx.root)
 
 
 def register(engine: Engine) -> None:

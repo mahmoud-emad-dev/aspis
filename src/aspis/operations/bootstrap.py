@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import re
 import shutil
-import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -28,6 +27,7 @@ from aspis import (
 from aspis.constants import BRAIN_DIR, INIT_COMMIT_MESSAGE
 from aspis.health import run_checks
 from aspis.lifecycle import Context, Engine
+from aspis.operations._proc import run_quiet
 from aspis.runtimes import runtime_dirs
 
 # The transient onboarding package: shipped by init, removed once the project is
@@ -155,9 +155,7 @@ def _run_brain_fill(ctx: Context, *, write: bool) -> None:
         return
     ctx.log("brain fill: .aspis/scripts/context/update.py")
     if write:
-        subprocess.run(
-            [sys.executable, str(script), str(ctx.root)], capture_output=True, check=False
-        )
+        run_quiet([sys.executable, str(script), str(ctx.root)])
 
 
 def _promote_leads(ctx: Context, *, write: bool) -> None:
@@ -184,12 +182,7 @@ def _enrich_gitignore(ctx: Context, state: dict, *, write: bool) -> None:
         return
     ctx.log(f"enrich .gitignore for stack: {stack}")
     if write:
-        subprocess.run(
-            [sys.executable, str(script), stack],
-            cwd=str(ctx.root),
-            capture_output=True,
-            check=False,
-        )
+        run_quiet([sys.executable, str(script), stack], cwd=ctx.root)
 
 
 def _detect_runtimes(ctx: Context, *, write: bool) -> None:
@@ -216,11 +209,9 @@ def _sync_models(ctx: Context, *, write: bool) -> None:
     """
     ctx.log("models --sync (write agent-models.yaml)")
     if write:
-        subprocess.run(
+        run_quiet(
             [sys.executable, "-m", "aspis.cli", "models", "--sync", "--path", str(ctx.root)],
-            cwd=str(ctx.root),
-            capture_output=True,
-            check=False,
+            cwd=ctx.root,
         )
 
 
