@@ -41,6 +41,8 @@ skills:
   - security-review
   - constitution-check
   - evidence-validation
+  - commit-readiness
+  - finding-format
 export_scope: full
 runtimes: [opencode, claude]
 ---

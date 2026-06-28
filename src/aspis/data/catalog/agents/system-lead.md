@@ -52,6 +52,10 @@ skills:
   - catalog-validator
   - governance-approval
   - drift-detector
+  - hook-author
+  - profile-manager
+  - model-inventory
+  - model-router
 runtimes: [opencode, claude]
 ---
 

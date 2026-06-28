@@ -101,6 +101,12 @@ skills:
   - skills/export-manager
   - skills/runtime-author
   - skills/scope-compliance
+  - skills/commit-readiness
+  - skills/finding-format
+  - skills/hook-author
+  - skills/profile-manager
+  - skills/model-inventory
+  - skills/model-router
 commands:
   - commands/plan.md
   - commands/build.md
