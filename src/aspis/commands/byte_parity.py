@@ -158,7 +158,7 @@ def _index_agent_stems(catalog: Path) -> set[str]:
 def _check_agent(
     action: ExportAction,
     project_config: dict,
-    inventory: "dict[str, RuntimeInventory] | None",
+    inventory: dict[str, RuntimeInventory] | None,
     skill_dirs: set[str],
     agent_stems: set[str],
 ) -> tuple[str, str]:
