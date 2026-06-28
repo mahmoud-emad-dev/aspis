@@ -1,9 +1,28 @@
 """Runtime adapter interface + shared rendering helpers.
 
-Each runtime tool (OpenCode, Claude Code, ...) gets one adapter module that
-turns a parsed catalog asset into that runtime's on-disk format. The transformer
-dispatches to the right adapter, so adding a runtime is adding a module and
-registering it — no change to the transformer.
+Purpose:
+    Define the RuntimeAdapter contract every runtime implements, plus the
+    shared behaviour (model resolution, capability checks, runtime-hook
+    placement, frontmatter rendering) so each concrete adapter writes only
+    what genuinely differs. The transformer dispatches to the right adapter,
+    so adding a runtime is one module — no change to the transformer.
+
+Responsibilities:
+    - The RuntimeAdapter ABC: render_agent / render_command (abstract),
+      supports(kind), detect(), model_string(), and the declarative facts
+      loaded from data/runtimes/<name>.yaml.
+    - RuntimeInventory: the per-machine record of a runtime's provider/model
+      presence.
+    - to_frontmatter: the one YAML-frontmatter renderer every adapter shares.
+
+Does Not:
+    - Name or special-case any concrete runtime — capabilities decide
+      behaviour, not names.
+    - Read profiles or write exports (that is aspis.export's job).
+
+Used By:
+    aspis.transform, aspis.export, aspis.runtimes.{opencode,claude}, and the
+    models / detection layer.
 """
 
 from __future__ import annotations

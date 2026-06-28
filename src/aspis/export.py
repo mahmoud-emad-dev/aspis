@@ -185,6 +185,25 @@ def _append_log(target_root: Path, entries: list[dict]) -> None:
             fh.write(json.dumps(entry) + "\n")
 
 
+def _log_entry(
+    path: str,
+    kind: str,
+    action: str,
+    *,
+    live: str | None = None,
+    snapshot: str | None = None,
+    regen: str | None = None,
+) -> dict:
+    """Build one audit-log record — the single shape written to ``export-log.jsonl``."""
+    return {
+        "timestamp": datetime.datetime.now(datetime.UTC).isoformat(),
+        "path": path,
+        "kind": kind,
+        "action": action,
+        "hashes": {"live": live, "snapshot": snapshot, "regen": regen},
+    }
+
+
 def _hash_file(path: Path) -> str | None:
     """Return the normalized SHA-256 hash of *path* if it is a file, else ``None``."""
     if path.is_file():
@@ -235,7 +254,6 @@ def _pid_alive(pid: int) -> bool:
     # Windows
     try:
         SYNCHRONIZE = 0x00100000
-        WAIT_OBJECT_0 = 0x00000000
         WAIT_TIMEOUT = 0x00000102
         handle = ctypes.windll.kernel32.OpenProcess(SYNCHRONIZE, False, pid)
         if not handle:
@@ -262,10 +280,15 @@ def _acquire_lock(lock_path: Path) -> None:
                 existing_pid = int(lock_path.read_text(encoding="utf-8").strip())
             except Exception:
                 pass
-            if existing_pid is not None and existing_pid != os.getpid() and _pid_alive(existing_pid):
+            held_by_other = (
+                existing_pid is not None
+                and existing_pid != os.getpid()
+                and _pid_alive(existing_pid)
+            )
+            if held_by_other:
                 raise ProtectionError(
                     f"export already in progress (lock held by PID {existing_pid})"
-                )
+                ) from None
             lock_path.unlink(missing_ok=True)
 
     try:
@@ -400,15 +423,7 @@ def _write_force(
                 live_hash = _hash_file(destination)
                 if live_hash is not None and paths is not None:
                     paths[target_posix] = live_hash
-                    log_entries.append(
-                        {
-                            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-                            "path": target_posix,
-                            "kind": "FORCE",
-                            "action": "wrote",
-                            "hashes": {"live": live_hash, "snapshot": None, "regen": None},
-                        }
-                    )
+                    log_entries.append(_log_entry(target_posix, "FORCE", "wrote", live=live_hash))
 
     if effective_write and snapshot is not None:
         _save_snapshot(target_root, snapshot)
@@ -468,10 +483,10 @@ def _write_decide(
         elif decision.kind == DecisionKind.UNKNOWN:
             should_write = False
             # Record the live hash so a future run can classify this file as
-            # UNCHANGED/UPDATE/PROTECT instead of UNKNOWN forever. This follows
-            # PLAN §2.2 step 5 and intentionally deviates from the SPEC
-            # clarification ("snapshot only records what was written") — see
-            # build-lead decision D-U2-2 in Unit-2-build-report.md.
+            # UNCHANGED/UPDATE/PROTECT instead of UNKNOWN forever. This means the
+            # snapshot records files we *observed*, not only files we wrote — a
+            # deliberate choice so an externally-created file becomes tracked on
+            # the next run instead of staying UNKNOWN indefinitely.
             if live_hash is not None:
                 paths[target_posix] = live_hash
             action_str = "preserved"
@@ -492,21 +507,22 @@ def _write_decide(
                 _apply(action, destination, project_config, inventory)
                 paths[target_posix] = regen_hash
         else:
-            hint = " (use --force-conflicts to overwrite)" if decision.kind is DecisionKind.CONFLICT else ""
+            hint = (
+                " (use --force-conflicts to overwrite)"
+                if decision.kind is DecisionKind.CONFLICT
+                else ""
+            )
             performed.append(f"{decision.kind.value}: {action.target}{hint}")
 
         log_entries.append(
-            {
-                "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-                "path": target_posix,
-                "kind": decision.kind.value,
-                "action": action_str,
-                "hashes": {
-                    "live": live_hash,
-                    "snapshot": snapshot_hash,
-                    "regen": regen_hash,
-                },
-            }
+            _log_entry(
+                target_posix,
+                decision.kind.value,
+                action_str,
+                live=live_hash,
+                snapshot=snapshot_hash,
+                regen=regen_hash,
+            )
         )
 
         if strict and decision.kind in (DecisionKind.CONFLICT, DecisionKind.PROTECT):
@@ -515,7 +531,8 @@ def _write_decide(
                 _append_log(target_root, log_entries)
             if decision.kind is DecisionKind.CONFLICT:
                 raise ProtectionError(
-                    f"conflict on {action.target}: both user and catalog changed (use --force-conflicts to overwrite)"
+                    f"conflict on {action.target}: both user and catalog changed "
+                    f"(use --force-conflicts to overwrite)"
                 )
             raise ProtectionError(
                 f"protected on {action.target}: user-customized file skipped "

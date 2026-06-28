@@ -20,7 +20,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from aspis import project, resources
+from aspis import resources
 from aspis.constants import BRAIN_DIR
 from aspis.export import ProtectionError, plan_export, write_export
 from aspis.profiles import Profile, load_profile
@@ -84,7 +84,7 @@ def _resolve_profile(name: str, runtimes: list[str] | None) -> Profile:
 
 
 def _run(args: argparse.Namespace) -> int:
-    """Plan the export; with ``--apply`` (or ``--force``) execute it through the same writer init uses."""
+    """Plan the export; with ``--apply``/``--force`` execute it via the writer init uses."""
     root = Path(args.path).resolve()
 
     if not (root / BRAIN_DIR).is_dir():
@@ -106,7 +106,10 @@ def _run(args: argparse.Namespace) -> int:
     if present:
         profile = profile.model_copy(update={"runtimes": present})
     if not profile.runtimes:
-        print("no runtime directories present (no .opencode / .claude / ...) -- run `aspis init` first.")
+        print(
+            "no runtime directories present (no .opencode / .claude / ...) "
+            "-- run `aspis init` first."
+        )
         return 1
 
     plan = plan_export(resources.catalog_dir(), profile)
