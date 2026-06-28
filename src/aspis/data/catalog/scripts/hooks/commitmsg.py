@@ -91,7 +91,9 @@ def validate(message: str, convention: dict[str, Any]) -> list[str]:
     if types and match["type"] not in types:
         errors.append(f"type '{match['type']}' is not one of {types}")
     if match["scope"] is not None and not _SCOPE.match(match["scope"]):
-        errors.append(f"scope '{match['scope']}' must be F-NNN, F-NNN/SYS, F-NNN/T-NN, or F-NNN/T-NN..T-MM")
+        errors.append(
+            f"scope '{match['scope']}' must be F-NNN, F-NNN/SYS, F-NNN/T-NN, or F-NNN/T-NN..T-MM"
+        )
 
     max_len = int((convention.get("subject") or {}).get("max_length") or 72)
     if len(subject) > max_len:

@@ -77,7 +77,10 @@ def _run(args: argparse.Namespace) -> int:
         return code or 1
 
     # Stage exactly the named paths — never `git add -A`.
-    subprocess.run(["git", "-C", str(root), "add", "--", *args.paths], check=False)
+    add = subprocess.run(["git", "-C", str(root), "add", "--", *args.paths])
+    if add.returncode != 0:
+        sys.stderr.write("[aspis commit] staging failed — nothing committed\n")
+        return 1
 
     # Commit via a message file so the full body (and the hooks) are honoured.
     with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False, encoding="utf-8") as handle:
