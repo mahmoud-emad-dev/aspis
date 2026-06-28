@@ -13,7 +13,6 @@ import hashlib
 import pytest
 
 from aspis.protect import (
-    Decision,
     DecisionKind,
     decide,
     plan_runtime,
@@ -199,7 +198,7 @@ class TestDecideOrdering:
 
     def test_decision_is_frozen(self):
         d = decide(H1, H2, H3)
-        with pytest.raises(Exception):
+        with pytest.raises(AttributeError):
             d.live_hash = H2  # type: ignore[misc]
 
 

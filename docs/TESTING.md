@@ -154,10 +154,17 @@ nature-based ignore (generated/state ignored, source/durable tracked) without ne
 
 ## S9 — Catalog ↔ export parity (in the ASPIS repo)
 ```
-uv run pytest -k "regenerate or parity" -q
+uv run pytest tests/test_catalog.py tests/test_consistency.py -v
 ```
 Expect: the runtime-neutral catalog reproduces the live `.claude/` and `.opencode/`
 byte-for-byte — the moat that proves there is no second source of truth. ❌ on any drift.
+
+`test_catalog.py` exercises the catalog → per-runtime rendering (agents, skills,
+commands, plugins ship into `.claude/` and `.opencode/` for every bundled lead);
+`test_consistency.py` is the machine-checked "nothing is missing" guard (every
+asset a profile selects exists, every skill and delegate an agent references ships
+in that profile, every command binds to a shipped agent). Together they are the
+narrowest suite that enforces the S9 invariant.
 
 ---
 

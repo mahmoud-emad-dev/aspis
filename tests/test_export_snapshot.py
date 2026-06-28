@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from aspis.export import _append_log, _hash_file, _load_snapshot, _save_snapshot
+from aspis.export import ProtectionError, _append_log, _hash_file, _load_snapshot, _save_snapshot
 from aspis.protect import sha256_text
 
 
@@ -27,7 +27,7 @@ def test_load_snapshot_raises_on_corrupted_json(tmp_path: Path) -> None:
     path = tmp_path / ".aspis" / "current" / "export-snapshot.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("not json at all", encoding="utf-8")
-    with pytest.raises(Exception):
+    with pytest.raises(ProtectionError):
         _load_snapshot(tmp_path)
 
 
