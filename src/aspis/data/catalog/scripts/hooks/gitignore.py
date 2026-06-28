@@ -34,6 +34,22 @@ _BEGIN = "# >>> aspis gitignore ({stack}) >>>"
 _END = "# <<< aspis gitignore <<<"
 
 
+def project_root() -> Path:
+    """The project whose `.gitignore` we maintain.
+
+    The nearest ancestor of the cwd that holds a `.aspis/` brain, else the enclosing
+    git repo, else the cwd. Anchoring on `.aspis` keeps the ignore block in the
+    project's own `.gitignore` even when the project is not its own git repo but sits
+    inside a larger one (e.g. a home directory that is itself a repo) — otherwise the
+    block would land in the wrong, outer `.gitignore`.
+    """
+    cwd = Path.cwd().resolve()
+    for candidate in (cwd, *cwd.parents):
+        if (candidate / ".aspis").is_dir():
+            return candidate
+    return _git.repo_root()
+
+
 def detect_stack(root: Path) -> str:
     """Project stack, reusing the engine's detector when available."""
     try:
@@ -119,7 +135,7 @@ def main(argv: list[str] | None = None) -> int:
     and ``aspis gitignore "py, fastapi"`` both resolve to the python block.
     """
     args = argv if argv is not None else sys.argv[1:]
-    root = _git.repo_root()
+    root = project_root()
     raw = " ".join(args) if args else detect_stack(root)
     stacks = resolve_stacks(raw, root)
     changed = ensure(root, raw)
