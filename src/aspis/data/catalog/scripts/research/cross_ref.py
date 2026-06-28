@@ -27,16 +27,55 @@ import re
 import sys
 from pathlib import Path
 
-# Reference patterns in agent body text
-REF_PATTERNS = {
-    "skill": re.compile(r"(?i)(?:skills?|skill):\s*\[?([^\],\n]+)\]?"),
-    "workflow": re.compile(r"(?i)(?:workflows?|workflow):\s*\[?([^\],\n]+)\]?"),
-    "delegate": re.compile(r"(?i)(?:delegates?|delegate):\s*\[?([^\],\n]+)\]?"),
-    "runtime": re.compile(r"(?i)(?:runtimes?|runtime):\s*\[?([^\],\n]+)\]?"),
-}
 
-# Known runtime names
-KNOWN_RUNTIMES = {"opencode", "claude", "all"}
+def _frontmatter(text: str) -> str:
+    """Return the YAML frontmatter block (between the first two ``---`` fences)."""
+    if not text.startswith("---"):
+        return ""
+    end = text.find("\n---", 3)
+    return text[3:end] if end != -1 else ""
+
+
+def _list_field(frontmatter: str, key: str) -> set[str]:
+    """Parse a YAML list field (flow ``[a, b]`` or block ``- a``) from the
+    frontmatter, stripping inline ``#`` comments, quotes, and brackets.
+
+    Deliberately a small stdlib parser, not a full YAML load — we only need the
+    three list fields this tool checks. Parsing the structured frontmatter (not
+    scraping the whole body) is what keeps references free of false positives.
+    """
+    items: set[str] = set()
+    lines = frontmatter.splitlines()
+    for i, line in enumerate(lines):
+        m = re.match(rf"\s*{key}:\s*(.*)$", line)
+        if not m:
+            continue
+        rest = re.sub(r"\s+#.*$", "", m.group(1)).strip()
+        if rest.startswith("["):  # flow list on the same line
+            for it in rest.strip("[]").split(","):
+                it = it.strip().strip("\"'")
+                if it and it != "none":
+                    items.add(it)
+        else:  # block list on the following indented "- " lines
+            for nxt in lines[i + 1:]:
+                bm = re.match(r"\s*-\s+(.*)$", nxt)
+                if not bm:
+                    if nxt.strip():  # a non-list, non-blank line ends the block
+                        break
+                    continue
+                it = re.sub(r"\s+#.*$", "", bm.group(1)).strip().strip("\"'")
+                if it and it != "none":
+                    items.add(it)
+        break
+    return items
+
+
+def discover_runtimes(catalog_dir: Path) -> set[str]:
+    """Discover runtime names from ``data/runtimes/*.yaml`` (sibling of the
+    catalog) so the set is not hand-maintained. Falls back to the shipped two."""
+    rt_dir = catalog_dir.parent / "runtimes"
+    names = {p.stem for p in rt_dir.glob("*.yaml")} if rt_dir.exists() else set()
+    return (names or {"opencode", "claude"}) | {"all"}
 
 
 def find_catalog_files(catalog_dir: Path) -> list[Path]:
@@ -68,23 +107,24 @@ def find_workflow_files(project_root: Path) -> set[str]:
     return workflows
 
 
-def extract_references(text: str) -> dict[str, set[str]]:
-    """Extract all references from agent body text."""
-    refs = {}
-    for ref_type, pattern in REF_PATTERNS.items():
-        found = set()
-        for match in pattern.finditer(text):
-            ref_text = match.group(1).strip()
-            # Skip empty brackets like "[]"
-            if ref_text in ("", "[", "]", "[]"):
-                continue
-            # Split on commas and clean
-            for item in re.split(r"[,|]\s*", ref_text):
-                item = item.strip().strip('"').strip("'").strip("[").strip("]")
-                if item and item not in ("", "none"):
-                    found.add(item)
-        refs[ref_type] = found
-    return refs
+def extract_references(text: str, known_workflows: set[str]) -> dict[str, set[str]]:
+    """Extract structured references from one agent body.
+
+    ``skills`` / ``delegates`` / ``runtimes`` come from the YAML frontmatter —
+    the authoritative, structured source. Workflow references are detected by
+    scanning the prose body for known workflow names as whole words, since
+    agents cite workflows in prose, not in a frontmatter field. (Limiting
+    workflow matches to *known* names means a workflow ref can never be a false
+    "broken" — only orphan detection uses it.)
+    """
+    fm = _frontmatter(text)
+    body = text[len(fm) + 3:] if fm else text
+    return {
+        "skill": _list_field(fm, "skills"),
+        "delegate": _list_field(fm, "delegates"),
+        "runtime": _list_field(fm, "runtimes"),
+        "workflow": {w for w in known_workflows if re.search(rf"\b{re.escape(w)}\b", body)},
+    }
 
 
 def resolve_references(
@@ -92,6 +132,7 @@ def resolve_references(
     known_skills: set[str],
     known_workflows: set[str],
     known_agents: set[str],
+    known_runtimes: set[str],
 ) -> list[dict]:
     """Resolve all references and return results."""
     results = []
@@ -106,7 +147,7 @@ def resolve_references(
                 elif ref_type == "delegate":
                     resolved = ref in known_agents
                 elif ref_type == "runtime":
-                    resolved = ref in KNOWN_RUNTIMES or ref in known_agents
+                    resolved = ref in known_runtimes or ref in known_agents
                 else:
                     resolved = False
 
@@ -191,6 +232,7 @@ def main(argv: list[str] | None = None) -> int:
     known_agents = {f.stem for f in agent_files}
     known_skills = find_skill_files(catalog_dir)
     known_workflows = find_workflow_files(project_root)
+    known_runtimes = discover_runtimes(catalog_dir)
 
     # Extract references from each agent
     agent_refs = {}
@@ -200,10 +242,12 @@ def main(argv: list[str] | None = None) -> int:
             text = agent_file.read_text(encoding="utf-8")
         except OSError:
             continue
-        agent_refs[agent_name] = extract_references(text)
+        agent_refs[agent_name] = extract_references(text, known_workflows)
 
     # Resolve
-    results = resolve_references(agent_refs, known_skills, known_workflows, known_agents)
+    results = resolve_references(
+        agent_refs, known_skills, known_workflows, known_agents, known_runtimes
+    )
 
     if args.json:
         summary = {
