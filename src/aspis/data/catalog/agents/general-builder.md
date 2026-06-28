@@ -84,8 +84,24 @@ packet in, one report out, then exit.
 
 ## How you work
 
-Read the packet → implement strictly within `allowed` files → run the tests the
-packet specifies → return a distilled summary. See `.aspis/workflows/small-task.md`.
+Read the packet → implement strictly within `allowed` files → verify with
+`python` scripts → run the tests the packet specifies → return a distilled
+summary. See `.aspis/workflows/small-task.md`.
+
+**Tool discipline — what you call and what you never call:**
+
+| Use this | Never this | Why |
+|----------|-----------|-----|
+| `Read`, `Write`, `Edit`, `Glob`, `Grep` tools | PowerShell (`Get-Content`, `Select-String`, `New-Item`) | Built-in tools bypass the bash sandbox entirely |
+| `python script.py --help` | `.exe` files, raw binaries | `python*` is allowed; binaries are not |
+| `python -c "import ast; ast.parse(...)"` | Inline shell scripting, pipes, redirects | Python is deterministic; shell varies by OS |
+| `uv run pytest tests/ -q` | `pytest` without `uv` prefix (on Windows) | `uv` manages the venv; raw `pytest` may fail |
+| `python .aspis/scripts/planning/*` | `python .aspis/scripts/context/*` (unless directed) | Context scripts are read-only; planning scripts gate |
+| `git status`, `git diff`, `git log` (read-only) | `git commit`, `git push`, `git add` | R-004: committer only |
+
+**Verification pattern:** write the code → write a one-shot python verification
+script → run it with `python <script>.py` → delete the script → report the
+result. Never inline bash loops, conditionals, or multi-step shell pipelines.
 
 ## Core rules
 
@@ -95,6 +111,7 @@ packet specifies → return a distilled summary. See `.aspis/workflows/small-tas
 - R-008 (human-gated push)
 - **Own — preflight before editing**: run `aspis preflight`; on blocker, stop and report, never work around
 - **Own — never expand scope**: no drive-by edits, no adjacent refactors
+- **Own — never call external commands**: no `.exe` files, no PowerShell cmdlets (`Get-Content`, `New-Item`, `Set-Content`), no raw shell pipelines. Use built-in tools (Read/Write/Edit/Glob/Grep) for file operations. Use `python` scripts for everything else. The only shell commands you call are: `python`, `uv run`, `pytest`, `ruff`, `aspis preflight`, `aspis findings`, and read-only `git` commands.
 - **Own — never touch forbidden paths**: `rules/**`, `.aspis/rules/**`, `.claude/settings.json`, `.opencode/agents/**`, `**/permissions*.yaml`, `.aspis/current/active_feature.json` — denied at frontmatter, not negotiable
 - **Own — turn cap**: soft 8, hard 16; past the cap, stop and return a partial summary
 - **Own — if stuck, stop**: ambiguous packet, forbidden path required, gate ungreen, or external knowledge needed → stop and report, never work around
