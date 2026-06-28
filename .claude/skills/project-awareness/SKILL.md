@@ -18,8 +18,9 @@ At the start of handling any request, and whenever you need current project fact
 
 ## Procedure
 
-1. **Refresh if stale.** When the project may have changed since the brain was
-   last built, regenerate it first: `python .aspis/scripts/context/update.py`.
+1. **Refresh if stale.** When the project may have changed since the brain was last built,
+   run `aspis context` — it refreshes the brain and prints the live state in one call (don't
+   run the updater scripts by hand).
 2. **Live state.** Read `.aspis/context/CURRENT_STATE.md` (where things stand) and
    `.aspis/context/RECENT_CHANGES.md` (what changed, newest first).
 3. **Locate.** Query `.aspis/index/FILE_REGISTRY.yaml` to find files and what each
@@ -31,7 +32,8 @@ At the start of handling any request, and whenever you need current project fact
 5. **Working state.** Confirm with read-only checks: `git status`, `git log`.
 6. **Deeper exploration.** For usages or relationships beyond the map, delegate to
    `project-explorer` and consume its compact findings.
-7. Stop as soon as you have enough for the task — never load the whole project.
+7. Stop as soon as you have enough for the task — never load the whole project. Load in
+   levels per the `context-ladder` skill (L1 hot context → L4 only the source the task touches).
 
 ## Outputs
 
