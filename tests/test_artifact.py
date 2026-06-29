@@ -60,6 +60,23 @@ def test_artifact_is_mode_gated(tmp_path) -> None:
     assert (root / ".aspis" / "features" / "F-001-demo" / "reports" / "T-01-build.md").is_file()
 
 
+def test_architecture_impact_created_in_production(tmp_path) -> None:
+    root = _project(tmp_path)
+    rc = main(["artifact", "architecture-impact", "--path", str(root)])
+    assert rc == 0
+    report = root / ".aspis" / "features" / "F-001-demo" / "ARCHITECTURE_IMPACT.md"
+    assert report.is_file()
+    assert "F-001" in report.read_text(encoding="utf-8")
+
+
+def test_architecture_impact_skipped_in_vibe(tmp_path) -> None:
+    # vibe (architecture: skip) does not earn an impact report — matches the loop gating.
+    root = _project(tmp_path, mode="vibe")
+    rc = main(["artifact", "architecture-impact", "--path", str(root)])
+    assert rc == 0
+    assert not (root / ".aspis" / "features" / "F-001-demo" / "ARCHITECTURE_IMPACT.md").exists()
+
+
 def test_artifact_does_not_overwrite_without_force(tmp_path) -> None:
     root = _project(tmp_path)
     main(["artifact", "review", "--task", "T-02", "--path", str(root)])
