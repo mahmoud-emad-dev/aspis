@@ -66,6 +66,12 @@ def register(subparsers: argparse._SubParsersAction) -> None:
         dest="reset_snapshot",
         help="Discard a corrupt snapshot and rebuild it.",
     )
+    parser.add_argument(
+        "--no-onboard",
+        action="store_true",
+        dest="no_onboard",
+        help="After init, don't offer to continue onboarding (just print guidance).",
+    )
     parser.set_defaults(func=_run)
 
 
@@ -74,8 +80,10 @@ def _run(args: argparse.Namespace) -> int:
     # --force-conflicts and --strict are contradictory: one permits conflicts,
     # the other forbids them. Reject with a clear error before doing any work.
     if args.force_conflicts and args.strict:
-        print("error: --force-conflicts and --strict are contradictory "
-              "(one permits conflicts, one forbids them).")
+        print(
+            "error: --force-conflicts and --strict are contradictory "
+            "(one permits conflicts, one forbids them)."
+        )
         return 2
 
     effective_write = bool(args.write or args.apply)
@@ -112,9 +120,25 @@ def _run(args: argparse.Namespace) -> int:
         print(f"  aspis init {args.path} --write")
         return 0
 
-    print("\nInitialized. Next:")
-    print("  1. aspis bootstrap --write   # make the project live (sets goal, promotes leads)")
-    print("  2. aspis models --sync       # assign a model to each agent for this machine")
-    print("  3. open AGENTS.md            # the project's entry point")
-    print("  4. start your runtime        # OpenCode, or add --runtime claude for Claude Code")
+    # Guided follow-through (setup-workflow): show where the project is + what to do next,
+    # and — on a real TTY — offer to continue onboarding straight away (never blocks CI).
+    import sys
+
+    from aspis.operations import setup_workflow
+
+    print("\nInitialized.\n")
+    state, guidance = setup_workflow.guide(ctx.root)
+    print(guidance)
+
+    if setup_workflow.next_step(state) == "onboard" and sys.stdin.isatty() and not args.no_onboard:
+        try:
+            answer = input("\nContinue onboarding now? [Y/n]: ").strip().lower()
+        except EOFError:
+            answer = "n"
+        if answer in ("", "y", "yes"):
+            engine.run("bootstrap", ctx.root, write=True)
+            return 0
+        setup_workflow.mark(ctx.root, setup_workflow.SKIPPED)
+
+    print("\nContinue when ready:  aspis bootstrap --write   (the project is already valid)")
     return 0

@@ -123,10 +123,21 @@ def project_mode(root: Path) -> str:
     return "empty"
 
 
+def detect_stacks(root: Path) -> list[str]:
+    """Every stack with at least one marker file present, in definition order (may be empty).
+
+    The basis for confidence: one match is a confident guess, several is ambiguous, none
+    is unknown. ``detect_stack`` stays the single-value convenience over this.
+    """
+    markers, _, _, _ = _maps()
+    found: list[str] = []
+    for marker, stack in markers:
+        if stack not in found and (root / marker).exists():
+            found.append(stack)
+    return found
+
+
 def detect_stack(root: Path) -> str:
     """Return the project's stack from the marker files in data/stacks.yaml, or 'unknown'."""
-    markers, _, _, _ = _maps()
-    for marker, stack in markers:
-        if (root / marker).exists():
-            return stack
-    return "unknown"
+    found = detect_stacks(root)
+    return found[0] if found else "unknown"

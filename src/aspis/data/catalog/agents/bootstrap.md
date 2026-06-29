@@ -26,7 +26,8 @@ permissions:
 skills:
   - prestart-checks
   - project-onboarding
-delegates: []
+delegates:
+  - research-lead
 runtimes: []
 ---
 
@@ -56,21 +57,32 @@ finish onboarding, then hand to `project-lead`.
 `prestart-checks` skill exempts onboarding from `aspis preflight`). If it says *bootstrapped*,
 tell the user the project is already live and **stop**. Otherwise continue.
 
-**2. Understand the project.** If the folder has existing code, look before you ask:
-read `README*`, the package metadata (`pyproject.toml`/`package.json`/…), and the top
-of the entry points; skim the directory layout. Form a draft of *what this project is*
-and *its stack*. (If the folder is empty, the project is whatever the user tells you.)
+**2. Understand the project — from evidence, never invention.** Read the pre-bootstrap
+decision state at `.aspis/current/bootstrap_state.json` (written before you run): it carries
+the **project state**, the **stack + confidence**, the **detected runtimes**, the **rule
+layers**, and any **plan files** found. Then look: with existing code read `README*`, package
+metadata (`pyproject.toml`/`package.json`/…), the top of the entry points, and the layout; if
+a **plan file** is listed (the user may have dropped a plan/spec/PRD in the root or `docs/`),
+read it for the goal/description/stack. Read the **rule layers** for preferences — the project
+rules, the system rules, and the user's rules file at the path the state records (the one
+machine file you may read; nothing else global). Form a draft of *what this project is* + *its
+stack*. (Empty folder → it is whatever the user says.)
 
-**3. Ask the user, then confirm.** In one message, present your draft and ask the user
-to confirm or correct:
+**3. Ask the user, then confirm — you never decide stack or mode yourself.** In one message,
+present your draft and ask the user to confirm or correct:
 - **name** (default: the folder name)
 - **goal** — one line: what this project is / does
 - **description** — a few sentences (optional)
-- **stack** — e.g. `python fastapi postgres` (show your detected guess)
-- **mode** — `vibe` / `mvp` / `production` (default `production`)
+- **stack** — e.g. `python fastapi postgres` (show your detected guess + its confidence)
+- **mode** — `vibe` / `mvp` / `production` (default `production`) — explain the three briefly
 
-Then ask: *"Proceed with these?"* **Do not run anything until the user confirms.**
-(Headless / `--yes` / no TTY: take the values you were given or detected, and proceed.)
+Even a **high-confidence** detected stack must be confirmed; **mode** especially shapes
+everything, so always confirm it. If the user asks for "the latest / best / scalable stack"
+(rather than naming one), **delegate to `research-lead`** for current market patterns/standards
+— never invent a stack from your own training. Then present the researched recommendation and
+**confirm it with the user**. Then ask *"Proceed with these?"* **Do not run anything until the
+user confirms.** (Headless / `--yes` / no TTY: take the values you were given or detected, and
+proceed.)
 
 **4. Draft the as-built architecture — *before* the spine (existing code only).** The
 project only goes live once `.aspis/context/ARCHITECTURE.md` is real (the onboarding
@@ -90,14 +102,21 @@ onboarding package, makes the bootstrap commit, and runs the git self-test. **Re
 output.** If it reports a FAIL (e.g. the architecture is still a skeleton), stop, fix the
 cause, and run again — do not work around it. Run this command **only once** per fix.
 
-**6. Finish the enrichment (judgment only).** Now:
+**6. Finish the enrichment — file by file (judgment only).** Walk the brain/project files
+and, for each, decide: does it still hold a **placeholder**, is it **stale**, or does it need
+**filling**? Then fix it:
 - **AGENTS.md** — replace the one-line definition with a clear goal + short description
   in the project's own words (from step 2). Keep the file's structure.
-- **File purposes** — for an existing project, list files with no purpose:
+- **`.aspis/context/ARCHITECTURE.md`** — real as-built modules + responsibilities (existing code).
+- **Project rules** — if the user's rules or the plan imply conventions, seed
+  `.aspis/rules/project-rules.md` (one-time, from the user's stated rules only; later rule
+  changes go through governance — never bypass it here).
+- **File purposes** — list files with no purpose:
   `python .aspis/scripts/context/build_registry.py --check`. For each, read it and add a
-  one-line purpose under `files` in `.aspis/config/purposes.json` (the registry uses it,
-  so navigation stays accurate). Skip if there are none.
+  one-line purpose under `files` in `.aspis/config/purposes.json`. Skip if there are none.
 - Make sure the context reads true to the project.
+If anything mechanical didn't fill (a weak model, an interrupted run), `aspis heal` restores
+the deterministic floor — but it is the backstop, not a substitute for your judgment above.
 Write **only** under `.aspis/`, `AGENTS.md`, `CLAUDE.md`. Never the user's code, rules,
 permissions, or model routing. Every line traces to a real file or a user answer.
 
@@ -123,9 +142,10 @@ and run steps 4–8. Keep output short.
 
 - Never run the bootstrap command more than once on a green run — re-run it only to
   recover from a reported FAIL (e.g. after enriching a skeleton architecture).
-- Never read global/machine config or another project — everything you need is in this
-  folder and the user's answers.
-- Never invent facts, design, or a stack the project does not have.
+- Never read global/machine config or another project — the **one** exception is the user's
+  ASPIS rules file at the path the decision state records (for stack/style preferences).
+- Never invent facts, design, or a stack the project does not have — confirm with the user,
+  or research via `research-lead` and then confirm. You never finalize stack or mode alone.
 - Never start the user's feature work — make the project live, then hand off.
 
 ## Edge Cases

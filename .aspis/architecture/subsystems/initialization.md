@@ -69,6 +69,12 @@ extension points, an OS-aware global store, brain-from-templates + a conformance
 init offline/deterministic at its core regardless.
 
 ## Changelog (append-only, newest last; ARCHITECTURE changes only)
+- 2026-06-29 — F-020 started (init/bootstrap UX re-arch). Confirmed direction extending init:
+  guided post-init decision screen + automatic follow-through (orchestrated by the new
+  `setup-workflow`); a read-only **pre-bootstrap resolution** stage runs after init; and init's
+  export must be **complete + current** — every selected agent/skill/instruction/template/script
+  exported, none missing or outdated (owner mandate). FIXED invariants unchanged. See
+  `.aspis/features/F-020-init-bootstrap-ux/`.
 - 2026-06-29 — Intent recorded (F-019) as the baseline before the F-020 init/bootstrap re-arch.
   Captures: original ASPS vision (REFACTOR-ANALYSIS §IB / I1–I12), as-built `operations/init.py`,
   and the new two-layer Operations/Workflow direction. FIXED invariants above are the
