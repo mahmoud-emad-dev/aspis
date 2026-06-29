@@ -111,6 +111,7 @@ skills:
   - skills/profile-manager
   - skills/model-inventory
   - skills/model-router
+  - skills/architecture-memory
 commands:
   - commands/plan.md
   - commands/build.md
@@ -129,9 +130,11 @@ templates:
   - templates/planning/DEPENDENCIES.md
   - templates/planning/SCOPE_ESTIMATE.md
   - templates/planning/MODE_DECISION.md
+  - templates/context/subsystem.md
   - templates/report/build.md
   - templates/report/feature.md
   - templates/report/fix.md
+  - templates/report/architecture-impact.md
   - templates/review/review.md
   - templates/review/test.md
   - templates/review/TEST_REPORT.md

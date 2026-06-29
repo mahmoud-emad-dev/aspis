@@ -202,3 +202,24 @@ raise** — any failure returns `None`/`()` so the resolver degrades to today's 
 (FR-004/FR-006, Constitution #12). `model_string()` then matches a canonical id against the
 detected strings, preferring the lowest-`prefer`-rank *connected* provider (`providers.yaml`),
 so routing only ever emits a string the machine can run; with no inventory it is the identity.
+
+## D-019 — Architecture Memory: per-subsystem intent, file-first, updated through a confirmed planning loop (2026-06-29)
+A project keeps the *intent* of each subsystem — why it exists, what it owns, what it must
+never own, how it integrates, what it guarantees, and how it evolved — as one living markdown
+file per subsystem under `.aspis/architecture/subsystems/` (with an advisory `INDEX.md`), so no
+future session reconstructs design intent from code, git, or lost chats. It is distinct from the
+as-built `ARCHITECTURE.md` (technical shape), `DECISIONS.md` (dated point decisions), planning
+artifacts (future work), and `CURRENT_STATE.md` (live status) — it holds *intent*, which none of
+them do. The file format is a lean 7 sections; only the **template** is cataloged
+(`templates/context/subsystem.md`) — subsystem *instance* files are per-project brain content,
+scaffolded by the dedicated `aspis subsystem new|index` verb (not `aspis artifact`, which is
+feature-scoped). Updates run through a **mode-gated planning loop** owned by the project-lead via
+the `architecture-memory` skill, with planning-lead as detector/consumer: Impact Analysis (pre-plan)
+→ read-before-design → record `ARCHITECTURE_IMPACT.md` (`aspis artifact architecture-impact`) →
+**explicit user confirmation** → dated, append-only update → post-review verification against approved
+intent. The trigger is planning, never git/commits. Gating reuses the existing `architecture` knob
+(vibe = read-only, mvp = collapsed, production = full) — it never blocks, slows, or hangs light-mode
+work. Grounded in proven patterns (Memory Bank, arc42 building-block view, ADR) and the documented
+anti-drift levers (named owner, docs-as-code in-repo, recorded-artifact-on-change, in-workflow);
+deliberately no DB, daemon, git hook, auto-update, required-section gate, or new agent. Built as
+**F-019** (the number formerly noted for "models", which moves to a later feature).

@@ -33,6 +33,13 @@ _KINDS: dict[str, tuple[str, str, tuple[str | None, frozenset[str]]]] = {
     ),
     "test": ("review/test.md", "reviews/{task}-test.md", ("test_depth", frozenset({"gate"}))),
     "acceptance": ("planning/ACCEPTANCE.md", "ACCEPTANCE.md", (None, frozenset())),
+    # The Architecture Memory change report (F-019). Gated on the `architecture`
+    # knob so `vibe` (architecture: skip) writes none — matching the loop's mode gating.
+    "architecture-impact": (
+        "report/architecture-impact.md",
+        "ARCHITECTURE_IMPACT.md",
+        ("architecture", frozenset({"skip"})),
+    ),
 }
 
 
