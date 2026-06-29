@@ -223,3 +223,22 @@ work. Grounded in proven patterns (Memory Bank, arc42 building-block view, ADR) 
 anti-drift levers (named owner, docs-as-code in-repo, recorded-artifact-on-change, in-workflow);
 deliberately no DB, daemon, git hook, auto-update, required-section gate, or new agent. Built as
 **F-019** (the number formerly noted for "models", which moves to a later feature).
+
+## D-020 — Init/bootstrap is one guided flow: independent operations, a thin workflow, a deterministic floor (2026-06-29)
+First-run is **one command with guided follow-through**, not a sequence the user must memorise.
+The shape is two layers: **operations** stay independent (init builds the complete offline shell;
+bootstrap personalises + activates) and a thin **setup-workflow** sequences them (post-init decision
+screen → onboarding → bootstrap), skippable and resumable. A read-only **pre-bootstrap resolution**
+stage (`operations/pre_bootstrap.py`) gathers the truth once into `.aspis/current/bootstrap_state.json`
+— a six-state machine (empty/existing-code/initialized-not-onboarded/incomplete-aspis/legacy-aspis/
+bootstrapped), runtime inventory (reused, not duplicated), **stack + confidence**, rule layers, and
+plan-file detection — which bootstrap then consumes rather than re-deriving. Onboarding is **clear**
+(meaning + example + default per question; the three modes explained). The **bootstrap agent asks and
+confirms — it never decides stack or mode itself**; it reads the plan file and the system/project/user
+rule layers, and may use **research-lead** for "latest/best stack" instead of inventing one. Stack is
+**not one-shot** (`aspis stack` corrects it any time). A deterministic **post-heal** (`aspis heal`,
+reusing `bootstrap.readiness`) guarantees the brain floor — context, registry, gitignore — when an
+agent is weak/offline/failed: **restore of expected files only, never invention** (upholds the
+no-autonomous-write rule). All FIXED invariants from the `initialization`/`bootstrapping` subsystem
+files are preserved. Models are untouched (the model **decision engine** is F-021; git re-arch is
+F-022). Built as **F-020**.

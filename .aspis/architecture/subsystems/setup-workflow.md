@@ -1,6 +1,6 @@
 # Subsystem: setup-workflow
 
-- **Status:** proposed
+- **Status:** active
 - **Created:** 2026-06-29   **Last reviewed:** 2026-06-29
 - **One-liner:** The orchestration layer that turns first-run into ONE guided command — sequencing init → pre-bootstrap → onboarding → bootstrap → post-heal → ready, with skip and resume — so the user never has to remember separate commands.
 
@@ -53,6 +53,8 @@ global-tier install workflow (platform phase). Keep it a thin orchestrator over 
 operations.
 
 ## Changelog (append-only, newest last; ARCHITECTURE changes only)
+- 2026-06-29 — Status → active. F-020 delivered: `operations/setup_workflow.py` (guided
+  decision screen + state-machine next-step + resume), `aspis init` guided follow-through.
 - 2026-06-29 — Created (F-020 planning). Status proposed pending the F-020 build. Defines the
   orchestration layer that was held in F-019; sequences init → pre-bootstrap → onboarding →
   bootstrap → post-heal → ready, skippable + resumable, one guided command.
