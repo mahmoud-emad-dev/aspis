@@ -52,8 +52,10 @@ def _interactive(ctx: Context) -> bool:
     return sys.stdin.isatty() and not bool(ctx.options.get("yes"))
 
 
-def _ask(prompt: str, default: str) -> str:
-    """Prompt with a default; return the default on Enter or EOF."""
+def _ask(prompt: str, default: str, hint: str = "") -> str:
+    """Prompt with a default (and an optional one-line hint); return default on Enter/EOF."""
+    if hint:
+        print(f"  · {hint}")
     suffix = f" [{default}]" if default else ""
     try:
         answer = input(f"{prompt}{suffix}: ").strip()
@@ -62,32 +64,92 @@ def _ask(prompt: str, default: str) -> str:
     return answer or default
 
 
-def _value(ctx: Context, key: str, prompt: str, default: str, *, interactive: bool) -> str:
-    """Resolve a field from a flag, else a prompt, else the default."""
+def _value(
+    ctx: Context, key: str, prompt: str, default: str, *, interactive: bool, hint: str = ""
+) -> str:
+    """Resolve a field from a flag, else a hinted prompt, else the default."""
     if ctx.options.get(key):
         return str(ctx.options[key])
-    return _ask(prompt, default) if interactive else default
+    return _ask(prompt, default, hint) if interactive else default
+
+
+#: Plain-language explanation of the build modes, shown before the mode question so a
+#: user who has never heard of "vibe/mvp/production" can choose with understanding.
+_MODE_HELP = (
+    "Build mode — how much process each task gets (you can change it later):\n"
+    "    vibe        fast & throwaway: large steps, skips heavy planning/review\n"
+    "    mvp         balanced: a working slice you can promote to production later\n"
+    "    production  maximum rigor: full plan + tests + independent review"
+)
 
 
 def _collect(ctx: Context) -> dict:
-    """Gather project details for the manifest + slot filling."""
+    """Gather project details (with friendly hints) for the manifest + slot filling."""
     interactive = _interactive(ctx)
     detected_stack = detect.detect_stack(ctx.root)
-    return {
-        "name": _value(ctx, "name", "Project name", ctx.root.name, interactive=interactive),
-        "goal": _value(ctx, "goal", "One-line goal", "", interactive=interactive),
-        "stack": detect.normalize_stack(
-            _value(ctx, "stack", "Main stack", detected_stack, interactive=interactive)
+    name = _value(
+        ctx,
+        "name",
+        "Project name",
+        ctx.root.name,
+        interactive=interactive,
+        hint="what this project is called",
+    )
+    goal = _value(
+        ctx,
+        "goal",
+        "One-line goal",
+        "",
+        interactive=interactive,
+        hint="the outcome in one line, e.g. 'a CLI that converts CSV to JSON'",
+    )
+    description = _value(
+        ctx,
+        "description",
+        "Short description (optional)",
+        "",
+        interactive=interactive,
+        hint="a sentence or two on what it does and who it is for",
+    )
+    stack = (
+        detect.normalize_stack(
+            _value(
+                ctx,
+                "stack",
+                "Main stack",
+                detected_stack,
+                interactive=interactive,
+                hint="languages/frameworks, e.g. 'python, fastapi' or 'typescript, react' "
+                "(Enter to accept the detected value)",
+            )
         )
-        or "unknown",
-        "plan": _value(ctx, "plan", "Plan file (optional)", "", interactive=interactive),
-        "mode": _value(
-            ctx,
-            "mode",
-            "Default build mode (vibe/mvp/production)",
-            "production",
-            interactive=interactive,
-        ),
+        or "unknown"
+    )
+    if interactive:
+        print(_MODE_HELP)
+    mode = _value(
+        ctx,
+        "mode",
+        "Default build mode (vibe/mvp/production)",
+        "production",
+        interactive=interactive,
+        hint="pick one of the three above",
+    )
+    plan = _value(
+        ctx,
+        "plan",
+        "Plan file (optional)",
+        "",
+        interactive=interactive,
+        hint="path to a plan/spec doc to seed context, if you have one",
+    )
+    return {
+        "name": name,
+        "goal": goal,
+        "description": description,
+        "stack": stack,
+        "plan": plan,
+        "mode": mode,
     }
 
 
