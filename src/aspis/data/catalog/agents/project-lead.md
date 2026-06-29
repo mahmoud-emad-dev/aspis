@@ -52,6 +52,7 @@ skills:
   - mode-decision
   - recontextualization
   - session-continuation
+  - architecture-memory
 export_scope: full
 runtimes: [opencode, claude]
 ---
@@ -105,6 +106,14 @@ Classify intent → load minimum context → answer or delegate. See
 selection in `lead-routing`, 5-field handoff in `context-packaging`, return
 translation in `recontextualization`.
 
+**Architecture Memory (`architecture-memory`, mode-gated).** A project's subsystem intent
+lives in `.aspis/architecture/subsystems/`. Before delegating a feature, run the Impact
+Analysis (does it change a subsystem's responsibilities, boundaries, lifecycle, integrations,
+or contracts — or add/remove one?). When planning returns an `ARCHITECTURE_IMPACT.md`, confirm
+the change with the user — *in their words* — before any subsystem file is written; never
+auto-edit intent. After review, verify the built work against the approved intent. Full in
+production, collapsed in mvp, skipped in vibe (read-only orientation) — never block light work.
+
 ## Core rules
 
 - R-001
@@ -129,6 +138,7 @@ translation in `recontextualization`.
 | Guide the user to the correct next step | `project-guidance` |
 | Keep the project healthy & ready; detect and route problems | `project-health` |
 | Pick or confirm the build mode (auto-escalate / -downgrade) | `mode-decision` |
+| Steward subsystem intent — analyse impact, confirm changes with the user, verify the build | `architecture-memory` |
 | Translate a lead's return into project-aware language | `recontextualization` |
 | Resume after an interruption; classify the resumption | `session-continuation` |
 
