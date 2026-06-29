@@ -20,12 +20,17 @@ run feature work before this; never run it twice.
 ## Procedure
 
 1. **Check.** `aspis bootstrap --check`. If bootstrapped, stop — the project is live.
-2. **Understand.** With existing code, read `README*`, package metadata, and the entry
-   points; skim the layout. Draft *what the project is* and *its stack*. Empty folder →
-   it is whatever the user says.
-3. **Confirm with the user.** Present the draft and confirm/correct **name, goal,
-   description, stack, mode** in one message; ask "proceed?" and wait. Headless/`--yes`/
-   no TTY → take the given/detected values and proceed without asking.
+2. **Understand from evidence.** Read `.aspis/current/bootstrap_state.json` (project state,
+   stack+confidence, detected runtimes, rule layers, plan files). With existing code read
+   `README*`, package metadata, entry points, layout; read any **plan file** found (root or
+   `docs/`) and the **rule layers** (project, system, and the user's rules file at the
+   recorded path — the one machine file you may read). Draft *what the project is* + *its
+   stack*. Empty folder → it is whatever the user says.
+3. **Confirm with the user — never decide stack/mode yourself.** Present the draft and
+   confirm/correct **name, goal, description, stack, mode** (explain the modes) in one message;
+   even high-confidence detection must be confirmed. If the user wants "the latest/best stack",
+   delegate to **research-lead**, then confirm its recommendation. Ask "proceed?" and wait.
+   Headless/`--yes`/no TTY → take the given/detected values and proceed.
 4. **Draft the architecture first (existing code only).** Before the spine — the project
    only goes live once `.aspis/context/ARCHITECTURE.md` is real (the package self-cleans
    on that gate). Draft it from the real layout (modules + responsibilities, facts only).
