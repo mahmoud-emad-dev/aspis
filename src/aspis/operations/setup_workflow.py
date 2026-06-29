@@ -103,6 +103,20 @@ def render(state: dict) -> str:
     return "\n".join(lines)
 
 
+def resume_point(state: dict) -> str:
+    """Where to resume from the recorded onboarding status (so a run never restarts).
+
+    ``complete`` → done; ``skipped`` → skipped; ``pending``/``in_progress`` → the
+    state-derived next step.
+    """
+    status = (state.get("onboarding") or {}).get("status") or PENDING
+    if status == COMPLETE:
+        return "done"
+    if status == SKIPPED:
+        return "skipped"
+    return next_step(state)
+
+
 def guide(root: Path) -> tuple[dict, str]:
     """Resolve the decision state read-only and render the guidance; return (state, text)."""
     state = pb.resolve(Path(root))
