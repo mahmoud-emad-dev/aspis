@@ -374,6 +374,10 @@ def _readiness(root: Path) -> list[str]:
     return missing
 
 
+#: Public alias — ``aspis heal`` reuses the exact readiness definition (single source).
+readiness = _readiness
+
+
 def _validate_exports(root: Path) -> list[str]:
     """Exported config YAMLs / agent frontmatter that fail to parse (syntax errors).
 
