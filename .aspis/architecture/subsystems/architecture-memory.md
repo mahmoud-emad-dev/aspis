@@ -1,6 +1,6 @@
 # Subsystem: architecture-memory
 
-- **Status:** proposed
+- **Status:** active
 - **Created:** 2026-06-29   **Last reviewed:** 2026-06-29
 - **One-liner:** The permanent, file-first memory of architectural intent — one living file per subsystem — that prevents design drift as the project scales.
 
@@ -42,3 +42,4 @@ vs. referenced-source changes) may be added — advisory only, never blocking.
 
 ## Changelog (append-only, newest last; ARCHITECTURE changes only)
 - 2026-06-29 — Created as F-019's first subsystem file. Status proposed pending owner approval of the F-019 PLAN. Format: lean 7-section; loop mode-gated (production full / mvp collapsed / vibe skipped); owner = project-lead via `architecture-memory` skill; trigger = planning; no auto-update; folder = top-level `.aspis/architecture/subsystems/`.
+- 2026-06-29 — Status → active. F-019 closed: machinery built + committed and first real subsystem files captured (initialization, bootstrapping, installation). Merged to main.
