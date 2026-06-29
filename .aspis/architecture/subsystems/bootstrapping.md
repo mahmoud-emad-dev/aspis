@@ -83,6 +83,18 @@ never risks parity. Optionally a dedicated **ephemeral bootstrap agent**; richer
 Rules seeding stays a one-time, user-confirmed seed; all later changes go through governance.
 
 ## Changelog (append-only, newest last; ARCHITECTURE changes only)
+- 2026-06-29 — F-020 started (confirmed direction; not yet built). Bootstrap gains: a read-only
+  **pre-bootstrap resolution** stage (runtime/subscription/state/stack-confidence + rule layers →
+  `.aspis/current/bootstrap_state.json`, resumable); **the agent asks/confirms stack + mode with the
+  user — never self-decides** (may use research-lead for "latest/best stack"; reads system/project/
+  user rules — user rules from a configurable `.md` path; seeds project rules via the rules
+  subsystem); **plan-file detect+read** (common `plan`/`arch`/`spec`/`prd`/`roadmap` names in repo
+  root + `docs/`, any format) to inform enrichment; **file-by-file enrichment review** (after init,
+  check each brain/project file: placeholder? stale? needs fill?); and a **deterministic
+  post-bootstrap self-heal** that guarantees the brain floor via scripts when the agent is
+  weak/offline/failed (deterministic restore of expected files only — upholds FIXED #5/#6, not agent
+  invention). Orchestrated by the new `setup-workflow`. All FIXED invariants preserved. See
+  `.aspis/features/F-020-init-bootstrap-ux/` + `ARCHITECTURE_IMPACT.md`.
 - 2026-06-29 — Intent recorded (F-019) as the baseline before F-020. Sources: original ASPS
   vision (REFACTOR-ANALYSIS §BT / B1–B9, BOOTSTRAP-UX-PLAN, BOOTSTRAP_CONTRACT) + as-built
   `operations/bootstrap.py`. **History of breakage this file exists to prevent:** (a) the F-016
