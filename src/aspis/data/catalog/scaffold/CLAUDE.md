@@ -3,10 +3,12 @@
 <!-- one-line project definition — filled at bootstrap -->
 
 <!-- ASPIS:BOOTSTRAP-GATE:START -->
-> **First run — one-time setup.** This project is exported but not yet *live*. Before
-> anything else, run `aspis bootstrap --check`; if it is not bootstrapped, hand to the
-> **`bootstrap`** agent (or run `aspis bootstrap --write`) — do **not** start a task
-> first. This notice and the bootstrap agent are removed automatically once live.
+> **First run — one-time setup.** This project is exported but not yet *live*. The entry
+> agent (`project-lead`) detects this on its first action and **delegates to the
+> `bootstrap`** agent, which makes the project live before any other work — so just say
+> what you want and let it route; no task runs on an un-bootstrapped project. (To
+> bootstrap from a terminal yourself: `aspis bootstrap --write`.) This notice and the
+> bootstrap agent are removed automatically once live.
 <!-- ASPIS:BOOTSTRAP-GATE:END -->
 
 This project is built with **ASPIS**, a file-first software-production system.
