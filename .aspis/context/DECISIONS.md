@@ -278,3 +278,21 @@ project from the catalog can never re-add what go-live erased. The self-erase lo
 in the `bootstrapping` subsystem and imported by export. This is the foundation the model **decision
 engine** (still F-021) builds on: structure can now be re-synced safely at any time without disturbing
 frozen models. Built as **F-021 (export-safety)**. See `tests/test_export_safety.py`.
+
+## D-023 — Three git lanes: product repo, brain shadow repo, runtime integrity (2026-06-30)
+ASPIS stops mixing three histories in one git. A project has three artifact kinds with three
+lifecycles, each versioned (or not) on its own terms. **(1) Product repo** (`root/.git`) tracks the
+user's source + the small root guides (`AGENTS.md`/`CLAUDE.md`/`.gitignore`) only — clean, public,
+its own story. **(2) Brain shadow repo** (`.aspis/.git`) versions the brain (architecture, decisions,
+rules, planning, features, context) with full git (diff/blame/restore/branches) on its **own
+event-based cadence**, never auto-pushed; its own `.gitignore` excludes generated/local/secret state
+so a backup can't leak machine info. **(3) Runtime integrity** — `.opencode/`/`.claude/` are tracked
+by **neither** git: they are catalog-rendered (catalog is truth), so they are covered by the export
+snapshot (hashes) + append-only change-log instead. `aspis init` writes the product `.gitignore`
+shields and, on a fresh project, `git init`s the shadow repo; `gitops.commit_owned` routes brain →
+shadow, root guides → product, runtime → neither (init + bootstrap reuse it). A **legacy** project
+whose product repo already tracks `.aspis` is never auto-converted (avoids a gitlink) — it waits for
+an explicit migration. Rejected: a permanent `aspis-system` branch (diverges/rebases forever) and Git
+namespaces/hidden refs (Git docs: not a privacy boundary). The product-side **workflow discipline**
+(feature-branch-only, no commits on `main`, one-commit-per-feature, merge gates) is **F-023**; this
+decision (F-022) is the storage separation it builds on. See `.aspis/architecture/subsystems/git.md`.

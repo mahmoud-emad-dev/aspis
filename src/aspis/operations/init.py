@@ -68,7 +68,20 @@ def init_core(ctx: Context) -> None:
     if not ctx.options.get("no_git"):
         _git_init(ctx, write=write)
         _install_git_hooks(ctx, write=write)
+        _init_brain_repo(ctx, write=write)
         _commit_scaffold(ctx, write=write)
+
+
+def _init_brain_repo(ctx: Context, *, write: bool) -> None:
+    """Stand up the brain shadow repo (``.aspis/.git``) so the brain versions itself (F-022).
+
+    Runs after the product ``.gitignore`` shields are written (so the product repo ignores
+    ``.aspis``) and is a no-op on a legacy project whose product repo already tracks the brain.
+    """
+    from aspis import gitops
+
+    if gitops.init_brain_repo(ctx.root, write=write):
+        ctx.log("git init .aspis (brain shadow repo)")
 
 
 def _commit_scaffold(ctx: Context, *, write: bool) -> None:
@@ -162,9 +175,13 @@ def _write_root_files(
     ``root_guide`` (e.g. Claude's CLAUDE.md) adds its own — asked of the adapter, so
     no runtime is named here.
     """
+    # Shield the AI workspace + each target runtime dir from the product git (F-022).
+    runtime_shields = "\n".join(
+        f"{get_adapter(runtime).runtime_dir}/" for runtime in profile.runtimes
+    )
     files = {
         "AGENTS.md": render(resources.scaffold("AGENTS.md"), project_name=project_name),
-        ".gitignore": resources.scaffold("gitignore"),
+        ".gitignore": render(resources.scaffold("gitignore"), runtime_shields=runtime_shields),
     }
     for runtime in profile.runtimes:
         guide = get_adapter(runtime).root_guide
