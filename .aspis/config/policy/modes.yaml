@@ -7,7 +7,9 @@
 #
 # Knob vocabulary (every skill in the loop reads these same words):
 #   spec:          bullets | stories | full      — depth of SPEC.md
-#   architecture:  skip | note | full            — depth of PLAN.md
+#   architecture:  skip | note | full            — depth of PLAN.md; also gates the
+#                                                  Architecture Memory loop (skip = read-only,
+#                                                  note = collapsed, full = analyse→confirm→verify)
 #   task_size:     large | medium | small        — granularity of a task packet
 #   plan_review:   skip | self | independent      — who checks the plan before build
 #   build_review:  light | standard | full        — depth of per-task review

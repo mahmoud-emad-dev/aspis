@@ -50,6 +50,7 @@ permission:
     mode-decision: allow
     constitution-checks: allow
     dependency-audit: allow
+    architecture-memory: allow
   webfetch: deny
   websearch: deny
 ---
@@ -98,6 +99,14 @@ Before phase 0, run `aspis preflight` (`prestart-checks`) and clear any blocker.
 Load context in levels (`context-ladder`); read the *intended* architecture vs
 the *as-built* `.aspis/context/ARCHITECTURE.md`. Plan to the depth the work
 warrants.
+
+When the work touches a subsystem, also read its intent file under
+`.aspis/architecture/subsystems/` and design *with* it (`architecture-memory`). If the
+plan changes a subsystem's responsibilities, boundaries, lifecycle, integrations, or
+contracts — or adds/removes one — record an `ARCHITECTURE_IMPACT.md`
+(`aspis artifact architecture-impact`) and return it to the project-lead, who confirms it
+with the user before any subsystem file is written. You detect and record; you do not edit
+intent or confirm it. Mode-gated: skipped in vibe, collapsed in mvp, full in production.
 
 ## Core rules
 
