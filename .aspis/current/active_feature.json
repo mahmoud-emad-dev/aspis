@@ -1,9 +1,0 @@
-{
-  "id": "F-018",
-  "slug": "complete-asset-set",
-  "title": "Complete the Asset Set & Harden",
-  "path": ".aspis/features/F-018-complete-asset-set",
-  "branch": "main",
-  "mode": "production",
-  "phase": "build"
-}
