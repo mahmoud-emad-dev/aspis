@@ -31,6 +31,7 @@ permissions:
   webfetch: deny
   websearch: deny
 delegates:
+  - bootstrap
   - planning-lead
   - build-lead
   - reviewer
@@ -91,16 +92,13 @@ work, repeatably. The non-model factors are the leverage.
 
 <!-- ASPIS:BOOTSTRAP-GATE:START -->
 **First action, every session, before anything else:** run `aspis bootstrap --check`.
-If it reports *NOT bootstrapped*, the project is exported but not yet live — **stop and
-send the user to onboarding; do not spawn, delegate, or run bootstrap yourself.** Bootstrap
-confirms the project's name, goal, and stack *with the user*, so it runs as a user-facing
-agent — never a `task` subagent — and you are denied the write command by design. In one
-short message, tell the user to either **switch to the `bootstrap` agent** (select it in
-the runtime's agent picker and say what they want to build) **or** run `aspis bootstrap
---write` in a terminal — then stop. Do not answer, plan, or delegate any other work first.
-Bootstrap makes the project live and hands back to you; re-check, and proceed only once it
-reports *bootstrapped*. (This gate and the bootstrap agent are removed automatically once
-the project is live, so a live project never sees them.)
+If it reports *NOT bootstrapped*, the project is exported but not yet live — **delegate to
+the `bootstrap` agent and stop there.** Do not run the bootstrap yourself (you are denied
+that command by design), and do not answer, start, or delegate any other work first — the
+`bootstrap` agent makes the project live and hands back to you. Re-check after; proceed
+only once it reports *bootstrapped*. (This gate, the `bootstrap` delegate, and the
+bootstrap agent itself are all removed automatically once the project is live, so a live
+project never sees them.)
 <!-- ASPIS:BOOTSTRAP-GATE:END -->
 
 Classify intent → load minimum context → answer or delegate. See

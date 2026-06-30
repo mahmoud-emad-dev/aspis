@@ -4,13 +4,12 @@
 
 <!-- ASPIS:BOOTSTRAP-GATE:START -->
 > **First run — one-time setup.** This project is exported but not yet *live* (its
-> brain is empty, its leads are not active). It must be onboarded once before any work.
-> Either **switch to the `bootstrap` agent** (the onboarding agent — pick it in your
-> runtime's agent picker and tell it what you want to build) **or** run `aspis bootstrap
-> --write` in a terminal. Bootstrap confirms the project's name, goal, and stack *with
-> you*, then makes it live. The entry agent (`project-lead`) starts no other work until
-> this is done. This notice and the bootstrap agent are removed automatically once the
-> project is live.
+> brain is empty, its leads are not active). The entry agent (`project-lead`) detects
+> this on its first action and **delegates to the `bootstrap` agent**, which makes the
+> project live before any other work — so just say what you want and let it route; no
+> task runs on an un-bootstrapped project. (To bootstrap from a terminal yourself:
+> `aspis bootstrap --write`.) This notice and the bootstrap agent are removed
+> automatically once the project is live.
 <!-- ASPIS:BOOTSTRAP-GATE:END -->
 
 This project is managed with **ASPIS**. Durable project state lives in plain

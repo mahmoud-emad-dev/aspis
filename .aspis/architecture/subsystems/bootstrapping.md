@@ -28,13 +28,9 @@ why its intent is recorded here as a fixed baseline.
 
 ## Current behaviour (FIXED vs OPEN)
 The entry agent (`project-lead`) detects not-live on its first action (`aspis bootstrap --check`;
-the signal is `.aspis/manifest.json`) and **hands the user off to onboarding** — it must **not**
-spawn, delegate, or self-run bootstrap. Because the `bootstrap` agent confirms name/goal/stack
-*with the user* and then runs `aspis bootstrap --write -y …`, it is `mode: primary`/user-facing,
-**not** a spawnable `task` subagent; `project-lead` tells the user to switch to the `bootstrap`
-agent (the runtime's agent picker) **or** run `aspis bootstrap --write` in a terminal, then stops
-(`aspis bootstrap --write` is denied to project-lead by design). The `bootstrap` agent ships
-`export_scope: export-only`, `mode: primary`. `operations/bootstrap.py`:
+the signal is `.aspis/manifest.json`) and **delegates to the `bootstrap` agent** — it must
+delegate, never self-run (`aspis bootstrap --write` is denied to project-lead by design). The
+`bootstrap` agent ships `export_scope: export-only`, `mode: primary`. `operations/bootstrap.py`:
 a TTY-guarded, flag-overridable, **non-blocking** wizard (`_collect`) gathers **name** (default =
 dir), **goal**, **stack** (auto-detected + normalized), **plan** (optional), **mode** (default
 `production`); fills `_DEFN_SLOT`/`_STACK_SLOT`; writes the manifest; runs the project's context
@@ -43,16 +39,14 @@ existing-code projects (greenfield exempt); promotes 5 primaries (`project-lead`
 build / reviewer / system — D-004). **Self-erase:** `BOOTSTRAP-GATE` markers +
 `_strip_bootstrap_prose` remove the gate block and bootstrap frontmatter from
 `AGENTS.md`/`CLAUDE.md`/`project-lead.md` across every runtime dir once a green go-live run
-completes (project-lead no longer renders a `bootstrap` task entry — it was removed from the
-`delegates:`, D-022 — so the strip's frontmatter regex now only catches any residual bootstrap
-lines); the onboarding package files are deleted. Pre/post staging (gating, commits, self-clean) is
+completes; the rendered OpenCode `bootstrap: allow` task entry self-strips via the frontmatter
+regex; the onboarding package files are deleted. Pre/post staging (gating, commits, self-clean) is
 registered on the lifecycle engine separately from the core.
 - **FIXED (must not break — this is the don't-break contract for F-020):**
   1. Runs **once**, remembered forever via the durable manifest; `--check` is the deterministic signal.
   2. **Non-blocking by default** (D-BW3 / T-INTERACTIVE): every prompt has a default that needs no
      human; `--yes`/flags drive it headless — never block CI/automation on a question.
-  3. `project-lead` **hands the user off to onboarding; it never spawns, delegates, or self-runs**
-     bootstrap (bootstrap is `mode: primary`/user-facing, not a `task` subagent — D-022).
+  3. `project-lead` **delegates to the `bootstrap` agent; it never self-runs** the denied command.
   4. Self-erasure must **NOT** edit catalog-managed agent bodies (parity moat, BT-1): it strips the
      deployed copies via markers and removes an `export-only` package — the catalog stays pure.
   5. Enrich **only from detected facts + templates** — never invent (bounded autonomy, D-B6).
@@ -64,9 +58,8 @@ registered on the lifecycle engine separately from the core.
 
 ## Integrations
 - **After initialization** (consumes its skeleton + slots). **catalog-to-runtime:** the gate
-  prose lives in the catalog and is stripped from the *deployed* files at go-live — so a change to
-  the gate ripples into `project-lead`, `AGENTS.md`, `CLAUDE.md` (the `bootstrap` delegate was
-  removed from `project-lead` — D-022).
+  prose and the `bootstrap` delegate live in the catalog and are stripped from the *deployed*
+  files at go-live — so a change to the gate ripples into `project-lead`, `AGENTS.md`, `CLAUDE.md`.
   **models-intelligence:** the `mode` answer feeds downstream rigor/gating. **promotion:** the
   5-primary step. **The brain context scripts:** bootstrap triggers them for the first fill. A
   change to the agent roster or the strip markers can silently break detection (it has before).
@@ -90,16 +83,6 @@ never risks parity. Optionally a dedicated **ephemeral bootstrap agent**; richer
 Rules seeding stays a one-time, user-confirmed seed; all later changes go through governance.
 
 ## Changelog (append-only, newest last; ARCHITECTURE changes only)
-- 2026-06-30 — **FIXED #3 corrected (D-022): hand-off, not delegation.** The prior "fix" (commit
-  32b0342, recorded below) added `bootstrap` to `project-lead`'s `delegates:` to repair OpenCode —
-  but that was the wrong remedy: a `mode: primary` agent is not a spawnable `task` subagent, so the
-  rendered `task.bootstrap: allow` pointed at nothing and `project-lead` still could not delegate
-  (it hunted for a non-existent subagent, leaked reasoning, fell back to "run it yourself"). Root
-  cause: bootstrap must confirm name/goal/stack *with the user*, so it is inherently user-facing and
-  can never be a delegated subagent. Corrected: `bootstrap` removed from `project-lead`'s
-  `delegates:`; gate prose in `project-lead`/`scaffold/AGENTS.md`/`scaffold/CLAUDE.md` reworded as a
-  hand-off (switch to the `bootstrap` agent **or** run `aspis bootstrap --write`). Self-erase
-  (markers + frontmatter strip) unchanged and still green. Built as F-020 (continuation). See D-022.
 - 2026-06-29 — F-020 started (confirmed direction; not yet built). Bootstrap gains: a read-only
   **pre-bootstrap resolution** stage (runtime/subscription/state/stack-confidence + rule layers →
   `.aspis/current/bootstrap_state.json`, resumable); **the agent asks/confirms stack + mode with the
