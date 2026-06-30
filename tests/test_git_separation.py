@@ -93,6 +93,53 @@ def test_commit_routing_two_independent_histories(tmp_path) -> None:
     ).stdout
 
 
+def test_brain_verb_commits_on_event(tmp_path, capsys) -> None:
+    """`aspis brain commit` records an on-demand brain event in the shadow repo."""
+    from argparse import Namespace
+
+    from aspis.commands import brain
+
+    root = tmp_path / "proj"
+    _init(root)
+    before = _log(root / ".aspis")
+    (root / ".aspis" / "context" / "note.md").write_text("a brain change\n", encoding="utf-8")
+
+    rc = brain._run(Namespace(brain_action="commit", path=str(root), message="chore(brain): note"))
+    assert rc == 0
+    after = _log(root / ".aspis")
+    assert after != before and "chore(brain): note" in after
+    # The brain event never reaches the product history.
+    assert "chore(brain): note" not in _log(root)
+
+
+def test_brain_verb_errors_without_shadow_repo(tmp_path, capsys) -> None:
+    """On a project with no shadow repo, the verb explains rather than crashing."""
+    from argparse import Namespace
+
+    from aspis.commands import brain
+
+    root = tmp_path / "legacy"
+    (root / ".aspis").mkdir(parents=True)
+    rc = brain._run(Namespace(brain_action="status", path=str(root)))
+    assert rc == 1
+    assert "no brain shadow repo" in capsys.readouterr().out
+
+
+def test_runtime_status_reports_the_integrity_record(tmp_path, capsys) -> None:
+    """`aspis runtime status` surfaces the runtime change-log counts (no git)."""
+    from argparse import Namespace
+
+    from aspis.commands import runtime
+
+    root = tmp_path / "proj"
+    _init(root)
+    rc = runtime._run(Namespace(runtime_action="status", path=str(root), number=10))
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "runtime integrity" in out
+    assert "files under integrity:" in out
+
+
 def test_legacy_project_is_not_auto_shadowed(tmp_path) -> None:
     """A product repo that already tracks .aspis must not be auto-converted (needs migration)."""
     root = tmp_path / "legacy"

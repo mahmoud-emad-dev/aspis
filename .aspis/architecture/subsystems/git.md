@@ -35,7 +35,10 @@ shadow repo at `.aspis/` (`gitops.init_brain_repo`), whose own `.gitignore` (the
 caches. Init's first commit is **routed**: the brain to the shadow repo, the root guides
 (`AGENTS.md`/`CLAUDE.md`/`.gitignore`) to the product repo, and the runtime dirs to neither. Both
 repos get their own independent `chore: initialize ASPIS project` commit. Bootstrap's fill commit
-reuses the same `commit_owned` router, so it lands in the right lane for free.
+reuses the same `commit_owned` router, so it lands in the right lane for free. Two verbs expose the
+lanes to the build loop: **`aspis brain`** (`status`/`commit`/`log` on the shadow repo — the commit
+the loop calls on a brain event) and **`aspis runtime status`** (the runtime change-log + hash count,
+read-only, no git).
 - **FIXED (must not break):**
   1. **Product history never carries brain or runtime noise** — `.aspis/` and the runtime dirs are
      git-ignored by the product repo; only product source + the small root guides are tracked there.
@@ -83,3 +86,6 @@ optional private remote; brain-repo hooks; and the opt-in shared-slice surfacing
   `.aspis/.git` shadow-repo lifecycle, and commit routing in `gitops.commit_owned` (brain → shadow,
   root guides → product, runtime → neither) with a legacy-safety guard. Workflow discipline and the
   this-repo migration deferred (F-023 / separate step). See `.aspis/features/F-022-git-separation/`.
+- 2026-06-30 — F-022 Stage B: added the build-loop verbs — `aspis brain` (status/commit/log on the
+  shadow repo) and `aspis runtime status` (read the runtime change-log + hash count). These make the
+  two non-product lanes usable during the loop without exposing the shadow git plumbing.
