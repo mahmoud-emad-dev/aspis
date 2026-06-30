@@ -89,3 +89,7 @@ optional private remote; brain-repo hooks; and the opt-in shared-slice surfacing
 - 2026-06-30 — F-022 Stage B: added the build-loop verbs — `aspis brain` (status/commit/log on the
   shadow repo) and `aspis runtime status` (read the runtime change-log + hash count). These make the
   two non-product lanes usable during the loop without exposing the shadow git plumbing.
+- 2026-06-30 — F-022 Stage C: wired the build loop. The committer (R-004 single writer) now routes
+  both lanes — product source via `aspis commit`, brain via `aspis brain commit`, runtime dirs never
+  committed — with the `aspis brain commit*`/`status*` permissions added and live re-synced (models
+  preserved). system-lead keeps `git commit: deny` and delegates, so one-writer holds across both repos.

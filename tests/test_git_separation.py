@@ -140,6 +140,46 @@ def test_runtime_status_reports_the_integrity_record(tmp_path, capsys) -> None:
     assert "files under integrity:" in out
 
 
+def test_build_loop_routes_each_change_to_its_lane(tmp_path) -> None:
+    """A feature that changes product source AND the brain lands one commit in each repo."""
+    from argparse import Namespace
+
+    from aspis.commands import brain
+
+    root = tmp_path / "proj"
+    _init(root)
+    # Product source change → product repo (explicit path, like `aspis commit`).
+    (root / "src").mkdir()
+    (root / "src" / "app.py").write_text("print('hi')\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(root), "add", "src/app.py"], check=True)
+    subprocess.run(["git", "-C", str(root), "commit", "-q", "-m", "feat: add app"], check=True)
+    # Brain change → shadow repo (the committer's `aspis brain commit` path).
+    (root / ".aspis" / "context" / "note.md").write_text("design note\n", encoding="utf-8")
+    brain._run(
+        Namespace(brain_action="commit", path=str(root), message="chore(brain): design note")
+    )
+
+    product_log = _log(root)
+    brain_log = _log(root / ".aspis")
+    assert "feat: add app" in product_log and "chore(brain): design note" not in product_log
+    assert "chore(brain): design note" in brain_log and "feat: add app" not in brain_log
+    # Source never leaked into the brain repo; brain never leaked into product.
+    assert "src/app.py" not in subprocess.run(
+        ["git", "-C", str(root / ".aspis"), "ls-files"], capture_output=True, text=True
+    ).stdout
+
+
+def test_committer_catalog_routes_both_lanes() -> None:
+    """The single writer (R-004) must be allowed to commit the brain lane too (F-022)."""
+    from aspis import resources
+
+    body = (resources.catalog_dir() / "agents" / "committer.md").read_text(encoding="utf-8")
+    assert "aspis brain commit*" in body  # brain shadow-repo commit permission
+    assert "aspis commit*" in body  # product commit path still present
+    # The committer is told to never commit the runtime dirs.
+    assert "never commit" in body.lower()
+
+
 def test_legacy_project_is_not_auto_shadowed(tmp_path) -> None:
     """A product repo that already tracks .aspis must not be auto-converted (needs migration)."""
     root = tmp_path / "legacy"
