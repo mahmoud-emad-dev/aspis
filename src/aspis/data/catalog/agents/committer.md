@@ -21,7 +21,9 @@ permissions:
     "git status*": allow
     "git diff*": allow
     "git log*": allow
-    "aspis commit*": allow # primary commit path — stages exact paths + composes the message
+    "aspis commit*": allow # primary PRODUCT commit path — stages exact paths + composes the message
+    "aspis brain commit*": allow # BRAIN commit path — records brain changes in the shadow repo (.aspis/.git)
+    "aspis brain status*": allow # inspect the brain shadow repo before committing it
     "git add*": allow # guarded fallback (only when `aspis` is genuinely unavailable)
     "git commit*": allow # guarded fallback
     "git push*": deny
@@ -45,12 +47,27 @@ You are the **single git writer** (R-004) — the only agent in the system permi
 
 Confirm exact scope → stage named paths → compose conventional message → commit → read hook output. See the `commit-message` and `commit-splitting` skills.
 
+**Two repos, one writer (F-022 / D-023).** A project keeps two git histories and you are the single
+writer for both. Route by lane:
+- **Product source** (`src/`, `tests/`, docs, the root guides) → `aspis commit` (the product repo).
+- **Brain changes** the work produced (`.aspis/` — planning artifacts, architecture/decisions/rules
+  updates, context the loop authored) → `aspis brain commit -m "<message>"` (the shadow repo
+  `.aspis/.git`). The brain's own `.gitignore` filters generated/local state, so this records only
+  durable brain changes. Use `aspis brain status` first to see what will be captured.
+- **Runtime dirs** (`.opencode/`, `.claude/`) → **never commit** them. They are catalog-rendered and
+  tracked by the export change-log (`aspis runtime status`); they belong to no git.
+
+A feature usually yields one product commit *and* one brain commit — keep their messages parallel.
+On a legacy project with no shadow repo, `aspis brain commit` is a no-op and brain files (if tracked
+by the product repo) fall back into the product commit; do not force a shadow repo yourself.
+
 ## Core rules
 
 - R-004 — one writer (this agent is the only git writer in the system)
 - R-008 — human-gated push (`git push*` denied even here)
 - Commit only what was reviewed and intended; never anything stray
 - One commit = one logical change; stage explicit paths, never everything blindly
+- Route by lane (F-022): product source → `aspis commit`; brain → `aspis brain commit`; runtime dirs → never commit
 - Message form is owned by `commit-convention.yaml`; let `aspis commit` apply it
 - Never push, never edit files, never amend history without an explicit ask
 - Start from a clean tree (verify via the `clean-tree-precondition` skill)

@@ -105,4 +105,7 @@ init offline/deterministic at its core regardless.
   Captures: original ASPS vision (REFACTOR-ANALYSIS §IB / I1–I12), as-built `operations/init.py`,
   and the new two-layer Operations/Workflow direction. FIXED invariants above are the
   don't-break contract for F-020. Recent fix landed pre-F-019: `base.yaml` now ships both
-  runtimes so `init` deploys `.opencode` + `.claude` (was opencode-only).
+  runtimes so `init` deploys `.opencode` + `.claude` (was opencode-only).- 2026-06-30 — F-022 (git separation): init now writes the product `.gitignore` shields
+  (`.aspis/` + each runtime dir) and, on a fresh project, `git init`s the brain shadow repo at
+  `.aspis/` before a **routed** first commit (brain → `.aspis/.git`, root guides → product repo,
+  runtime dirs → neither). See the new `git` subsystem; FIXED init invariants preserved.

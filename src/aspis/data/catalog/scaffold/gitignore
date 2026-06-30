@@ -16,5 +16,12 @@ desktop.ini
 # Editor scratch files (share your editor config; ignore local scratch)
 *.swp
 *~
+
+# ASPIS AI workspace & runtimes — versioned separately from your product (F-022).
+# The brain (.aspis/) keeps its own git history; the runtime dirs are rendered from
+# the catalog and tracked by content hashes + a change-log. None of this belongs in
+# your product's git history (it would expose plans, context, and machine state).
+.aspis/
+{runtime_shields}
 # ASPIS END
 

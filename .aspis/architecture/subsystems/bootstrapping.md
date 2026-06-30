@@ -120,3 +120,7 @@ Rules seeding stays a one-time, user-confirmed seed; all later changes go throug
   could not delegate to the `bootstrap` agent (not in its task roster) and tried to self-run the
   deny-floored `aspis bootstrap --write` → **fixed** by adding `bootstrap` to project-lead's
   delegates + delegation-only gate prose (commit 32b0342).
+- 2026-06-30 — F-022 (git separation) ripple: bootstrap's fill commit + self-clean reuse
+  `gitops.commit_owned`, which now routes the brain to the shadow repo (`.aspis/.git`) and the root
+  guides to the product repo — so the bootstrap commit no longer lands brain state in product
+  history. Runtime strips remain filesystem edits (no commit). No bootstrap contract changed.
