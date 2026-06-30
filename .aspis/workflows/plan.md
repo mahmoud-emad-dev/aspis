@@ -49,12 +49,24 @@ project rules. Nothing else yet.
 9. **Gate** — run `python .aspis/scripts/planning/prereq_validate.py --phase build`.
    It must pass before handing off.
 
+## Architecture Memory (architectural change only) — skill `architecture-memory`
+A project's per-subsystem *intent* lives in `.aspis/architecture/subsystems/`. When the
+work touches a subsystem, **read** its file during step 3 and design with it (honor what is
+marked FIXED). If the plan changes a subsystem's responsibilities, boundaries, lifecycle,
+integrations, or contracts — or adds/removes one — **record** an `ARCHITECTURE_IMPACT.md`
+(`aspis artifact architecture-impact`) alongside step 6 and return it to the project-lead,
+who confirms it with the user before any subsystem file is written. You detect and record;
+you never edit or confirm intent. Mode-gated by the `architecture` knob (below).
+
 ## Mode overlays
 - **vibe** — step 1 sets it; compress step 5 to a few SPEC bullets; **skip** steps 3
   (Context), 6 (Architecture), and 8 (Plan review); step 7 stays coarse (large tasks).
-  prereq-validate won't require PLAN.md.
-- **mvp** — step 6 is a light note; step 8 is a self-check, not the Reviewer.
-- **production** — all steps, full depth; step 8 is an independent Reviewer pass.
+  prereq-validate won't require PLAN.md. Architecture Memory is read-only orientation — no
+  impact report, no gate.
+- **mvp** — step 6 is a light note; step 8 is a self-check, not the Reviewer. Architecture
+  Memory is collapsed: record + return an impact report only when intent actually changes.
+- **production** — all steps, full depth; step 8 is an independent Reviewer pass. Architecture
+  Memory runs the full loop (analyse → read → record → confirm → verify).
 
 ## Outputs
 A scaffolded feature with SPEC (+ PLAN, TASKS per mode), task packets in `tasks/`, a

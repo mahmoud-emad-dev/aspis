@@ -505,6 +505,17 @@ _BOOTSTRAP_FRONTMATTER = re.compile(
 )
 
 
+def strip_bootstrap_text(text: str) -> str:
+    """Remove the bootstrap gate block and any bootstrap frontmatter lines from *text*.
+
+    The pure text transform behind self-erasure, exposed so the export engine can apply
+    the very same strip whenever it re-renders an already-live project — a re-export (or
+    ``aspis models --apply``) must never reintroduce the first-run gate or the ``bootstrap``
+    delegate into a project that has already gone live.
+    """
+    return _BOOTSTRAP_FRONTMATTER.sub("", _GATE_BLOCK.sub("", text))
+
+
 def _strip_bootstrap_prose(ctx: Context, *, write: bool) -> None:
     """Remove every standing reference to bootstrap once the project is live (post).
 
@@ -520,7 +531,7 @@ def _strip_bootstrap_prose(ctx: Context, *, write: bool) -> None:
         if not path.is_file():
             continue
         text = path.read_text(encoding="utf-8")
-        updated = _BOOTSTRAP_FRONTMATTER.sub("", _GATE_BLOCK.sub("", text))
+        updated = strip_bootstrap_text(text)
         if updated != text:
             ctx.log(f"strip bootstrap prose from {path.relative_to(ctx.root).as_posix()}")
             if write:

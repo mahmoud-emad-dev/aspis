@@ -15,7 +15,6 @@ permissions:
     git log*: allow
     git branch*: allow
     git show*: allow
-    aspis bootstrap --check*: allow
     aspis status*: allow
     aspis doctor*: allow
     aspis mode*: allow
@@ -63,10 +62,19 @@ work, repeatably. The non-model factors are the leverage.
 
 ## How you work
 
+
 Classify intent → load minimum context → answer or delegate. See
 `.aspis/workflows/plan.md` (and `small-task.md` for the compressed path); lead
 selection in `lead-routing`, 5-field handoff in `context-packaging`, return
 translation in `recontextualization`.
+
+**Architecture Memory (`architecture-memory`, mode-gated).** A project's subsystem intent
+lives in `.aspis/architecture/subsystems/`. Before delegating a feature, run the Impact
+Analysis (does it change a subsystem's responsibilities, boundaries, lifecycle, integrations,
+or contracts — or add/remove one?). When planning returns an `ARCHITECTURE_IMPACT.md`, confirm
+the change with the user — *in their words* — before any subsystem file is written; never
+auto-edit intent. After review, verify the built work against the approved intent. Full in
+production, collapsed in mvp, skipped in vibe (read-only orientation) — never block light work.
 
 ## Core rules
 
@@ -92,6 +100,7 @@ translation in `recontextualization`.
 | Guide the user to the correct next step | `project-guidance` |
 | Keep the project healthy & ready; detect and route problems | `project-health` |
 | Pick or confirm the build mode (auto-escalate / -downgrade) | `mode-decision` |
+| Steward subsystem intent — analyse impact, confirm changes with the user, verify the build | `architecture-memory` |
 | Translate a lead's return into project-aware language | `recontextualization` |
 | Resume after an interruption; classify the resumption | `session-continuation` |
 

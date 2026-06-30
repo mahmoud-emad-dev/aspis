@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import sys
 
-from aspis import detect, resources
+from aspis import detect, manifest, resources
 from aspis.constants import BRAIN_DIR, INIT_COMMIT_MESSAGE
 from aspis.export import plan_export, write_export
 from aspis.lifecycle import Context, Engine
@@ -51,6 +51,9 @@ def init_core(ctx: Context) -> None:
         plan, ctx.root, force=force, write=write,
         apply=apply, strict=strict, scope=scope,
         force_conflicts=force_conflicts, reset_snapshot=reset_snapshot,
+        # init establishes/redeploys models from config (the floor + project.yaml), so it
+        # does NOT preserve — that is `aspis export`'s job. Bootstrap-stripping still applies
+        # automatically (keyed on the manifest), so re-init never re-grows the gate.
     ):
         ctx.log(line)
     for missing in plan.missing:
@@ -167,6 +170,13 @@ def _write_root_files(
         guide = get_adapter(runtime).root_guide
         if guide:
             files[guide] = render(resources.scaffold(guide), project_name=project_name)
+
+    # Re-initing an already-live project must not re-grow the first-run bootstrap gate
+    # in AGENTS.md/CLAUDE.md — strip it the same way go-live did.
+    if manifest.is_bootstrapped(ctx.root):
+        from aspis.operations.bootstrap import strip_bootstrap_text
+
+        files = {name: strip_bootstrap_text(content) for name, content in files.items()}
 
     for name, content in files.items():
         destination = ctx.root / name

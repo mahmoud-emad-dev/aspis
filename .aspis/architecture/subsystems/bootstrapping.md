@@ -52,6 +52,11 @@ registered on the lifecycle engine separately from the core.
   5. Enrich **only from detected facts + templates** — never invent (bounded autonomy, D-B6).
   6. **Post-bootstrap: no autonomous writes** — files change only on the user's request.
   7. Exactly **5 primaries** (D-004); the project ends with **zero bootstrap residue**.
+  8. **Re-export never resurrects bootstrap** (F-021): once the manifest says live, *every*
+     export path (`aspis export`, `aspis models --apply`, re-`init`) strips the gate + `bootstrap`
+     delegate from rendered agents, skips the onboarding package, and removes any residue — keyed
+     on `manifest.is_bootstrapped`, reusing this subsystem's own `strip_bootstrap_text` +
+     `bootstrap_package`. A live project re-rendered from the catalog stays bootstrap-free.
 - **OPEN (free to evolve):** the question set (today: name/goal/stack/plan/mode); ephemeral
   bootstrap *agent* vs command+skill; interactive depth (fast vs full Q&A); two-commit pre/post
   staging; rules-file seeding (must route through governance R-008 for any later change).
@@ -63,6 +68,9 @@ registered on the lifecycle engine separately from the core.
   **models-intelligence:** the `mode` answer feeds downstream rigor/gating. **promotion:** the
   5-primary step. **The brain context scripts:** bootstrap triggers them for the first fill. A
   change to the agent roster or the strip markers can silently break detection (it has before).
+  **export (F-021):** the writer imports this subsystem's `strip_bootstrap_text` + `bootstrap_package`
+  so a re-export of a live project applies the identical self-erase — the two must stay in lockstep,
+  so a change to the markers/package list ripples into export automatically (single source).
 
 ## System contracts (guarantees)
 After a green bootstrap: project **mode** and **stack** are confirmed; the brain is **non-skeleton**
@@ -83,6 +91,14 @@ never risks parity. Optionally a dedicated **ephemeral bootstrap agent**; richer
 Rules seeding stays a one-time, user-confirmed seed; all later changes go through governance.
 
 ## Changelog (append-only, newest last; ARCHITECTURE changes only)
+- 2026-06-30 — F-021 (export-safety) built. The export writer is now **bootstrap-aware**: keyed on
+  `manifest.is_bootstrapped`, a re-export of a live project strips the gate + `bootstrap` delegate
+  from rendered agents, skips the transient onboarding package, and removes residue — closing the
+  hole where `aspis export`/`models --apply`/re-`init` would re-render the catalog's bootstrap prose
+  back into a live project. Self-erase logic is now a single source: `strip_bootstrap_text` +
+  `bootstrap_package` live here and are imported by export (FIXED #8). Paired with model-freezing
+  (`aspis export` preserves each live file's baked `model:` line) so a structural re-sync never
+  re-routes models. See `tests/test_export_safety.py`.
 - 2026-06-29 — F-020 started (confirmed direction; not yet built). Bootstrap gains: a read-only
   **pre-bootstrap resolution** stage (runtime/subscription/state/stack-confidence + rule layers →
   `.aspis/current/bootstrap_state.json`, resumable); **the agent asks/confirms stack + mode with the

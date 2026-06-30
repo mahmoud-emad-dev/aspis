@@ -240,6 +240,9 @@ def _apply(root: Path, *, force: bool = False) -> int:
     performed = write_export(
         ExportPlan(actions=live, catalog_root=None), root,
         force=force, apply=not force, write=True,
+        # This command exists to (re-)bake models, so it must NOT preserve the live
+        # model line — unlike `aspis export`, which keeps frozen models intact.
+        preserve_models=False,
     )
     runtimes = ", ".join(sorted({a.runtime for a in live}))
     _skip_kinds = {"ADD", "UNCHANGED", "UNKNOWN", "UPDATE", "PROTECT", "CONFLICT"}
