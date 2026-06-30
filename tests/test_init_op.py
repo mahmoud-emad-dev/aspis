@@ -39,8 +39,9 @@ def test_init_scaffolds_brain_and_root_files(tmp_path) -> None:
 
     assert (tmp_path / ".aspis" / "context" / ".gitkeep").is_file()
     assert (tmp_path / "AGENTS.md").read_text(encoding="utf-8").startswith("# demo")
-    # base profile targets opencode only → no CLAUDE.md
-    assert not (tmp_path / "CLAUDE.md").exists()
+    # base ships both runtimes, so the operation default writes Claude's root guide too.
+    # (Narrowing to a chosen runtime is a CLI-front-end concern; the operation is deterministic.)
+    assert (tmp_path / "CLAUDE.md").exists()
 
 
 def test_reinit_does_not_replant_gitkeep_in_populated_dir(tmp_path) -> None:

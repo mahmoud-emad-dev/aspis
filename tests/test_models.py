@@ -59,7 +59,11 @@ def test_project_override_and_pin_apply_on_export(tmp_path) -> None:
     engine.run("init", tmp_path, write=True, no_git=True)  # base → opencode, defaults
 
     build_lead = tmp_path / ".opencode" / "agents" / "build-lead.md"
-    assert _model(build_lead.read_text(encoding="utf-8")) == resources.model_map("opencode")["deep"]
+    # Leads are floored to a capable model at init (D-021); build-lead is a lead, so a fresh
+    # init renders it at the opencode floor rather than the bare tier default.
+    from aspis.operations import model_defaults as md
+
+    assert _model(build_lead.read_text(encoding="utf-8")) == md.FLOOR_MODEL["opencode"]
 
     (tmp_path / ".aspis" / "config" / "project.yaml").write_text(
         "mode: production\n"

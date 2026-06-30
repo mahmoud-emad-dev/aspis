@@ -56,6 +56,19 @@
   model files changed. ruff + pytest + validate-runtime 33/33. Update subsystem changelogs + DECISIONS.
   (`tests/test_f020_e2e.py`)
 
+## Phase 6 — Runtime choice + model floor (continuation, 2026-06-30)
+- [x] **T-11 Runtime detection + interactive selection.** When no `--runtime` is pinned, detect the
+  installed *supported* runtimes and offer a TTY multi-select menu (one or more). None installed →
+  show the OpenCode install URL/command and proceed with OpenCode only after the user confirms;
+  **never install a runtime, never auto-pick one the user didn't choose**. Pure logic in
+  `operations/runtime_select.py`; I/O loop in `commands/init.py`; `init_core` stays deterministic.
+  (`tests/test_runtime_select.py`)
+- [x] **T-12 Runtime-aware lead model floor (pre-bootstrap).** Before export, seed the project's
+  `agent-models.yaml` so the leads (`project-lead`/`bootstrap`/`*-lead`) render with a capable model
+  *before* the runtime TUI/bootstrap. Temp policy: Claude→`claude-sonnet-4-6`,
+  OpenCode→`opencode-go/deepseek-v4-pro`. Writes only the project file — **catalog model map stays
+  frozen** (full best-available engine = F-021). (`operations/model_defaults.py`, `tests/test_model_floor.py`)
+
 ## Dependencies & execution order
 - T-01 first (everything consumes the state machine + state file). Then T-02/T-03 (the flow),
   T-04/T-05 (bootstrap intelligence), T-06/T-07/T-08 (robustness), T-09/T-10 (completeness + gate).

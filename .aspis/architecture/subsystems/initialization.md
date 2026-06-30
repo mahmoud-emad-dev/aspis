@@ -24,21 +24,36 @@ run anywhere (CI, automation, offline).
 
 ## Current behaviour (FIXED vs OPEN)
 Runs on the lifecycle engine as **pre-init hooks → `init_core` → post-init hooks**
-(`operations/init.py`). `init_core`: (1) `plan_export`/`write_export` the profile's assets
-(profile defaults to `base`, which ships **both** opencode + claude — `init` narrows to detected
-runtimes, falling back to the full list); (2) scaffold brain; (3) ship scripts; (4) seed authored
-files; (5) write root files; (6) `git init`; (7) install git hooks; (8) commit the scaffold. It
-records `project_mode` (new/empty vs existing-code) because the two follow different downstream
-workflows. No runtime-specific logic lives in the core (D-002/D-015); placement/op come from the
-asset-kind registry (D-008).
+(`operations/init.py`). `init_core`: (0) **seed the lead model floor** into the project's
+`agent-models.yaml` *before* export, so the rendered agents already carry a capable model
+(`operations/model_defaults.py`); (1) `plan_export`/`write_export` the profile's assets
+(profile defaults to `base`, which ships **both** opencode + claude; the CLI narrows it to the
+runtime(s) the user chose); (2) scaffold brain; (3) ship scripts; (4) seed authored files;
+(5) write root files; (6) `git init`; (7) install git hooks; (8) commit the scaffold. It records
+`project_mode` (new/empty vs existing-code) because the two follow different downstream workflows.
+No runtime-specific logic lives in the core (D-002/D-015); placement/op come from the asset-kind
+registry (D-008).
+
+**Runtime selection** is a CLI-front-end concern (`commands/init.py` + `operations/runtime_select.py`),
+never the deterministic core: when the user passes no `--runtime` and is on a TTY, init detects which
+*supported* runtimes are installed and shows a multi-select menu (one or more). If none is installed,
+init **never installs anything** — it prints the OpenCode install URL/command and only proceeds with
+OpenCode as the default after the user confirms. Headless/CI (no TTY) keeps the profile default. The
+core still just receives a resolved runtime list, so it stays non-interactive.
 - **FIXED (must not break):** init is **offline + deterministic** (`initializer`'s old contract:
   "offline only, no network, no secrets"); the project is **structurally complete after init**
   (valid even with no internet, before bootstrap); **init owns its own first commit** (ASPIS files
-  only — never sweeps the user's existing code, D-011-style staging); init does **no AI** and
-  blocks on **no prompt**; both runtimes ship by default.
-- **OPEN (free to evolve):** the post-init step that launches guided onboarding; a runtime
-  detection menu when none is detected; formal named pre-init/post-init extension points; the
-  "installer-feel" UX; brain content rendered from template files vs Python (the old IB-1 gap).
+  only — never sweeps the user's existing code, D-011-style staging); init does **no AI**; the
+  **core blocks on no prompt** (any prompting lives in the CLI front-end and is TTY-gated, never in
+  `init_core`); **init never installs a runtime, and never picks a runtime the user did not choose
+  or pin** (menu on a TTY, profile default headless); the **lead model floor is set before the
+  export renders the agents** (so it is in place before the runtime TUI/bootstrap), and seeding it
+  **only writes the project's `agent-models.yaml`, never the catalog** (the catalog model map stays
+  frozen until F-021).
+- **OPEN (free to evolve):** the temporary floor *policy* (which leads, which model per runtime) —
+  F-021 replaces the static map with subscription-aware "best available within budget" selection;
+  formal named pre-init/post-init extension points; the "installer-feel" UX; brain content rendered
+  from template files vs Python (the old IB-1 gap).
 
 ## Integrations
 - **Feeds → bootstrapping**, which consumes the skeleton init produces (slots, manifest-less
@@ -69,6 +84,17 @@ extension points, an OS-aware global store, brain-from-templates + a conformance
 init offline/deterministic at its core regardless.
 
 ## Changelog (append-only, newest last; ARCHITECTURE changes only)
+- 2026-06-30 — F-020 (continuation): **runtime detection + selection** and a **lead model floor**
+  landed on init. (1) When no `--runtime` is pinned, the CLI front-end detects installed supported
+  runtimes and offers a TTY multi-select menu; with none installed it points at OpenCode and asks
+  before defaulting — init never installs a runtime and never auto-picks one the user didn't choose.
+  The deterministic core is unchanged (it just receives the resolved list). (2) init seeds a
+  temporary per-runtime lead model floor (`project-lead`/`bootstrap`/leads → `claude-sonnet-4-6` on
+  Claude, `opencode-go/deepseek-v4-pro` on OpenCode) into the project's `agent-models.yaml` **before**
+  export, so the leads render with a capable model *before* the user opens the runtime TUI or runs
+  bootstrap (first-contact quality). Writes only the project file — the catalog model map stays
+  frozen; the full subscription-aware "best available" engine is F-021. New code:
+  `operations/runtime_select.py`, `operations/model_defaults.py`; CLI `commands/init.py`. See D-021.
 - 2026-06-29 — F-020 started (init/bootstrap UX re-arch). Confirmed direction extending init:
   guided post-init decision screen + automatic follow-through (orchestrated by the new
   `setup-workflow`); a read-only **pre-bootstrap resolution** stage runs after init; and init's
