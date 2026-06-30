@@ -261,3 +261,20 @@ This writes **only the project file, never the catalog** (the catalog model map 
 full subscription-aware "best available within budget" selection is **F-021**, which replaces the
 static floor. `aspis models --sync` preserves these pins; the user can change any of them. Built as
 **F-020 (continuation)**.
+
+## D-022 — Re-export is models-frozen and bootstrap-aware (2026-06-30)
+A re-export of an already-live project must change *structure* without changing two things the
+owner has settled: the routed model and the gone-for-good bootstrap onboarding. Two guarantees,
+both in `export.write_export`. **(1) Models are frozen across export.** `aspis export` (and re-`init`'s
+deploy) pass `preserve_models=True`: when a live agent file already exists, its baked `model:` line is
+carried verbatim into the re-rendered text, so a structural sync never silently re-routes a model even
+though current config might resolve a different one. The *only* path that may re-bake is the dedicated
+`aspis models --apply` (`preserve_models=False`) — changing models stays an explicit, separate action.
+**(2) Bootstrap never resurrects.** Keyed on `manifest.is_bootstrapped`, export strips the gate +
+`bootstrap` delegate from rendered agents (reusing `bootstrap.strip_bootstrap_text`), skips the
+transient onboarding package (bootstrap agent, `project-onboarding` skill, `workflows/bootstrap.md`),
+and removes any leftover residue (reusing `bootstrap.bootstrap_package`) — so re-rendering a live
+project from the catalog can never re-add what go-live erased. The self-erase logic is now single-source
+in the `bootstrapping` subsystem and imported by export. This is the foundation the model **decision
+engine** (still F-021) builds on: structure can now be re-synced safely at any time without disturbing
+frozen models. Built as **F-021 (export-safety)**. See `tests/test_export_safety.py`.

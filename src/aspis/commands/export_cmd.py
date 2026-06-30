@@ -119,6 +119,9 @@ def _run(args: argparse.Namespace) -> int:
             apply=bool(args.apply),
             strict=bool(args.strict),
             force_conflicts=bool(args.force_conflicts),
+            # A structural re-export never re-routes a live model — that is what
+            # `aspis models --apply` is for. Models stay frozen across export.
+            preserve_models=True,
         )
     except ProtectionError as exc:
         print(f"error: {exc}")

@@ -40,17 +40,54 @@ import datetime
 import errno
 import json
 import os
+import re
 import shutil
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from aspis import assetkinds, project, transform
+from aspis import assetkinds, manifest, project, transform
 from aspis.catalog import split_frontmatter
 from aspis.inventory import load_inventory
 from aspis.profiles import Profile
 from aspis.protect import DecisionKind, decide, sha256_text
 from aspis.runtimes import get_adapter
+
+#: The frontmatter ``model:`` line (top-level key, first occurrence). Used to carry a live
+#: file's already-baked model across a re-export so export never re-routes a live model.
+_MODEL_LINE = re.compile(r"^model:.*$", re.MULTILINE)
+
+
+def _preserve_model_line(rendered: str, live_path: Path) -> str:
+    """Return *rendered* with its ``model:`` line replaced by the live file's, if any.
+
+    A re-export resolves the model from the *current* config, which may differ from what
+    is baked into the live agent file. When models are frozen, we keep the live model:
+    read the live file's ``model:`` line and substitute it into the freshly rendered text,
+    so structure syncs while the routed model is untouched. A no-op when either side lacks
+    a ``model:`` line (e.g. a brand-new agent being added has no live file yet).
+    """
+    if not live_path.is_file():
+        return rendered
+    live = _MODEL_LINE.search(live_path.read_text(encoding="utf-8"))
+    if live is None or _MODEL_LINE.search(rendered) is None:
+        return rendered
+    return _MODEL_LINE.sub(lambda _m: live.group(0), rendered, count=1)
+
+
+def _is_bootstrap_package(action: ExportAction) -> bool:
+    """True when *action* deploys a transient bootstrap-onboarding asset.
+
+    The bootstrap agent, the ``project-onboarding`` skill, and the shared
+    ``workflows/bootstrap.md`` — the package that self-erases at go-live. Once a project is
+    bootstrapped these must never be re-exported, so a live project keeps zero residue.
+    """
+    name = action.source.name
+    return (
+        (action.kind == "agents" and name == "bootstrap.md")
+        or (action.kind == "skills" and name == "project-onboarding")
+        or (action.kind == "workflows" and name == "bootstrap.md")
+    )
 
 
 class ProtectionError(RuntimeError):
@@ -211,7 +248,47 @@ def _hash_file(path: Path) -> str | None:
     return None
 
 
-def _regen_hash(action: ExportAction, project_config: dict, inventory) -> str | None:
+def _render_agent_text(
+    action: ExportAction,
+    project_config: dict,
+    inventory,
+    live_path: Path,
+    *,
+    preserve_models: bool,
+    strip_bootstrap: bool,
+) -> str:
+    """Render an agent for *action*, then apply the two export-safety transforms.
+
+    The single place agent text is produced for both the decision hash and the write, so
+    ``_regen_hash`` and ``_apply`` can never diverge. ``strip_bootstrap`` removes the gate
+    + bootstrap frontmatter (so a live project never re-grows it); ``preserve_models`` keeps
+    the live file's already-baked ``model:`` line (so a re-export never re-routes a model).
+    """
+    inv = inventory.get(action.runtime) if isinstance(inventory, dict) else inventory
+    text = transform.render_agent(
+        action.source.read_text(encoding="utf-8"),
+        action.runtime,
+        project_config=project_config,
+        inventory=inv,
+    )
+    if strip_bootstrap:
+        from aspis.operations.bootstrap import strip_bootstrap_text
+
+        text = strip_bootstrap_text(text)
+    if preserve_models:
+        text = _preserve_model_line(text, live_path)
+    return text
+
+
+def _regen_hash(
+    action: ExportAction,
+    project_config: dict,
+    inventory,
+    target_root: Path,
+    *,
+    preserve_models: bool = False,
+    strip_bootstrap: bool = False,
+) -> str | None:
     """Return the hash of what the catalog would write for *action*.
 
     For file copies this is the hash of the source file. For render actions it
@@ -223,12 +300,13 @@ def _regen_hash(action: ExportAction, project_config: dict, inventory) -> str | 
             return None
         return sha256_text(action.source.read_text(encoding="utf-8"))
     if action.op == "render-agent":
-        inv = inventory.get(action.runtime) if isinstance(inventory, dict) else inventory
-        text = transform.render_agent(
-            action.source.read_text(encoding="utf-8"),
-            action.runtime,
-            project_config=project_config,
-            inventory=inv,
+        text = _render_agent_text(
+            action,
+            project_config,
+            inventory,
+            target_root / action.target,
+            preserve_models=preserve_models,
+            strip_bootstrap=strip_bootstrap,
         )
         return sha256_text(text)
     if action.op == "render-command":
@@ -317,6 +395,7 @@ def write_export(
     scope: str | None = None,
     force_conflicts: bool = False,
     reset_snapshot: bool = False,
+    preserve_models: bool = False,
 ) -> list[str]:
     """Perform (or, with ``write=False``, describe) the planned actions.
 
@@ -330,6 +409,14 @@ def write_export(
 
     ``force=True`` bypasses the decision engine and preserves the legacy
     skip-if-exists behavior, overwriting all existing targets.
+
+    Two export-safety transforms run regardless of the write path. When
+    ``preserve_models`` is set (``aspis export``/``init``, but never
+    ``aspis models --apply``), each rendered agent keeps the live file's already-baked
+    ``model:`` line, so a structural re-export never re-routes a frozen model. When the
+    project is already bootstrapped (``manifest.is_bootstrapped``), the bootstrap gate +
+    delegate are stripped from rendered agents, the transient onboarding package is skipped,
+    and any lingering package residue is removed — so a live project never re-grows bootstrap.
     """
     # The target's own settings override model routing — project.yaml plus the
     # authoritative per-agent assignments in agent-models.yaml (aspis models --sync).
@@ -337,6 +424,8 @@ def write_export(
     # Detected runtime inventory (None when detection has not run here) — lets render
     # emit the model strings the machine can actually run. Loaded once for all actions.
     inventory = load_inventory(target_root)
+    # Once live, bootstrap must leave no trace — strip its prose and skip its package.
+    bootstrapped = manifest.is_bootstrapped(target_root)
     performed: list[str] = []
 
     if scope is not None and not any(a.target.startswith(scope) for a in plan.actions):
@@ -358,6 +447,8 @@ def write_export(
                 effective_write=effective_write,
                 scope=scope,
                 reset_snapshot=reset_snapshot,
+                preserve_models=preserve_models,
+                bootstrapped=bootstrapped,
             )
         else:
             _write_decide(
@@ -372,7 +463,13 @@ def write_export(
                 scope=scope,
                 force_conflicts=force_conflicts,
                 reset_snapshot=reset_snapshot,
+                preserve_models=preserve_models,
+                bootstrapped=bootstrapped,
             )
+
+        # A live project keeps zero bootstrap residue: drop any leftover package files.
+        if bootstrapped:
+            _remove_bootstrap_residue(target_root, performed, effective_write=effective_write)
 
         # Each runtime emits its own scope-guard wiring (adapter-owned placement).
         if plan.catalog_root is not None:
@@ -388,6 +485,25 @@ def write_export(
         _release_lock(lock_path)
 
 
+def _remove_bootstrap_residue(
+    target_root: Path, performed: list[str], *, effective_write: bool
+) -> None:
+    """Delete any transient onboarding-package files still present in a live project.
+
+    Reuses the bootstrap subsystem's own definition of the package so the two stay in
+    lockstep. Idempotent: on a clean project the package list is empty and this is a no-op.
+    """
+    from aspis.operations.bootstrap import bootstrap_package
+
+    for path in bootstrap_package(target_root):
+        performed.append(f"remove (bootstrap done): {path.relative_to(target_root).as_posix()}")
+        if effective_write:
+            if path.is_dir():
+                shutil.rmtree(path)
+            else:
+                path.unlink()
+
+
 def _write_force(
     plan: ExportPlan,
     target_root: Path,
@@ -398,6 +514,8 @@ def _write_force(
     effective_write: bool,
     scope: str | None,
     reset_snapshot: bool,
+    preserve_models: bool = False,
+    bootstrapped: bool = False,
 ) -> None:
     """Legacy force path: overwrite (or skip if not force) every in-scope action."""
     if effective_write:
@@ -412,12 +530,22 @@ def _write_force(
     for action in plan.actions:
         if scope is not None and not action.target.startswith(scope):
             continue
+        if bootstrapped and _is_bootstrap_package(action):
+            performed.append(f"skip (bootstrap done): {action.target}")
+            continue
 
         destination = target_root / action.target
         performed.append(f"{action.op}: {action.target}")
         if effective_write:
             destination.parent.mkdir(parents=True, exist_ok=True)
-            _apply(action, destination, project_config, inventory)
+            _apply(
+                action,
+                destination,
+                project_config,
+                inventory,
+                preserve_models=preserve_models,
+                strip_bootstrap=bootstrapped,
+            )
             if destination.is_file():
                 target_posix = action.target
                 live_hash = _hash_file(destination)
@@ -443,6 +571,8 @@ def _write_decide(
     scope: str | None,
     force_conflicts: bool,
     reset_snapshot: bool,
+    preserve_models: bool = False,
+    bootstrapped: bool = False,
 ) -> None:
     """Hash-protected decide path: only safe changes are written."""
     snapshot = _load_snapshot(target_root, reset=reset_snapshot)
@@ -452,10 +582,20 @@ def _write_decide(
     for action in plan.actions:
         if scope is not None and not action.target.startswith(scope):
             continue
+        if bootstrapped and _is_bootstrap_package(action):
+            performed.append(f"skip (bootstrap done): {action.target}")
+            continue
 
         destination = target_root / action.target
         target_posix = action.target
-        regen_hash = _regen_hash(action, project_config, inventory)
+        regen_hash = _regen_hash(
+            action,
+            project_config,
+            inventory,
+            target_root,
+            preserve_models=preserve_models,
+            strip_bootstrap=bootstrapped,
+        )
 
         if regen_hash is None:
             # Directory copies use legacy skip-if-exists and are not hash-protected.
@@ -504,7 +644,14 @@ def _write_decide(
             performed.append(f"{action.op}: {action.target}")
             if effective_write:
                 destination.parent.mkdir(parents=True, exist_ok=True)
-                _apply(action, destination, project_config, inventory)
+                _apply(
+                    action,
+                    destination,
+                    project_config,
+                    inventory,
+                    preserve_models=preserve_models,
+                    strip_bootstrap=bootstrapped,
+                )
                 paths[target_posix] = regen_hash
         else:
             hint = (
@@ -544,17 +691,24 @@ def _write_decide(
         _append_log(target_root, log_entries)
 
 
-def _apply(action: ExportAction, destination: Path, project_config: dict, inventory=None) -> None:
+def _apply(
+    action: ExportAction,
+    destination: Path,
+    project_config: dict,
+    inventory=None,
+    *,
+    preserve_models: bool = False,
+    strip_bootstrap: bool = False,
+) -> None:
     """Execute a single export action against *destination*."""
     if action.op == "render-agent":
-        # load_inventory returns a {runtime: RuntimeInventory} map; render wants this
-        # runtime's single entry (None when detection has not run here).
-        inv = inventory.get(action.runtime) if isinstance(inventory, dict) else inventory
-        text = transform.render_agent(
-            action.source.read_text(encoding="utf-8"),
-            action.runtime,
-            project_config=project_config,
-            inventory=inv,
+        text = _render_agent_text(
+            action,
+            project_config,
+            inventory,
+            destination,
+            preserve_models=preserve_models,
+            strip_bootstrap=strip_bootstrap,
         )
         destination.write_text(text, encoding="utf-8", newline="\n")
     elif action.op == "render-command":
