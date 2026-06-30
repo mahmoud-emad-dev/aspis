@@ -90,7 +90,7 @@ init offline/deterministic at its core regardless.
   before defaulting — init never installs a runtime and never auto-picks one the user didn't choose.
   The deterministic core is unchanged (it just receives the resolved list). (2) init seeds a
   temporary per-runtime lead model floor (`project-lead`/`bootstrap`/leads → `claude-sonnet-4-6` on
-  Claude, `opencode-go/deepseek-v4-pro` on OpenCode) into the project's `agent-models.yaml` **before**
+  Claude, `opencode-go/deepseek-v4-pro` on OpenCode) into the project's `project.yaml` **before**
   export, so the leads render with a capable model *before* the user opens the runtime TUI or runs
   bootstrap (first-contact quality). Writes only the project file — the catalog model map stays
   frozen; the full subscription-aware "best available" engine is F-021. New code:

@@ -253,10 +253,26 @@ default after the user confirms. Headless/CI (no TTY) keeps the profile default.
 the front-end; `init_core` stays non-interactive (it just receives the resolved runtime list).
 **(2) A lead model floor is set before export.** First-contact quality depends on the leads
 (`project-lead`, `bootstrap`, the other `*-lead`s) not starting on a weak free model, so init seeds a
-temporary per-runtime floor into the project's `agent-models.yaml` **before** the export renders the
+temporary per-runtime floor into the project's `project.yaml` (the override layer below
+`agent-models.yaml`, so it never shadows the user's own routing) **before** the export renders the
 agents — in place before the user ever opens the runtime TUI or runs bootstrap. Temporary policy
 (`operations/model_defaults.py`): Claude → `claude-sonnet-4-6`, OpenCode → `opencode-go/deepseek-v4-pro`.
 This writes **only the project file, never the catalog** (the catalog model map stays frozen); the
 full subscription-aware "best available within budget" selection is **F-021**, which replaces the
 static floor. `aspis models --sync` preserves these pins; the user can change any of them. Built as
 **F-020 (continuation)**.
+
+## D-022 — Bootstrap onboarding is a user-facing hand-off, never a delegated subagent (2026-06-30)
+The bootstrap gate previously told `project-lead` to **delegate to** the `bootstrap` agent, and
+listed `bootstrap` in its `delegates:` (rendering `task.bootstrap: allow` on OpenCode). That is
+structurally impossible: bootstrap's job is to confirm the project's name/goal/stack *with the user*
+and then run `aspis bootstrap --write -y …`, which only a **user-facing** agent can do — so bootstrap
+ships `mode: primary` and is **not** a spawnable `task` subagent. On OpenCode the contradiction left
+`project-lead` hunting for a `bootstrap` subagent that does not exist, then leaking its reasoning and
+falling back to "run it yourself." **Decision:** when not bootstrapped, `project-lead` **stops and
+hands the user to onboarding** — tell them to switch to the `bootstrap` agent (the runtime's agent
+picker) *or* run `aspis bootstrap --write` — and never spawns, delegates, or runs bootstrap itself.
+`bootstrap` is removed from `project-lead`'s `delegates:`; the gate prose in `project-lead`,
+`scaffold/AGENTS.md`, and `scaffold/CLAUDE.md` is reworded as a hand-off. The post-bootstrap strip
+(gate markers + frontmatter) is unchanged and still removes every trace once the project is live.
+Built as **F-020 (continuation)**.
