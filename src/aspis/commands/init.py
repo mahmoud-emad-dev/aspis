@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 from aspis.engine import build_engine
@@ -75,6 +76,39 @@ def register(subparsers: argparse._SubParsersAction) -> None:
     parser.set_defaults(func=_run)
 
 
+def _select_runtimes_interactively() -> list[str] | None:
+    """Prompt for which runtime(s) to set up; return the chosen list or ``None`` to abort.
+
+    Only called on a TTY when ``--runtime`` is absent. If no supported runtime is
+    installed, we never install one: we show the install URL/command and offer to set up
+    OpenCode as the default *after* the user confirms they will install it themselves.
+    """
+    from aspis.operations import runtime_select as rs
+
+    sup = rs.supported()
+    present = rs.installed()
+
+    if not present:
+        print(rs.install_hint())
+        try:
+            answer = input(
+                f"\nProceed and set up '{rs.DEFAULT_RUNTIME}' as the default "
+                "(you'll install it yourself)? [y/N]: "
+            ).strip().lower()
+        except EOFError:
+            answer = "n"
+        return [rs.DEFAULT_RUNTIME] if answer in ("y", "yes") else None
+
+    print(rs.render_menu(rs.menu(sup, present)))
+    try:
+        raw = input(f"\nRuntime(s) [default: {', '.join(present)}]: ").strip()
+    except EOFError:
+        raw = ""
+    if not raw:
+        return present
+    return rs.parse_selection(raw, sup) or present
+
+
 def _run(args: argparse.Namespace) -> int:
     """Run the init operation through the lifecycle engine and print its report."""
     # --force-conflicts and --strict are contradictory: one permits conflicts,
@@ -88,6 +122,19 @@ def _run(args: argparse.Namespace) -> int:
 
     effective_write = bool(args.write or args.apply)
 
+    # When the user did not pin a runtime, don't guess: on a real write to a TTY, detect
+    # which supported runtimes are installed and let them choose (one or more). Never
+    # installs anything. Headless/CI (no TTY) or --no-onboard keeps the profile default.
+    runtimes = args.runtimes
+    if effective_write and not runtimes and sys.stdin.isatty() and not args.no_onboard:
+        runtimes = _select_runtimes_interactively()
+        if runtimes is None:
+            print(
+                "Nothing was initialized — no runtime selected. Install a supported "
+                "runtime then re-run `aspis init --write`, or pass --runtime <name>."
+            )
+            return 0
+
     engine = build_engine()
     register_all(engine)
 
@@ -96,7 +143,7 @@ def _run(args: argparse.Namespace) -> int:
             "init",
             Path(args.path).resolve(),
             profile=args.profile,
-            runtimes=args.runtimes,
+            runtimes=runtimes,
             name=args.name,
             write=effective_write,
             force=bool(args.force),
@@ -122,8 +169,6 @@ def _run(args: argparse.Namespace) -> int:
 
     # Guided follow-through (setup-workflow): show where the project is + what to do next,
     # and — on a real TTY — offer to continue onboarding straight away (never blocks CI).
-    import sys
-
     from aspis.operations import setup_workflow
 
     print("\nInitialized.\n")

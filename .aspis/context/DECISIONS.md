@@ -242,3 +242,22 @@ agent is weak/offline/failed: **restore of expected files only, never invention*
 no-autonomous-write rule). All FIXED invariants from the `initialization`/`bootstrapping` subsystem
 files are preserved. Models are untouched (the model **decision engine** is F-021; git re-arch is
 F-022). Built as **F-020**.
+
+## D-021 — Init chooses the runtime with the user and seeds a lead model floor before the TUI (2026-06-30)
+Two additions to init, both upholding init's offline/deterministic core. **(1) Runtime selection is
+the user's choice, never a guess.** When no `--runtime` is pinned, the CLI front-end
+(`commands/init.py` + `operations/runtime_select.py`) detects which *supported* runtimes are
+installed and offers a TTY multi-select menu (one or more). With none installed, init **never
+installs anything**: it shows the OpenCode install URL/command and only proceeds with OpenCode as the
+default after the user confirms. Headless/CI (no TTY) keeps the profile default. The prompt lives in
+the front-end; `init_core` stays non-interactive (it just receives the resolved runtime list).
+**(2) A lead model floor is set before export.** First-contact quality depends on the leads
+(`project-lead`, `bootstrap`, the other `*-lead`s) not starting on a weak free model, so init seeds a
+temporary per-runtime floor into the project's `project.yaml` (the override layer below
+`agent-models.yaml`, so it never shadows the user's own routing) **before** the export renders the
+agents — in place before the user ever opens the runtime TUI or runs bootstrap. Temporary policy
+(`operations/model_defaults.py`): Claude → `claude-sonnet-4-6`, OpenCode → `opencode-go/deepseek-v4-pro`.
+This writes **only the project file, never the catalog** (the catalog model map stays frozen); the
+full subscription-aware "best available within budget" selection is **F-021**, which replaces the
+static floor. `aspis models --sync` preserves these pins; the user can change any of them. Built as
+**F-020 (continuation)**.

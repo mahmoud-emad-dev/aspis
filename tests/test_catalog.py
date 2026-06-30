@@ -10,7 +10,12 @@ import yaml
 
 from aspis import resources
 from aspis.engine import build_engine
+from aspis.operations import model_defaults as md
 from aspis.operations import register_all
+
+# Leads are floored to a capable model at init (D-021), so on opencode a lead renders at the
+# floor rather than its bare tier default. These helpers keep the assertions intent-revealing.
+_OPENCODE_FLOOR = md.FLOOR_MODEL["opencode"]
 
 
 def _tier(runtime: str, tier: str) -> str:
@@ -216,7 +221,7 @@ def test_build_lead_is_a_deep_orchestrator(tmp_path) -> None:
 
     text = (tmp_path / ".opencode" / "agents" / "build-lead.md").read_text(encoding="utf-8")
     fm = _frontmatter(text)
-    assert fm["model"] == _tier("opencode", "deep")  # deep tier — the reasoning orchestrator
+    assert fm["model"] == _OPENCODE_FLOOR  # deep-tier lead, floored at init (D-021)
     assert fm["mode"] == "subagent"  # promoted at bootstrap
     perm = fm["permission"]
     assert perm["bash"]["git commit*"] == "deny"  # commits go through the committer
@@ -331,7 +336,7 @@ def test_fix_lead_is_a_deep_repair_subagent(tmp_path) -> None:
     text = (tmp_path / ".opencode" / "agents" / "fix-lead.md").read_text(encoding="utf-8")
     fm = _frontmatter(text)
     assert fm["mode"] == "subagent"  # a support lead — never promoted
-    assert fm["model"] == _tier("opencode", "deep")  # deep tier — diagnosis needs reasoning
+    assert fm["model"] == _OPENCODE_FLOOR  # deep-tier lead, floored at init (D-021)
     perm = fm["permission"]
     assert perm["bash"]["git commit*"] == "deny"  # commits go through the committer
     # reuses build/review skills (single-sourced), plus its own diagnosis skills
@@ -346,7 +351,7 @@ def test_test_lead_is_an_evidence_subagent(tmp_path) -> None:
     text = (tmp_path / ".opencode" / "agents" / "test-lead.md").read_text(encoding="utf-8")
     fm = _frontmatter(text)
     assert fm["mode"] == "subagent"  # a support lead — never promoted
-    assert fm["model"] == _tier("opencode", "standard")  # standard tier
+    assert fm["model"] == _OPENCODE_FLOOR  # standard-tier lead, floored at init (D-021)
     perm = fm["permission"]
     assert perm["edit"] == "allow"  # it writes tests
     assert perm["bash"]["git commit*"] == "deny"

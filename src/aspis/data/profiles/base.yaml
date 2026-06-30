@@ -4,9 +4,9 @@
 # skills it cannot operate without. Specialist leads are added by their own
 # profiles as the catalog grows.
 name: base
-# Both supported runtimes ship by default; init narrows this to whatever is
-# actually installed on the machine (falling back to the full list when none
-# are detected, so the export stays portable).
+# Both supported runtimes ship by default (the operation is deterministic/portable).
+# `aspis init` narrows this when the user chooses: --runtime pins it, and on a TTY the
+# CLI offers a selection menu defaulting to the runtimes installed on the machine.
 runtimes:
   - opencode
   - claude

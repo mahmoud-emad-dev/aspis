@@ -14,6 +14,7 @@ from aspis import detect, resources
 from aspis.constants import BRAIN_DIR, INIT_COMMIT_MESSAGE
 from aspis.export import plan_export, write_export
 from aspis.lifecycle import Context, Engine
+from aspis.operations import model_defaults
 from aspis.operations._proc import run_quiet
 from aspis.profiles import Profile, load_merged
 from aspis.runtimes import get_adapter
@@ -37,6 +38,12 @@ def init_core(ctx: Context) -> None:
 
     # New/empty vs existing-code projects follow different workflows; record which.
     ctx.log(f"mode: {detect.project_mode(ctx.root)}")
+
+    # 0) Seed the lead model floor BEFORE export, so the rendered agent files carry a
+    #    capable model for project-lead/bootstrap from the start — in place before the
+    #    user opens the runtime TUI (F-020). Writes only the project's agent-models.yaml.
+    for line in model_defaults.seed_floor(ctx.root, list(profile.runtimes), write=write):
+        ctx.log(line)
 
     # 1) Export catalog assets selected by the profile.
     plan = plan_export(resources.catalog_dir(), profile)
